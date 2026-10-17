@@ -969,7 +969,7 @@ function installHTML(home){
   if (installEvt) { sub = '홈 화면에 아이콘이 생기고 앱처럼 열려요'; btn = '<i>설치</i>'; }
   else if (inAppBrowser()) { sub = isIOS() ? '메뉴에서 "Safari로 열기" 후 설치할 수 있어요' : '메뉴에서 "다른 브라우저로 열기" 후 설치할 수 있어요'; }
   else if (isIOS()) { sub = '아래 공유 버튼 □↑ → "홈 화면에 추가"'; }
-  else if (/SamsungBrowser/i.test(navigator.userAgent)) { title = 'PIF 학습실 홈 화면에 추가'; sub = '아래 ≡ 메뉴 → "현재 페이지 추가" → "홈 화면"'; }
+  else if (/SamsungBrowser/i.test(navigator.userAgent)) { title = '크롬으로 열면 앱으로 설치돼요'; sub = '크롬이 없으면 아래 ≡ 메뉴 → "현재 페이지 추가" → "홈 화면"'; btn = '<i>크롬으로 열기</i>'; }
   else { sub = '브라우저 메뉴 ⋮ → "앱 설치" 또는 "홈 화면에 추가"'; }
   return '<button type="button" class="install' + (home ? ' home' : '') + '" data-install><img src="icon-192.png" alt=""><div><b>' + title + '</b><span>' + sub + '</span></div>' + btn + '</button>';
 }
@@ -981,6 +981,11 @@ window.addEventListener('appinstalled', () => { installEvt = null; renderInstall
 document.addEventListener('click', async e => {
   const b = e.target.closest('[data-install]'); if (!b) return;
   e.preventDefault();
+  if (!installEvt && /SamsungBrowser/i.test(navigator.userAgent)) {
+    // 삼성 인터넷 → 크롬으로 같은 주소 열기 (크롬이 없으면 플레이스토어 크롬 페이지로 이동)
+    location.href = 'intent://' + location.host + location.pathname + '#Intent;scheme=https;package=com.android.chrome;end';
+    return;
+  }
   if (installEvt) { installEvt.prompt(); try { await installEvt.userChoice; } catch(err){} installEvt = null; renderInstall(); }
   else toast(isIOS() ? '공유 버튼 □↑ → "홈 화면에 추가"를 눌러 주세요'
     : /SamsungBrowser/i.test(navigator.userAgent) ? '아래 ≡ 메뉴 → "현재 페이지 추가" → "홈 화면"을 눌러 주세요'
