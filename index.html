@@ -5,7 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="theme-color" content="#1E2B4A">
-<link rel="manifest" href="manifest.webmanifest">
+<script>
+  // 삼성 인터넷은 "앱 설치" 시 구형 패키지를 만들어 Play 프로텍트 경고가 뜸 → 삼성 인터넷에는 앱 정보(manifest)를 주지 않고
+  // 일반 "홈 화면 바로가기"로만 추가되게 함. 크롬 등 다른 브라우저는 정상 설치.
+  if (!/SamsungBrowser/i.test(navigator.userAgent)) {
+    var l = document.createElement('link'); l.rel = 'manifest'; l.href = 'manifest.webmanifest'; document.head.appendChild(l);
+  }
+</script>
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="mobile-web-app-capable" content="yes">
@@ -963,6 +969,7 @@ function installHTML(home){
   if (installEvt) { sub = '홈 화면에 아이콘이 생기고 앱처럼 열려요'; btn = '<i>설치</i>'; }
   else if (inAppBrowser()) { sub = isIOS() ? '메뉴에서 "Safari로 열기" 후 설치할 수 있어요' : '메뉴에서 "다른 브라우저로 열기" 후 설치할 수 있어요'; }
   else if (isIOS()) { sub = '아래 공유 버튼 □↑ → "홈 화면에 추가"'; }
+  else if (/SamsungBrowser/i.test(navigator.userAgent)) { title = 'PIF 학습실 홈 화면에 추가'; sub = '아래 ≡ 메뉴 → "현재 페이지 추가" → "홈 화면"'; }
   else { sub = '브라우저 메뉴 ⋮ → "앱 설치" 또는 "홈 화면에 추가"'; }
   return '<button type="button" class="install' + (home ? ' home' : '') + '" data-install><img src="icon-192.png" alt=""><div><b>' + title + '</b><span>' + sub + '</span></div>' + btn + '</button>';
 }
@@ -975,7 +982,9 @@ document.addEventListener('click', async e => {
   const b = e.target.closest('[data-install]'); if (!b) return;
   e.preventDefault();
   if (installEvt) { installEvt.prompt(); try { await installEvt.userChoice; } catch(err){} installEvt = null; renderInstall(); }
-  else toast(isIOS() ? '공유 버튼 □↑ → "홈 화면에 추가"를 눌러 주세요' : '브라우저 메뉴(⋮ 또는 ≡) → "앱 설치" / "홈 화면에 추가"');
+  else toast(isIOS() ? '공유 버튼 □↑ → "홈 화면에 추가"를 눌러 주세요'
+    : /SamsungBrowser/i.test(navigator.userAgent) ? '아래 ≡ 메뉴 → "현재 페이지 추가" → "홈 화면"을 눌러 주세요'
+    : '오른쪽 위 ⋮ 메뉴 → "앱 설치" 또는 "홈 화면에 추가"');
 });
 if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
   window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
