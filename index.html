@@ -26,13 +26,16 @@
 
   /* ---------- 로그인 ---------- */
   #vLogin{display:flex;flex-direction:column;min-height:100vh}
-  .brand{flex:1;padding:56px 26px 36px;color:#fff}
+  .brand{flex:1;padding:72px 26px 40px;color:#fff;display:flex;flex-direction:column;justify-content:center}
   .logo{font-weight:900;font-size:16px;letter-spacing:-.03em;color:var(--navy)}
   .logo b{color:var(--coral)}
-  .brand .logo{color:#fff;font-size:15px;opacity:.92}
-  .brand h1{font-size:34px;font-weight:800;line-height:1.28;letter-spacing:-.04em;margin-top:40px}
-  .brand h1 span{background:linear-gradient(transparent 60%,rgba(255,224,102,.5) 60%,rgba(255,224,102,.5) 92%,transparent 92%)}
-  .brand p{margin-top:14px;font-size:15px;line-height:1.6;color:rgba(255,255,255,.72)}
+  .brand h1{font-weight:900;letter-spacing:-.05em;line-height:1.02}
+  .brand h1 .pif{display:block;font-size:72px;color:var(--coral);letter-spacing:.01em}
+  .brand h1 .room{display:block;font-size:44px;margin-top:6px}
+  .lead{margin-top:28px;font-size:21px;font-weight:700;letter-spacing:-.035em;line-height:1.45;color:rgba(255,255,255,.9)}
+  .catch{margin-top:22px;padding-top:18px;border-top:1px solid rgba(255,255,255,.18);font-size:18px;font-weight:700;letter-spacing:-.03em;line-height:1.4}
+  .catch span{background:linear-gradient(transparent 58%,rgba(255,224,102,.55) 58%,rgba(255,224,102,.55) 92%,transparent 92%);padding:0 2px}
+  .brand p{margin-top:10px;font-size:14.5px;line-height:1.6;color:rgba(255,255,255,.68)}
   .sheet{background:var(--paper);border-radius:26px 26px 0 0;padding:28px 22px calc(30px + env(safe-area-inset-bottom))}
   .fld{margin-bottom:20px}
   .fld label{display:block;font-size:13px;font-weight:700;margin-bottom:8px}
@@ -43,8 +46,6 @@
   .pin div.f{border-color:var(--navy)}
   .pin.focus div.c{border-color:var(--navy);box-shadow:0 0 0 3px rgba(46,63,105,.14)}
   .pin input{position:absolute;inset:0;width:100%;height:100%;opacity:0;font-size:16px;caret-color:transparent}
-  .keep{display:flex;gap:9px;align-items:center;font-size:13.5px;color:var(--sub);margin:-4px 0 20px;cursor:pointer}
-  .keep input{width:19px;height:19px;accent-color:var(--navy)}
   .go{width:100%;height:56px;border:0;border-radius:14px;background:var(--coral);color:#fff;font-size:17px;font-weight:800}
   .go:disabled{opacity:.6}
   .err{color:#C2381B;font-size:13.5px;min-height:20px;margin-top:12px;text-align:center}
@@ -123,9 +124,9 @@
   <!-- 로그인 -->
   <section id="vLogin" hidden>
     <div class="brand">
-      <div class="logo"><b>PIF</b> 영상 강의실</div>
-      <h1>놓친 수업도,<br><span>다시 볼 수업도</span><br>여기서.</h1>
-      <p>우리 반 수업 영상만 모여 있어요.</p>
+      <h1><span class="pif">PIF</span><span class="room">영상 강의실</span></h1>
+      <div class="lead">놓친 수업도,<br>다시 볼 수업도 여기서.</div>
+      <div class="catch">결국, 영어는 <span>주찬솔</span></div>
     </div>
     <form class="sheet" id="loginForm" autocomplete="on" novalidate>
       <div class="fld"><label for="inName">이름</label>
@@ -135,7 +136,6 @@
           <div></div><div></div><div></div><div></div>
           <input id="inPhone" name="last4" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" aria-label="휴대폰 뒷자리 4개">
         </div></div>
-      <label class="keep"><input type="checkbox" id="inKeep" checked> 이 폰에서 로그인 유지</label>
       <button class="go" id="loginBtn" type="submit">영상 보러 가기</button>
       <div class="err" id="loginErr" role="alert"></div>
       <div class="help">로그인이 안 되면 학원 <a href="tel:025258584">02-525-8584</a></div>
@@ -228,28 +228,22 @@ async function call(action, data){
     return await api(action, Object.assign({}, data, { token:S.token }));
   } catch (e) {
     if (String(e.message).indexOf('SESSION_EXPIRED') < 0) throw e;
-    const c = store.get('pif_cred');
-    if (c) {
-      await login(c.name, c.last4, true);
-      return api(action, Object.assign({}, data, { token:S.token }));
-    }
     logout('다시 로그인해 주세요.');
     throw e;
   }
 }
 
 /* ============ 로그인 ============ */
-async function login(name, last4, keep){
+// 로그인 정보는 기기에 저장하지 않음 → 페이지를 새로 열 때마다 로그인
+async function login(name, last4){
   const r = await api('login', { name, last4 });
   S.token = r.token; S.name = r.name; S.classes = r.classes;
-  store.set('pif_session', { token:r.token, exp: Date.now() + 5.5*3600*1000 });
-  if (keep) store.set('pif_cred', { name, last4 }); else store.del('pif_cred');
   return r;
 }
 
 function logout(msg){
-  store.del('pif_session'); store.del('pif_cred');
   S.token = null; S.videos = [];
+  $('#inName').value = '';
   $('#inPhone').value = ''; renderPin();
   $('#loginErr').textContent = msg || '';
   show('vLogin');
@@ -284,7 +278,7 @@ $('#loginForm').addEventListener('submit', async e => {
   busy = true;
   const btn = $('#loginBtn'); btn.disabled = true; btn.textContent = '확인 중…';
   try {
-    await login(name, last4, $('#inKeep').checked);
+    await login(name, last4);
     await loadList();
   } catch (err) {
     $('#loginErr').textContent = cleanMsg(err);
@@ -487,16 +481,10 @@ document.addEventListener('visibilitychange', () => { if (document.visibilitySta
 window.addEventListener('pagehide', () => flush(true));
 
 /* ============ 시작 ============ */
-(async function init(){
+(function init(){
+  // 예전 버전이 기기에 남긴 로그인 정보 삭제
+  store.del('pif_session'); store.del('pif_cred');
   renderPin();
-  const sess = store.get('pif_session');
-  const cred = store.get('pif_cred');
-  if (cred) { $('#inName').value = cred.name || ''; }
-  if (sess && sess.exp > Date.now()) { S.token = sess.token; return loadList(); }
-  if (cred) {
-    try { await login(cred.name, cred.last4, true); return loadList(); }
-    catch(e){ $('#loginErr').textContent = cleanMsg(e); }
-  }
   show('vLogin');
 })();
 </script>
