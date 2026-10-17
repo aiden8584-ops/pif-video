@@ -5,6 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="theme-color" content="#1E2B4A">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="PIF 학습실">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <title>PIF 학습실</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <style>
@@ -199,6 +206,13 @@
   .nav .dot{position:absolute;top:10px;left:calc(50% + 8px);min-width:16px;height:16px;border-radius:8px;background:var(--coral);color:#fff;
     font-size:10px;font-style:normal;display:grid;place-items:center;padding:0 4px}
 
+  /* 앱 설치 안내 */
+  .install{display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:1.5px dashed #C9CEDA;background:#fff;border-radius:14px;padding:12px 14px;margin-top:14px}
+  .install img{width:40px;height:40px;border-radius:10px;flex:0 0 40px}
+  .install b{display:block;font-size:14.5px;font-weight:800}
+  .install span{display:block;font-size:12.5px;color:var(--sub);margin-top:2px;line-height:1.45}
+  .install i{margin-left:auto;font-style:normal;font-weight:800;color:#fff;background:var(--navy);border-radius:9px;padding:7px 11px;font-size:13px;white-space:nowrap}
+  .install.home{margin:10px 0 0}
   #toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%) translateY(16px);background:rgba(21,27,44,.94);color:#fff;
     padding:10px 16px;border-radius:999px;font-size:13.5px;opacity:0;transition:.22s;pointer-events:none;z-index:20;max-width:90vw;text-align:center}
   #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -231,6 +245,7 @@
       <button class="go" id="loginBtn" type="submit">들어가기</button>
       <div class="err" id="loginErr" role="alert"></div>
       <div class="help">로그인이 안 되면 학원 <a href="tel:025258584">02-525-8584</a></div>
+      <div class="installSlot"></div>
     </form>
   </section>
 
@@ -361,6 +376,14 @@ async function portal(action, data){
 }
 function video(action, data){ return post(VIDEO_API, action, Object.assign({}, data, { token:S.vtoken })); }
 
+// 로그인 유지: 같은 탭에서 새로고침할 때만 유지 (탭을 닫으면 사라짐)
+const SKEY = 'pif_portal_sess';
+function saveSess(){
+  try { sessionStorage.setItem(SKEY, JSON.stringify({ token:S.token, role:S.role, vtoken:S.vtoken, tab:S.tab, kind:S.lessonKind })); } catch(e){}
+}
+function loadSess(){ try { return JSON.parse(sessionStorage.getItem(SKEY)); } catch(e){ return null; } }
+function clearSess(){ try { sessionStorage.removeItem(SKEY); } catch(e){} }
+
 /* ======================= 로그인 ======================= */
 function setRole(r){
   S.role = r;
@@ -403,7 +426,8 @@ $('#loginForm').addEventListener('submit', async e => {
   const btn = $('#loginBtn'); btn.disabled = true; btn.textContent = '확인 중…';
   try {
     const r = await post(PORTAL_API, 'login', { name, last4, role:S.role });
-    S.token = r.token; S.role = r.role; S.last = { name, last4 };
+    S.token = r.token; S.role = r.role; S.last = { name, last4 }; S.vtoken = null;
+    saveSess();
     await enterApp();
   } catch (err) {
     $('#loginErr').textContent = cleanMsg(err);
@@ -415,6 +439,7 @@ $('#loginForm').addEventListener('submit', async e => {
 
 function logout(msg){
   if (S.token) post(PORTAL_API, 'logout', { token:S.token }).catch(()=>{});
+  clearSess();
   stopTick(); try { if (player && player.destroy) player.destroy(); } catch(e){}
   Object.assign(S, { token:null, p:null, vtoken:null, videos:[], vErr:'', vLoaded:false, files:null, cur:null, last:{name:'',last4:''} });
   $('#inName').value = ''; $('#inPhone').value = ''; renderPin();
@@ -430,9 +455,10 @@ function showView(id){
   document.body.classList.toggle('login-mode', id === 'vLogin');
   window.scrollTo(0,0);
 }
-function go(tab){
+function go(tab, fromPop){
   if (tab === 'tVideo' && S.role !== 'student') tab = 'tHome';
-  S.tab = tab;
+  if (!fromPop && S.token && tab !== S.tab) { try { history.pushState({ pif:'app', tab:tab }, ''); } catch(e){} }
+  S.tab = tab; if (S.token) saveSess();
   document.querySelectorAll('.tab').forEach(t => t.hidden = (t.id !== tab));
   document.querySelectorAll('#nav button').forEach(b => b.classList.toggle('on', b.dataset.t === tab));
   window.scrollTo(0,0);
@@ -441,10 +467,12 @@ function go(tab){
 }
 $('#nav').addEventListener('click', e => { const b = e.target.closest('button'); if (b) go(b.dataset.t); });
 
-async function enterApp(){
+async function enterApp(startTab){
   showView('vApp');
   $('#tHome').innerHTML = '<div class="skel" style="height:150px;margin-top:6px"></div><div class="skel"></div><div class="skel"></div>';
-  go('tHome');
+  // 뒤로 가기 처리용 기록: [base] → [app]
+  try { history.replaceState({ pif:'base' }, ''); history.pushState({ pif:'app', tab:'tHome' }, ''); } catch(e){}
+  S.tab = 'tHome'; go('tHome', true);
   const isStudent = S.role === 'student';
   $('#navVideo').hidden = !isStudent;
   if (isStudent) loadVideos();      // 영상은 따로, 기다리지 않음
@@ -459,6 +487,7 @@ async function enterApp(){
   $('#meWho').textContent = p.role === 'parent' ? p.name + ' 학부모님' : p.classes.join(', ');
   $('#meAvatar').textContent = initials(p.name);
   renderHome(); renderLessons(); renderScores();
+  if (startTab && startTab !== 'tHome') go(startTab, true);
 }
 
 /* ======================= 홈 ======================= */
@@ -516,9 +545,11 @@ function renderHome(){
   h += p.notices.length ? p.notices.slice(0, 5).map((n, i) => noticeItem(n, i === 0 && n.pinned)).join('') +
       (p.notices.length > 5 ? '<button class="card" id="moreNotice" style="width:100%;text-align:center;font-weight:700;color:var(--navy-2);font-size:14px">공지 ' + (p.notices.length - 5) + '개 더 보기</button>' : '')
     : '<div class="card empty sm">새 공지가 없어요.</div>';
+  h += '<div class="installSlot" data-home="1"></div>';
   h += '<div class="empty sm" style="padding-bottom:10px">문의 <a href="tel:' + esc(String(p.contact).replace(/\D/g,'')) + '" style="color:inherit">' + esc(p.contact) + '</a></div>';
   h += '</div>';
   $('#tHome').innerHTML = h;
+  renderInstall();
   updateVidCta();
 }
 $('#tHome').addEventListener('click', e => {
@@ -713,12 +744,16 @@ $('#fileBody').addEventListener('click', async e => {
 async function loadVideos(){
   S.vLoaded = false; S.vErr = '';
   try {
-    const r = await post(VIDEO_API, 'login', { name:S.last.name, last4:S.last.last4 });
-    S.vtoken = r.token;
+    if (!S.vtoken) {
+      if (!S.last.last4) throw new Error('영상을 보려면 다시 로그인해 주세요.');
+      const r = await post(VIDEO_API, 'login', { name:S.last.name, last4:S.last.last4 });
+      S.vtoken = r.token; saveSess();
+    }
     const v = await video('videos');
     S.videos = v.videos || []; DONE = v.donePct || DONE;
   } catch (e) {
     S.videos = []; S.vErr = cleanMsg(e);
+    if (S.vErr.indexOf('SESSION_EXPIRED') >= 0) { S.vtoken = null; saveSess(); S.vErr = '영상 로그인 시간이 지났어요. 로그아웃 후 다시 로그인해 주세요.'; }
   }
   S.vLoaded = true;
   updateVidCta();
@@ -813,6 +848,7 @@ let player = null, tick = null, pending = new Set(), lastSent = 0, duration = 0;
 function openVideo(id){
   const v = S.videos.find(x => x.id === id); if (!v) return;
   S.cur = v; pending = new Set(); duration = 0; lastSent = Date.now();
+  try { history.pushState({ pif:'player' }, ''); } catch(e){}
   showView('vPlayer');
   $('#pMeta').textContent = md(v.date) + ' (' + wd(v.date) + ') ' + v.classes.join(', ');
   $('#pTitle').textContent = v.title;
@@ -888,15 +924,62 @@ function updatePlayerProg(){
   $('#pPct').textContent = ok ? '완료' : (v.pct > 0 ? v.pct + '% 봤어요' : '아직 안 봤어요');
 }
 function closePlayer(){
+  if (!S.cur) return;
   stopTick(); flush();
   try { if (player && player.destroy) player.destroy(); } catch(e){}
   player = null; $('#pwrap').innerHTML = '';
   S.cur = null;
-  showView('vApp'); go('tVideo'); updateVidCta();
+  showView('vApp'); go('tVideo', true); updateVidCta();
 }
-$('#backBtn').addEventListener('click', closePlayer);
+// 화면의 "← 목록" 버튼도 휴대폰 뒤로 가기와 같은 길로
+$('#backBtn').addEventListener('click', () => { if (history.state && history.state.pif === 'player') history.back(); else closePlayer(); });
+
+/* ---------- 휴대폰 뒤로 가기 ---------- */
+let lastBackAt = 0;
+window.addEventListener('popstate', e => {
+  if (!S.token) return;                                   // 로그아웃 상태면 브라우저 기본 동작
+  const st = e.state || {};
+  if (S.cur && st.pif !== 'player') { closePlayer(); return; }   // 영상 → 목록
+  if (st.pif === 'app') { go(st.tab || 'tHome', true); return; } // 이전 탭으로
+  if (st.pif === 'base' || !st.pif) {                     // 앱의 맨 처음까지 왔을 때
+    if (S.tab !== 'tHome') { try { history.pushState({ pif:'app', tab:'tHome' }, ''); } catch(err){} go('tHome', true); return; }
+    if (Date.now() - lastBackAt < 2000) { history.back(); return; }   // 2초 안에 한 번 더 → 나가기
+    lastBackAt = Date.now();
+    try { history.pushState({ pif:'app', tab:'tHome' }, ''); } catch(err){}
+    toast('뒤로 가기를 한 번 더 누르면 나가요');
+  }
+});
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') flush(true); });
 window.addEventListener('pagehide', () => flush(true));
+
+/* ======================= 앱 설치 ======================= */
+let installEvt = null;
+const isStandalone = () => window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const inAppBrowser = () => /KAKAOTALK|NAVER|Instagram|FBAN|FBAV|Line\//i.test(navigator.userAgent);
+function installHTML(home){
+  if (isStandalone()) return '';
+  let title = 'PIF 학습실 앱으로 설치', sub = '', btn = '';
+  if (installEvt) { sub = '홈 화면에 아이콘이 생기고 앱처럼 열려요'; btn = '<i>설치</i>'; }
+  else if (inAppBrowser()) { sub = isIOS() ? '메뉴에서 "Safari로 열기" 후 설치할 수 있어요' : '메뉴에서 "다른 브라우저로 열기" 후 설치할 수 있어요'; }
+  else if (isIOS()) { sub = '아래 공유 버튼 □↑ → "홈 화면에 추가"'; }
+  else { sub = '브라우저 메뉴 ⋮ → "앱 설치" 또는 "홈 화면에 추가"'; }
+  return '<button type="button" class="install' + (home ? ' home' : '') + '" data-install><img src="icon-192.png" alt=""><div><b>' + title + '</b><span>' + sub + '</span></div>' + btn + '</button>';
+}
+function renderInstall(){
+  document.querySelectorAll('.installSlot').forEach(el => el.innerHTML = installHTML(el.dataset.home === '1'));
+}
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; renderInstall(); });
+window.addEventListener('appinstalled', () => { installEvt = null; renderInstall(); toast('설치됐어요! 홈 화면의 PIF 아이콘으로 열어 보세요.'); });
+document.addEventListener('click', async e => {
+  const b = e.target.closest('[data-install]'); if (!b) return;
+  e.preventDefault();
+  if (installEvt) { installEvt.prompt(); try { await installEvt.userChoice; } catch(err){} installEvt = null; renderInstall(); }
+  else toast(isIOS() ? '공유 버튼 □↑ → "홈 화면에 추가"를 눌러 주세요' : '브라우저 메뉴(⋮ 또는 ≡) → "앱 설치" / "홈 화면에 추가"');
+});
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+}
 
 /* ======================= 시작 ======================= */
 (function init(){
@@ -904,6 +987,14 @@ window.addEventListener('pagehide', () => flush(true));
   let r = null; try { r = localStorage.getItem('pif_role'); } catch(e){}
   setRole(r === 'parent' ? 'parent' : 'student');
   renderPin();
+  renderInstall();
+  const saved = loadSess();
+  if (saved && saved.token) {
+    S.token = saved.token; S.role = saved.role === 'parent' ? 'parent' : 'student'; S.vtoken = saved.vtoken || null;
+    if (saved.kind === 'clinic') setLessonKind('clinic');
+    enterApp(saved.tab);
+    return;
+  }
   showView('vLogin');
 })();
 </script>
