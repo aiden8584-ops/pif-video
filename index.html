@@ -308,6 +308,31 @@ input[type=date].in{min-height:54px}
 .two{display:grid;grid-template-columns:1.3fr 1fr;gap:10px}
 .chips2{display:flex;flex-wrap:wrap;gap:8px}
 .chips2 .chip{font-size:14px;padding:8px 13px}
+/* 일정변경 v3: 질문형 단계 · 날짜 줄 · 시간 버튼 · 요약 */
+.stp{display:flex;align-items:center;gap:8px;font-size:16px;font-weight:800;letter-spacing:-.02em;margin-bottom:11px}
+.stp .n{flex:0 0 24px;height:24px;border-radius:50%;background:var(--navy);color:#fff;font-size:13px;display:grid;place-items:center}
+.lb2{font-size:13px;font-weight:700;color:var(--sub);margin:4px 0 8px}.lb2 span{font-weight:500;color:var(--faint);margin-left:6px;font-size:12px}
+.more2{display:inline-block;margin-top:10px;border:0;background:none;padding:2px 0;font-size:13px;color:var(--navy-2);font-weight:700}
+.days{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 -14px 12px 0;padding:0 14px 2px 0;scroll-snap-type:x proximity}
+.days::-webkit-scrollbar,.tms::-webkit-scrollbar{display:none}
+.day{flex:0 0 48px;scroll-snap-align:start;border:1.5px solid var(--line);border-radius:14px;background:#fff;padding:5px 0 7px;display:flex;flex-direction:column;align-items:center;line-height:1.15;color:var(--ink)}
+.day i{font-style:normal;font-size:10.5px;color:var(--faint);font-weight:700;height:12px}
+.day small{font-size:12px;color:var(--sub);font-weight:700}.day b{font-size:19px;font-weight:800;margin-top:2px}
+.day em{font-style:normal;font-size:10px;font-weight:700;margin-top:3px;color:var(--faint);height:12px}
+.day:disabled{background:#F5F6F8;border-color:#EEF0F3}.day:disabled small,.day:disabled b,.day:disabled em{color:#C3C7CF}
+.day.orig{border-style:dashed;border-color:#B9C0CF}.day.orig em{color:var(--navy-2)}
+.day.on{background:var(--navy);border-color:var(--navy)}.day.on *{color:#fff!important}
+.day.etc{justify-content:center;gap:3px}.day.etc b{font-size:17px}
+.tms{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin-right:-14px;padding:9px 14px 2px 0}
+.tms .chip{position:relative;flex:0 0 auto;font-size:14px;padding:8px 12px}
+.tms .chip span{position:absolute;top:-9px;left:50%;transform:translateX(-50%);background:var(--bg);color:var(--navy-2);font-size:9.5px;font-weight:700;padding:1px 5px;border-radius:5px;white-space:nowrap}
+.sumbox{display:flex;align-items:center;gap:8px;background:#fff;border:2px solid var(--navy);border-radius:16px;padding:12px 14px;margin:2px 0 10px}
+.sumbox>div{flex:1;text-align:center;line-height:1.25}.sumbox small{display:block;font-size:11.5px;color:var(--sub);font-weight:700}
+.sumbox b{font-size:17px;font-weight:800}.sumbox span{display:block;font-size:14px;font-weight:700;color:var(--sub)}
+.sumbox .from b{color:var(--faint);text-decoration:line-through}.sumbox .to b,.sumbox .to span{color:var(--navy)}
+.sumbox .arr{flex:0 0 auto;font-size:22px;font-weight:800;color:var(--navy)}
+.sumbox.empty{border:2px dashed var(--line);justify-content:center;font-size:13.5px;color:var(--faint);font-weight:700;padding:15px}
+#chgSend.dim{background:#B9C0CF}
 .btn{width:100%;height:54px;border:0;border-radius:14px;background:var(--coral);color:#fff;font-size:16.5px;font-weight:800;margin-top:16px}
 .btn.navy{background:var(--navy)}.btn.ghost{background:var(--bg);color:var(--ink)}
 .btn:disabled{opacity:.55}
@@ -392,7 +417,7 @@ input[type=date].in{min-height:54px}
       <div class="help">로그인이 안 되면 학원 <a href="tel:025258584">02-525-8584</a></div>
       <div class="installSlot"></div>
       <div style="text-align:center;margin-top:10px"><button type="button" class="linkbtn" id="toAdmin">선생님 로그인</button></div>
-      <div class="ver">버전 10.18-13</div>
+      <div class="ver">버전 10.18-15</div>
     </form>
     <form class="sheet" id="adminForm" autocomplete="on" novalidate hidden>
       <h2 style="font-size:20px;font-weight:900;margin-bottom:16px">선생님 로그인</h2>
@@ -499,7 +524,7 @@ input[type=date].in{min-height:54px}
 <script>
 /* ======================= 설정 ======================= */
 // ① 새로 배포한 "PIF 학습관리 포털" Apps Script 웹앱 주소 (끝이 /exec)
-const PORTAL_API = 'https://script.google.com/macros/s/AKfycbyRwaQjLjV81zxxIAhZSfOboNfC6cdTP2dIw7EQcPvWLdnH78_Lu1v3QdjA37W1SuK2/exec';
+const PORTAL_API = 'PORTAL_API_URL_여기에_붙여넣기';
 // ② 기존 "PIF 영상 강의실" Apps Script 주소 (바꾸지 마세요)
 const VIDEO_API  = 'https://script.google.com/macros/s/AKfycbyhcI255CEU2Qn-x2i1QivUGVwk179sDB19QCvmRfWvQ-yRKJyIoJ-bhKNtUGoFNwys/exec';
 // ③ OneSignal App ID (알림). 비워 두면 알림 기능만 꺼지고 나머지는 그대로 작동해요.
@@ -1321,9 +1346,27 @@ function quickHTML(p){
 }
 
 /* ======================= 일정 변경 신청 ======================= */
+const OFF_DAYS = [0, 6];            // 휴원 요일 (0=일, 6=토)
+function isOff(iso){ const d = parseD(iso); return !!d && OFF_DAYS.indexOf(d.getDay()) >= 0; }
+function timeList(sel){             // 14:00~19:00, 30분 간격 (+기존 시간이 범위 밖이면 추가)
+  const a = [];
+  for (let m = 14 * 60; m <= 19 * 60; m += 30) a.push(String(Math.floor(m / 60)).padStart(2,'0') + ':' + String(m % 60).padStart(2,'0'));
+  if (sel && a.indexOf(sel) < 0) { a.push(sel); a.sort(); }
+  return a;
+}
+function chgReady(k){ return (k.kind === '추가등원' || !!k.orig) && (k.kind === '결석' || (!!k.newDate && !!k.newTime)); }
+function chgSumHTML(k){
+  const nc = (S.p.nextClinics || []).find(c => c.date === k.orig);
+  const ot = (nc && nc.time) || (S.p.schedule || {}).clinicTime || '';
+  if (!chgReady(k)) return '<div class="sumbox empty">' + (k.kind === '결석' ? '빠질 클리닉 날짜를 골라 주세요' : '날짜와 시간을 골라 주세요') + '</div>';
+  if (k.kind === '결석') return '<div class="sumbox"><div class="to"><small>결석할 클리닉</small><b>' + mdw(k.orig) + '</b><span>' + esc(ot) + '</span></div></div>';
+  if (k.kind === '추가등원') return '<div class="sumbox"><div class="to"><small>추가 등원</small><b>' + mdw(k.newDate) + '</b><span>' + esc(k.newTime) + '</span></div></div>';
+  return '<div class="sumbox"><div class="from"><small>원래</small><b>' + mdw(k.orig) + '</b><span>' + esc(ot) + '</span></div><div class="arr">→</div>' +
+    '<div class="to"><small>바꿀 날</small><b>' + mdw(k.newDate) + '</b><span>' + esc(k.newTime) + '</span></div></div>';
+}
 function chgState(){
   const p = S.p, nc = p.nextClinics || [];
-  return S.chg || (S.chg = { kind:'변경', orig: nc[0] ? nc[0].date : '', newDate:'', newTime:(p.schedule || {}).clinicTime || '16:30', reason:'' });
+  return S.chg || (S.chg = { kind:'변경', orig: nc[0] ? nc[0].date : '', newDate:'', newTime:(nc[0] && nc[0].time) || (p.schedule || {}).clinicTime || '16:00', reason:'' });
 }
 function reqCard(r){
   let h = '<div class="card"><div class="row"><div class="meta"><b>' + esc(r.kind === '변경' ? '날짜 변경' : r.kind === '추가등원' ? '추가 등원' : '결석') + '</b> · ' + esc(r.at.slice(5).replace('-', '/')) + ' 신청 (' + esc(r.by) + ')</div>' + statusBadge(r.status) + '</div>';
@@ -1348,27 +1391,51 @@ function renderChange(){
   h += '<div class="fld"><div class="lb">무엇을 신청하나요?</div><div class="seg" id="chgKind" style="margin:0">' +
     [['변경','날짜 변경'],['결석','결석'],['추가등원','추가 등원']].map(x => '<button type="button" data-v="' + x[0] + '"' + (k.kind === x[0] ? ' class="on"' : '') +
       (full && x[0] !== '추가등원' ? ' disabled style="opacity:.35"' : '') + '>' + x[1] + '</button>').join('') + '</div></div>';
+  let sn = 0;
+  const origC = nc.find(c => c.date === k.orig);
+  const baseTime = (origC && origC.time) || (p.schedule || {}).clinicTime || '';
   if (needOrig) {
     const inList = nc.some(c => c.date === k.orig);
-    h += '<div class="fld"><div class="lb">원래 클리닉 날짜</div><div class="chips2" id="chgOrig">' +
-      nc.map(c => '<button type="button" class="chip' + (k.orig === c.date ? ' on' : '') + '" data-v="' + c.date + '">' + mdw(c.date) + (c.time ? ' ' + esc(c.time) : '') + '</button>').join('') + '</div>' +
-      '<input class="in" type="date" id="chgOrigD" style="margin-top:10px" min="' + tomorrow() + '" value="' + (inList ? '' : esc(k.orig)) + '" aria-label="원래 클리닉 날짜 직접 고르기">' +
-      '<div class="hint">' + (nc.length ? '목록에 없으면 날짜를 직접 골라 주세요.' : '날짜를 골라 주세요.') + '</div></div>';
+    const showFree = k.origFree || (!inList && !!k.orig) || !nc.length;
+    h += '<div class="fld"><div class="stp"><span class="n">' + (++sn) + '</span>' + (k.kind === '결석' ? '어느 날 클리닉을 빠지나요?' : '어느 날 클리닉을 옮길까요?') + '</div>' +
+      (nc.length ? '<div class="chips2" id="chgOrig">' + nc.map(c => '<button type="button" class="chip' + (k.orig === c.date ? ' on' : '') + '" data-v="' + c.date + '">' + mdw(c.date) + (c.time ? ' ' + esc(c.time) : '') + '</button>').join('') + '</div>' : '') +
+      (showFree ? '<input class="in" type="date" id="chgOrigD" style="margin-top:10px" min="' + tomorrow() + '" value="' + (inList ? '' : esc(k.orig)) + '" aria-label="원래 클리닉 날짜 직접 고르기"><div class="hint">원래 클리닉 날짜를 달력에서 골라 주세요.</div>'
+        : '<button type="button" class="more2" id="chgOrigMore">목록에 없어요 ›</button>') + '</div>';
   }
-  if (needNew) h += '<div class="fld"><div class="lb">' + (k.kind === '추가등원' ? '오는 날짜 · 시간' : '바꿀 날짜 · 시간') + '</div><div class="two">' +
-    '<input class="in" type="date" id="chgNew" min="' + tomorrow() + '" value="' + esc(k.newDate) + '" aria-label="새 날짜">' +
-    '<select class="in" id="chgTime" aria-label="새 시간">' + timeOpts(k.newTime) + '</select></div></div>';
-  h += '<div class="fld"><label for="chgReason">사유</label><textarea class="in" id="chgReason" maxlength="200" placeholder="예: 학교 수행평가 준비">' + esc(k.reason) + '</textarea>' +
+  if (needNew) {
+    const days = [], t0 = parseD(tomorrow());
+    for (let i = 0; i < 21; i++) days.push(isoLocal(new Date(t0.getFullYear(), t0.getMonth(), t0.getDate() + i)));
+    const inStrip = days.indexOf(k.newDate) >= 0;
+    h += '<div class="fld"><div class="stp"><span class="n">' + (++sn) + '</span>' + (k.kind === '추가등원' ? '언제 올까요?' : '언제로 옮길까요?') + '</div>' +
+      '<div class="lb2">날짜 <span>옆으로 넘기면 다음 주 · 토·일 휴원</span></div><div class="days" id="chgDays">' +
+      days.map((d, i) => {
+        const dt = parseD(d), off = isOff(d), mon = i === 0 || dt.getDate() === 1;
+        const tag = needOrig && d === k.orig ? '원래' : off ? '휴원' : '';
+        return '<button type="button" class="day' + (k.newDate === d ? ' on' : '') + (tag === '원래' ? ' orig' : '') + '" data-v="' + d + '"' + (off ? ' disabled' : '') + '>' +
+          '<i>' + (mon ? (dt.getMonth() + 1) + '월' : '') + '</i><small>' + '일월화수목금토'[dt.getDay()] + '</small><b>' + dt.getDate() + '</b><em>' + tag + '</em></button>';
+      }).join('') +
+      '<button type="button" class="day etc' + (k.newDate && !inStrip ? ' on' : '') + '" id="chgNewMore"><b>📅</b><small>' + (k.newDate && !inStrip ? md(k.newDate) : '다른 날') + '</small></button></div>' +
+      (k.newFree || (k.newDate && !inStrip) ? '<input class="in" type="date" id="chgNew" style="margin:-2px 0 12px" min="' + tomorrow() + '" value="' + (inStrip ? '' : esc(k.newDate)) + '" aria-label="다른 날짜 고르기">' : '') +
+      '<div class="lb2">시간</div><div class="tms" id="chgTimes">' + timeList(k.newTime).map(t => '<button type="button" class="chip' + (k.newTime === t ? ' on' : '') + '" data-v="' + t + '">' + t + (t === baseTime ? '<span>기존</span>' : '') + '</button>').join('') + '</div></div>';
+  }
+  h += '<div class="fld"><div class="stp"><span class="n">' + (++sn) + '</span><label for="chgReason">사유</label></div><textarea class="in" id="chgReason" maxlength="200" placeholder="예: 학교 수행평가 준비">' + esc(k.reason) + '</textarea>' +
     (k.kind !== '추가등원' ? '<div class="hint">내신대비 기간에는 결석·날짜 변경을 3회까지 신청할 수 있어요.</div>' : '') + '</div>';
-  h += '<button class="btn" id="chgSend" type="button">신청 보내기</button><div class="ferr" id="chgErr" role="alert"></div></div>';
+  h += '<div id="chgSum">' + chgSumHTML(k) + '</div>';
+  h += '<button class="btn' + (chgReady(k) ? '' : ' dim') + '" id="chgSend" type="button">' + (k.kind === '변경' ? '이대로 변경 신청하기' : '신청 보내기') + '</button><div class="ferr" id="chgErr" role="alert"></div></div>';
   h += '<div class="sec-t"><h2>신청 내역</h2></div>';
   h += (p.requests || []).length ? p.requests.map(reqCard).join('') : '<div class="card empty sm">아직 신청한 내역이 없어요.</div>';
+  const ds = $('#chgDays'), sl = ds ? ds.scrollLeft : 0;
   $('#tChange').innerHTML = h + '</div>';
+  const ds2 = $('#chgDays'); if (ds2) ds2.scrollLeft = sl;
 }
 $('#tChange').addEventListener('click', async e => {
   const k = S.chg; if (!k) return;
   const kb = e.target.closest('#chgKind button'); if (kb) { k.kind = kb.dataset.v; renderChange(); return; }
-  const ob = e.target.closest('#chgOrig .chip'); if (ob) { k.orig = ob.dataset.v; renderChange(); return; }
+  const ob = e.target.closest('#chgOrig .chip'); if (ob) { k.orig = ob.dataset.v; k.origFree = false; renderChange(); return; }
+  if (e.target.closest('#chgOrigMore')) { k.origFree = true; renderChange(); const i = $('#chgOrigD'); if (i) { i.focus(); try { i.showPicker(); } catch(_){} } return; }
+  if (e.target.closest('#chgNewMore')) { k.newFree = true; renderChange(); const i = $('#chgNew'); if (i) { i.focus(); try { i.showPicker(); } catch(_){} } return; }
+  const db = e.target.closest('#chgDays .day[data-v]'); if (db) { k.newDate = db.dataset.v; k.newFree = false; renderChange(); return; }
+  const tb = e.target.closest('#chgTimes .chip'); if (tb) { k.newTime = tb.dataset.v; renderChange(); return; }
   const cb = e.target.closest('[data-cancel]');
   if (cb) {
     if (!(await askConfirm({ icon:'🗓', title:'이 신청을 취소할까요?', msg:'취소하면 학원에서 처리하지 않아요. 필요하면 다시 신청할 수 있어요.', ok:'신청 취소', cancel:'그대로 두기', danger:true }))) return;
@@ -1382,20 +1449,24 @@ $('#tChange').addEventListener('click', async e => {
     err.textContent = '';
     if (k.kind !== '추가등원' && !k.orig) { err.textContent = '원래 클리닉 날짜를 골라 주세요.'; return; }
     if (k.kind !== '결석' && !k.newDate) { err.textContent = '새 날짜를 골라 주세요.'; return; }
+    if (k.kind !== '결석' && !k.newTime) { err.textContent = '시간을 골라 주세요.'; return; }
+    if (k.kind !== '결석' && isOff(k.newDate)) { err.textContent = '토·일은 휴원이에요. 다른 날을 골라 주세요.'; return; }
     if (k.reason.length < 2) { err.textContent = '사유를 적어 주세요.'; return; }
     btn.disabled = true; btn.textContent = '보내는 중…';
     try {
       const r = await portal('changeRequest', { kind:k.kind, orig:k.orig, newDate:k.newDate, newTime:k.newTime, reason:k.reason });
       S.p.requests = r.requests; S.p.quota = r.quota; S.chg = null; renderChange(); renderHome(); snapSet(S.p);
       toast('신청을 보냈어요. 처리되면 알려 드릴게요');
-    } catch (ex) { err.textContent = cleanMsg(ex); btn.disabled = false; btn.textContent = '신청 보내기'; }
+    } catch (ex) { err.textContent = cleanMsg(ex); btn.disabled = false; btn.textContent = k.kind === '변경' ? '이대로 변경 신청하기' : '신청 보내기'; }
   }
 });
 $('#tChange').addEventListener('change', e => {
   const k = S.chg; if (!k) return;
   if (e.target.id === 'chgOrigD' && e.target.value) { k.orig = e.target.value; renderChange(); }
-  if (e.target.id === 'chgNew') k.newDate = e.target.value;
-  if (e.target.id === 'chgTime') k.newTime = e.target.value;
+  if (e.target.id === 'chgNew' && e.target.value) {
+    if (isOff(e.target.value)) { e.target.value = ''; toast('토·일은 휴원이에요. 다른 날을 골라 주세요'); return; }
+    k.newDate = e.target.value; renderChange();
+  }
 });
 $('#tChange').addEventListener('input', e => { if (e.target.id === 'chgReason' && S.chg) S.chg.reason = e.target.value; });
 
