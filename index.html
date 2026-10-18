@@ -392,7 +392,7 @@ input[type=date].in{min-height:54px}
       <div class="help">로그인이 안 되면 학원 <a href="tel:025258584">02-525-8584</a></div>
       <div class="installSlot"></div>
       <div style="text-align:center;margin-top:10px"><button type="button" class="linkbtn" id="toAdmin">선생님 로그인</button></div>
-      <div class="ver">버전 10.18-11</div>
+      <div class="ver">버전 10.18-12</div>
     </form>
     <form class="sheet" id="adminForm" autocomplete="on" novalidate hidden>
       <h2 style="font-size:20px;font-weight:900;margin-bottom:16px">선생님 로그인</h2>
@@ -1308,7 +1308,7 @@ function quickHTML(p){
 /* ======================= 일정 변경 신청 ======================= */
 function chgState(){
   const p = S.p, nc = p.nextClinics || [];
-  return S.chg || (S.chg = { kind:'결석', orig: nc[0] ? nc[0].date : '', newDate:'', newTime:(p.schedule || {}).clinicTime || '16:30', reason:'' });
+  return S.chg || (S.chg = { kind:'변경', orig: nc[0] ? nc[0].date : '', newDate:'', newTime:(p.schedule || {}).clinicTime || '16:30', reason:'' });
 }
 function reqCard(r){
   let h = '<div class="card"><div class="row"><div class="meta"><b>' + esc(r.kind === '변경' ? '날짜 변경' : r.kind === '추가등원' ? '추가 등원' : '결석') + '</b> · ' + esc(r.at.slice(5).replace('-', '/')) + ' 신청 (' + esc(r.by) + ')</div>' + statusBadge(r.status) + '</div>';
@@ -1331,7 +1331,7 @@ function renderChange(){
     (full ? '<div class="alert" style="margin:0 0 10px">결석·날짜 변경을 모두 사용했어요. 꼭 필요하면 학원(' + esc(p.contact) + ')으로 연락해 주세요.</div>' : '');
   h += '<div class="form">';
   h += '<div class="fld"><div class="lb">무엇을 신청하나요?</div><div class="seg" id="chgKind" style="margin:0">' +
-    [['결석','결석'],['변경','날짜 변경'],['추가등원','추가 등원']].map(x => '<button type="button" data-v="' + x[0] + '"' + (k.kind === x[0] ? ' class="on"' : '') +
+    [['변경','날짜 변경'],['결석','결석'],['추가등원','추가 등원']].map(x => '<button type="button" data-v="' + x[0] + '"' + (k.kind === x[0] ? ' class="on"' : '') +
       (full && x[0] !== '추가등원' ? ' disabled style="opacity:.35"' : '') + '>' + x[1] + '</button>').join('') + '</div></div>';
   if (needOrig) {
     const inList = nc.some(c => c.date === k.orig);
