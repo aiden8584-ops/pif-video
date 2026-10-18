@@ -379,7 +379,7 @@ input[type=date].in{min-height:54px}
       <div class="help">로그인이 안 되면 학원 <a href="tel:025258584">02-525-8584</a></div>
       <div class="installSlot"></div>
       <div style="text-align:center;margin-top:10px"><button type="button" class="linkbtn" id="toAdmin">선생님 로그인</button></div>
-      <div class="ver">버전 10.18-4</div>
+      <div class="ver">버전 10.18-9</div>
     </form>
     <form class="sheet" id="adminForm" autocomplete="on" novalidate hidden>
       <h2 style="font-size:20px;font-weight:900;margin-bottom:16px">선생님 로그인</h2>
@@ -524,7 +524,7 @@ function tone(v){
   if (!v) return '';
   if (/^(출석|완료|통과|우수|양호|재시험 통과)/.test(v)) return 'ok';
   if (/(무단|미제출|미완료|미통과|지도필요)/.test(v)) return 'bad';
-  if (/(지각|일부|미완|미지참|재시|보완|미응시|미실시|사유결석|결석)/.test(v)) return 'mid';
+  if (/(지각|일부|미완|미지참|재시|보완|미응시|미실시|사유결석|결석|영상보강)/.test(v)) return 'mid';
   return '';
 }
 function badge(label, v){ return v ? '<span class="badge ' + tone(v) + '">' + esc(label ? label + ' ' + v : v) + '</span>' : ''; }
@@ -784,7 +784,7 @@ function passBadge(l){
 }
 
 function lessonCard(l){
-  const absent = /결석/.test(l.attendance);
+  const absent = /결석|영상보강/.test(l.attendance);
   let h = '<div class="card"><div class="row"><div class="meta"><b>' + mdw(l.date) + '</b> · ' + esc(l.cls) + ' 정규 수업</div>' + badge('', l.attendance) + '</div>';
   h += '<h3 style="margin-top:8px">' + esc(l.content || '수업 내용 미입력') + '</h3>';
   h += '<dl class="kv">';
@@ -823,7 +823,7 @@ $('#lessonSeg').addEventListener('click', e => { const b = e.target.closest('but
 function renderLessons(){
   const p = S.p; if (!p) return;
   const st = lessonStats(p);
-  $('#lessonSum').textContent = '정규 수업 ' + p.lessons.length + '회 · 클리닉 ' + p.clinics.length + '회';
+  $('#lessonSum').textContent = '정규 수업 ' + p.lessons.length + '회 · 클리닉 ' + p.clinics.length + '회' + (p.makeup ? ' · 영상보강 ' + p.makeup.used + '/' + p.makeup.limit + '회' : '');
   if (S.lessonKind === 'lesson') {
     $('#lessonList').innerHTML = '<div class="stats" style="margin:10px 0 12px">' + statBox(st.attend, '출석률') + statBox(st.hw, '과제 완료율') +
       statBox(reviewPassRate(p), '리뷰 통과율') + '</div>' +
@@ -1220,7 +1220,7 @@ function todoItems(p){
   if (C) items.push({ key:'cl|' + C.date, title:C.todo, sub:mdw(C.date) + ' 클리닉에서 받은 할 일' });
   // 영상은 복습용(선택)이라 할 일에 넣지 않음. 단, 결석한 수업의 '영상 보강'만 할 일로 표시
   if (p.role === 'student' && S.vLoaded) {
-    const absent = p.lessons.filter(l => /결석/.test(l.attendance || '') && daysAgo(l.date) <= 14).map(l => l.date);
+    const absent = p.lessons.filter(l => /결석|영상보강/.test(l.attendance || '') && daysAgo(l.date) <= 14).map(l => l.date);
     const mk = p.clinics.some(c => c.makeupVideo && daysAgo(c.date) <= 14);
     const need = S.videos.filter(v => v.pct < DONE && absent.indexOf(v.date) >= 0);
     if (need.length) items.push({ key:'mk', to:'tVideo', icon:'▶', title:'영상 보강: ' + need.map(v => md(v.date) + ' 수업').join(', '), sub:'결석한 수업은 영상으로 보강해요' });
@@ -1230,6 +1230,8 @@ function todoItems(p){
   if (ans) items.push({ key:'ans', to:'tAsk', icon:'💬', title:'질문 답변 ' + ans + '개', sub:'선생님 답변을 확인하세요' });
   const rq = (p.requests || []).find(r => r.status === '대기' || (r.status !== '취소' && r.handledAt && daysAgo(r.handledAt.slice(0,10)) <= 3));
   if (rq) items.push({ key:'rq', to:'tChange', icon:'📅', title:'일정 변경 ' + (rq.status === '대기' ? '신청 처리 대기' : rq.status + '됨'), sub:reqWhat(rq) });
+  const mq = p.makeup;
+  if (mq && mq.used >= mq.limit) items.push({ key:'mq', info:true, icon:'🔒', title:'영상보강 ' + mq.used + '/' + mq.limit + '회 모두 사용', sub:'이번 내신대비 기간에는 더 이상 영상보강이 안 돼요. 결석하지 않도록 주의!' });
   const nc = (p.nextClinics || [])[0];
   if (nc) {
     const ap = (p.requests || []).find(r => r.status === '승인' && r.orig === nc.date);
@@ -1284,11 +1286,18 @@ function reqCard(r){
 function renderChange(){
   const p = S.p; if (!p) return;
   const k = chgState(), nc = p.nextClinics || [];
+  const q = p.quota, full = !!(q && q.left <= 0);
+  if (full && k.kind !== '추가등원') k.kind = '추가등원';
   const needOrig = k.kind !== '추가등원', needNew = k.kind !== '결석';
   let h = '<div class="head"><h1>클리닉 일정 변경</h1><p>내일 이후 일정만 신청할 수 있어요. 당일 변경은 학원(' + esc(p.contact) + ')으로 전화 주세요.</p></div><div class="sec">';
+  if (q) h += '<div class="card" style="display:flex;align-items:center;gap:12px;' + (full ? 'background:var(--bad-bg)' : '') + '">' +
+    '<div style="flex:1"><b style="font-size:15.5px">이번 내신대비 기간 클리닉 결석·날짜 변경</b><div class="meta" style="margin-top:3px">' + md(q.from) + ' ~ ' + md(q.to) + ' · 최대 ' + q.limit + '회 (추가 등원 제외)</div></div>' +
+    '<div style="text-align:right"><div class="score" style="font-size:28px;' + (full ? 'color:var(--bad)' : '') + '">' + q.used + '<small>/' + q.limit + '회</small></div></div></div>' +
+    (full ? '<div class="alert" style="margin:0 0 10px">결석·날짜 변경을 모두 사용했어요. 꼭 필요하면 학원(' + esc(p.contact) + ')으로 연락해 주세요.</div>' : '');
   h += '<div class="form">';
   h += '<div class="fld"><div class="lb">무엇을 신청하나요?</div><div class="seg" id="chgKind" style="margin:0">' +
-    [['결석','결석'],['변경','날짜 변경'],['추가등원','추가 등원']].map(x => '<button type="button" data-v="' + x[0] + '"' + (k.kind === x[0] ? ' class="on"' : '') + '>' + x[1] + '</button>').join('') + '</div></div>';
+    [['결석','결석'],['변경','날짜 변경'],['추가등원','추가 등원']].map(x => '<button type="button" data-v="' + x[0] + '"' + (k.kind === x[0] ? ' class="on"' : '') +
+      (full && x[0] !== '추가등원' ? ' disabled style="opacity:.35"' : '') + '>' + x[1] + '</button>').join('') + '</div></div>';
   if (needOrig) {
     const inList = nc.some(c => c.date === k.orig);
     h += '<div class="fld"><div class="lb">원래 클리닉 날짜</div><div class="chips2" id="chgOrig">' +
@@ -1300,7 +1309,7 @@ function renderChange(){
     '<input class="in" type="date" id="chgNew" min="' + tomorrow() + '" value="' + esc(k.newDate) + '" aria-label="새 날짜">' +
     '<select class="in" id="chgTime" aria-label="새 시간">' + timeOpts(k.newTime) + '</select></div></div>';
   h += '<div class="fld"><label for="chgReason">사유</label><textarea class="in" id="chgReason" maxlength="200" placeholder="예: 학교 수행평가 준비">' + esc(k.reason) + '</textarea>' +
-    (k.kind !== '추가등원' ? '<div class="hint">결석·변경은 수강 규정의 횟수에 포함될 수 있어요.</div>' : '') + '</div>';
+    (k.kind !== '추가등원' ? '<div class="hint">내신대비 기간에는 결석·날짜 변경을 3회까지 신청할 수 있어요.</div>' : '') + '</div>';
   h += '<button class="btn" id="chgSend" type="button">신청 보내기</button><div class="ferr" id="chgErr" role="alert"></div></div>';
   h += '<div class="sec-t"><h2>신청 내역</h2></div>';
   h += (p.requests || []).length ? p.requests.map(reqCard).join('') : '<div class="card empty sm">아직 신청한 내역이 없어요.</div>';
@@ -1313,7 +1322,7 @@ $('#tChange').addEventListener('click', async e => {
   const cb = e.target.closest('[data-cancel]');
   if (cb) {
     if (!confirm('이 신청을 취소할까요?')) return;
-    try { const r = await portal('cancelRequest', { id: cb.dataset.cancel }); S.p.requests = r.requests; renderChange(); toast('신청을 취소했어요'); }
+    try { const r = await portal('cancelRequest', { id: cb.dataset.cancel }); S.p.requests = r.requests; S.p.quota = r.quota; renderChange(); toast('신청을 취소했어요'); }
     catch (err) { toast(cleanMsg(err)); }
     return;
   }
@@ -1327,7 +1336,7 @@ $('#tChange').addEventListener('click', async e => {
     btn.disabled = true; btn.textContent = '보내는 중…';
     try {
       const r = await portal('changeRequest', { kind:k.kind, orig:k.orig, newDate:k.newDate, newTime:k.newTime, reason:k.reason });
-      S.p.requests = r.requests; S.chg = null; renderChange(); renderHome();
+      S.p.requests = r.requests; S.p.quota = r.quota; S.chg = null; renderChange(); renderHome();
       toast('신청을 보냈어요. 처리되면 알려 드릴게요');
     } catch (ex) { err.textContent = cleanMsg(ex); btn.disabled = false; btn.textContent = '신청 보내기'; }
   }
