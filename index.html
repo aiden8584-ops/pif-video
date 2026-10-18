@@ -32,7 +32,7 @@
     font-family:Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
     -webkit-font-smoothing:antialiased;letter-spacing:-.01em;font-feature-settings:"tnum"}
   body.login-mode{background:var(--navy)}
-  button,input{font:inherit;color:inherit}
+  button,input,textarea,select{font:inherit;color:inherit}
   button{cursor:pointer}
   [hidden]{display:none!important}
   :focus-visible{outline:2.5px solid var(--coral);outline-offset:2px}
@@ -224,6 +224,122 @@
   #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
   @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
   @media (min-width:600px){ .brand{padding-top:76px} .sheet{border-radius:26px;margin:0 16px 24px} }
+
+  /* ===== 디자인 A: 브랜드 강화 · 큰 글씨 ===== */
+/* A. 브랜드 강화 · 큰 글씨 — 남색·코랄 유지, 글씨 키우고 카드 입체감 */
+:root{--bg:#EEF0F5;--line:#E6E9F0;--sub:#5E6574}
+body{font-size:16px}
+.top{background:var(--bg)}
+.logo{font-size:18px}
+.hello{background:linear-gradient(135deg,#1E2B4A 0%,#2E3F69 100%);border-radius:24px;padding:22px 20px 20px;position:relative;overflow:hidden;box-shadow:0 10px 24px rgba(30,43,74,.25)}
+.hello::after{content:"";position:absolute;right:-50px;top:-50px;width:150px;height:150px;border-radius:50%;border:26px solid rgba(232,97,60,.28)}
+.hello .who{font-size:14px}
+.hello h1{font-size:27px}
+.hello .sch{font-size:15px;margin-top:16px;background:rgba(255,255,255,.08);border-radius:12px;padding:10px 12px}
+.stats{gap:10px}
+.stat{border:0;border-radius:18px;padding:14px 14px 13px;box-shadow:0 2px 10px rgba(21,27,44,.06);position:relative;overflow:hidden}
+.stat::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--coral)}
+.stat:nth-child(2)::before{background:#2E3F69}.stat:nth-child(3)::before{background:var(--ok)}
+.stat .n{font-size:27px;font-weight:900}
+.stat .l{font-size:13px}
+.vidcta{border-radius:18px;background:var(--coral);}
+.vidcta b,.vidcta i{color:#fff}.vidcta span{color:rgba(255,255,255,.85)}
+.sec-t h2{font-size:18px;font-weight:900}
+.sec-t button{font-size:14px}
+.card,.notice,.fgroup{border:0;border-radius:20px;box-shadow:0 2px 12px rgba(21,27,44,.06)}
+.card{padding:18px}
+.card h3{font-size:17px}
+.meta{font-size:13.5px}
+.kv{font-size:15px;grid-template-columns:78px 1fr}
+.kv dt{font-size:14px}
+.badge{font-size:13px;padding:4px 9px;border-radius:999px}
+.notice summary b{font-size:16px}
+.notice summary .pre{font-size:14px}
+.head h1{font-size:26px;font-weight:900}
+.head p{font-size:14px}
+.score{font-size:36px}
+.tbl{font-size:15px}
+.nav{border-top:0;box-shadow:0 -4px 16px rgba(21,27,44,.06)}
+.nav button{font-size:12.5px}
+.nav button.on svg{background:var(--navy);color:#fff;stroke:#fff;border-radius:10px;padding:3px;width:34px;height:28px;box-sizing:border-box}
+.seg{background:#E2E5EC}
+.stats{margin-bottom:12px}
+.file .t b,.it .t b{font-size:16px}
+.file .t span,.it .t span{font-size:13px}
+.search{font-size:16px;border:0;box-shadow:0 2px 10px rgba(21,27,44,.05)}
+.tabs button{font-size:15.5px}
+/* ===== v2: D-day · 할 일 · 바로가기 · 신청/질문 · 관리자 ===== */
+.hello .dday{position:absolute;right:16px;top:16px;z-index:1;background:var(--coral);color:#fff;font-weight:900;font-size:13.5px;letter-spacing:-.01em;padding:6px 11px;border-radius:999px;box-shadow:0 4px 12px rgba(232,97,60,.35)}
+.hello .dday small{font-weight:700;opacity:.9;margin-right:4px;font-size:12px}
+.todo{background:var(--paper);border-radius:20px;box-shadow:0 2px 12px rgba(21,27,44,.06);padding:6px 6px 6px}
+.todo .ti{display:flex;gap:12px;align-items:flex-start;width:100%;text-align:left;border:0;background:none;padding:11px 12px;border-radius:14px}
+.todo .ti + .ti{border-top:1px solid var(--line);border-radius:0}
+.todo .ck{flex:0 0 24px;height:24px;border-radius:50%;border:2px solid #C9CEDA;display:grid;place-items:center;margin-top:1px;color:#fff;font-size:13px;font-weight:900}
+.todo .ti.on .ck{background:var(--ok);border-color:var(--ok)}
+.todo .ti.on .tt b{color:var(--faint);text-decoration:line-through}
+.todo .ic2{flex:0 0 24px;height:24px;border-radius:8px;display:grid;place-items:center;font-size:14px;margin-top:1px}
+.todo .tt{flex:1;min-width:0}
+.todo .tt b{display:block;font-size:15.5px;font-weight:700;line-height:1.45;word-break:keep-all;overflow-wrap:anywhere}
+.todo .tt span{display:block;font-size:13px;color:var(--sub);margin-top:2px}
+.todo .go2{flex:0 0 auto;color:var(--navy-2);font-weight:800;font-size:13.5px;margin-top:2px}
+.todo .empty{padding:20px}
+.quick{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:10px}
+.qk{border:0;background:var(--paper);border-radius:18px;box-shadow:0 2px 12px rgba(21,27,44,.06);padding:14px 12px 13px;text-align:left;position:relative}
+.qk svg{width:26px;height:26px;stroke:var(--navy);fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.qk b{display:block;font-size:15px;font-weight:800;margin-top:8px;letter-spacing:-.03em}
+.qk span{display:block;font-size:12.5px;color:var(--sub);margin-top:2px}
+.qk em{position:absolute;right:10px;top:10px;font-style:normal;background:var(--coral);color:#fff;font-size:11px;font-weight:800;border-radius:999px;padding:2px 7px}
+.pushcard{display:flex;align-items:center;gap:10px;background:var(--navy);color:#fff;border-radius:18px;padding:14px 14px 14px 16px;margin-bottom:10px}
+.pushcard div{flex:1}.pushcard b{display:block;font-size:15.5px;font-weight:800}.pushcard span{display:block;font-size:13px;opacity:.75;margin-top:2px;line-height:1.4}
+.pushcard button{border:0;background:var(--coral);color:#fff;font-weight:800;font-size:14px;border-radius:11px;padding:9px 13px;white-space:nowrap}
+.pushcard button.later{background:rgba(255,255,255,.12);font-weight:700}
+.subtop{display:flex;align-items:center;gap:8px;padding:6px 14px 0}
+.subtop button{border:0;background:none;font-size:15px;font-weight:800;color:var(--navy-2);padding:8px 4px}
+.form{background:var(--paper);border-radius:20px;box-shadow:0 2px 12px rgba(21,27,44,.06);padding:18px}
+.form .fld{margin-bottom:16px}.form .fld:last-of-type{margin-bottom:0}
+.form label,.form .lb{display:block;font-size:14px;font-weight:800;margin-bottom:8px}
+.form .hint{font-size:13px;color:var(--sub);margin-top:6px;line-height:1.5}
+textarea.in{height:auto;min-height:104px;padding:13px 16px;line-height:1.55;resize:vertical;font-size:16px}
+select.in{appearance:none;-webkit-appearance:none;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%2369707E' stroke-width='2'/%3E%3C/svg%3E") no-repeat right 16px center}
+input[type=date].in{min-height:54px}
+.two{display:grid;grid-template-columns:1.3fr 1fr;gap:10px}
+.chips2{display:flex;flex-wrap:wrap;gap:8px}
+.chips2 .chip{font-size:14px;padding:8px 13px}
+.btn{width:100%;height:54px;border:0;border-radius:14px;background:var(--coral);color:#fff;font-size:16.5px;font-weight:800;margin-top:16px}
+.btn.navy{background:var(--navy)}.btn.ghost{background:var(--bg);color:var(--ink)}
+.btn:disabled{opacity:.55}
+.btns{display:flex;gap:8px;margin-top:12px}.btns .btn{margin:0;height:46px;font-size:15px}
+.ferr{color:var(--bad);font-size:14px;margin-top:10px;min-height:0}
+.thumbs{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.thumbs .th{position:relative;width:78px;height:78px;border-radius:12px;overflow:hidden;background:var(--bg)}
+.thumbs img{width:100%;height:100%;object-fit:cover;display:block}
+.thumbs .x{position:absolute;right:4px;top:4px;width:22px;height:22px;border-radius:50%;border:0;background:rgba(21,27,44,.75);color:#fff;font-size:13px;line-height:22px}
+.addph{width:78px;height:78px;border-radius:12px;border:2px dashed #C9CEDA;background:#fff;display:grid;place-items:center;color:var(--sub);font-size:12.5px;font-weight:700;text-align:center;line-height:1.3}
+.ans{margin-top:12px;background:#EEF3FF;border-radius:14px;padding:12px 14px;font-size:15px;line-height:1.6;white-space:pre-wrap;word-break:keep-all;overflow-wrap:anywhere}
+.ans .meta{display:block;margin-bottom:4px;color:#3B5BA9;font-weight:700}
+.photoview{margin-top:10px;display:grid;gap:8px}.photoview img{width:100%;border-radius:12px;display:block}
+.linkbtn{border:0;background:none;color:var(--sub);font-size:13.5px;font-weight:700;text-decoration:underline;padding:6px}
+.toolc{display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit}
+.toolc .tic{flex:0 0 44px;height:44px;border-radius:12px;background:var(--navy);color:#fff;display:grid;place-items:center;font-weight:900;font-size:17px}
+.toolc b{display:block;font-size:16px;font-weight:800}.toolc span{display:block;font-size:13px;color:var(--sub);margin-top:2px}
+.toolc i{margin-left:auto;font-style:normal;color:var(--navy-2);font-weight:800}
+/* 관리자 */
+#vAdmin{padding-bottom:40px}
+#vAdmin .top{background:var(--bg)}
+.aseg{position:sticky;top:52px;z-index:4;background:var(--bg);padding:6px 14px 8px}
+.aseg .seg{margin:0}
+.aseg .seg button em{font-style:normal;background:var(--coral);color:#fff;border-radius:999px;font-size:11px;padding:1px 6px;margin-left:4px}
+.arow{display:grid;grid-template-columns:1fr auto;gap:4px 10px;padding:11px 4px;border-top:1px solid var(--line);font-size:14.5px}
+.arow:first-child{border-top:0}
+.arow .s{color:var(--sub);font-size:13px}
+.arow .warn{color:var(--bad);font-weight:700}
+.filt{display:flex;gap:8px;overflow-x:auto;padding:4px 0 10px;scrollbar-width:none}
+.filt::-webkit-scrollbar{display:none}
+.kv2{display:grid;grid-template-columns:74px 1fr;gap:6px 10px;font-size:15px;margin-top:10px;line-height:1.5}
+.kv2 dt{color:var(--sub);font-size:14px}
+.chkrow{display:flex;gap:16px;font-size:15px;font-weight:700}
+.chkrow label{display:flex;gap:6px;align-items:center;margin:0}
+.chkrow input{width:20px;height:20px;accent-color:var(--navy)}
 </style>
 </head>
 <body class="login-mode">
@@ -252,6 +368,15 @@
       <div class="err" id="loginErr" role="alert"></div>
       <div class="help">로그인이 안 되면 학원 <a href="tel:025258584">02-525-8584</a></div>
       <div class="installSlot"></div>
+      <div style="text-align:center;margin-top:10px"><button type="button" class="linkbtn" id="toAdmin">선생님 로그인</button></div>
+    </form>
+    <form class="sheet" id="adminForm" autocomplete="on" novalidate hidden>
+      <h2 style="font-size:20px;font-weight:900;margin-bottom:16px">선생님 로그인</h2>
+      <div class="fld"><label for="adName">이름</label><input class="in" id="adName" autocomplete="username" placeholder="예: 주찬솔"></div>
+      <div class="fld"><label for="adPw">비밀번호</label><input class="in" id="adPw" type="password" autocomplete="current-password"></div>
+      <button class="go" id="adBtn" type="submit">들어가기</button>
+      <div class="err" id="adErr" role="alert"></div>
+      <div style="text-align:center"><button type="button" class="linkbtn" id="toUser">학생·학부모 로그인</button></div>
     </form>
   </section>
 
@@ -300,6 +425,26 @@
       <div class="chips" id="classChips" hidden></div>
       <div class="vlist" id="vlist"></div>
     </div>
+
+    <!-- 일정 변경 신청 / 질문 / 학습 도구 (홈 바로가기에서 열림) -->
+    <div id="tChange" class="tab" hidden></div>
+    <div id="tAsk" class="tab" hidden></div>
+    <div id="tTools" class="tab" hidden></div>
+  </section>
+
+  <!-- ============ 관리자 (원장·조교) ============ -->
+  <section id="vAdmin" hidden>
+    <div class="top">
+      <div class="logo"><b>PIF</b> 학습실 <span style="font-weight:700;color:var(--sub);font-size:14px">관리</span></div>
+      <button class="me" id="adMe" title="로그아웃"><span id="adWho"></span><i id="adAvatar"></i></button>
+    </div>
+    <div class="aseg"><div class="seg" id="aSeg">
+      <button class="on" data-a="req">일정<em id="aReqN" hidden></em></button>
+      <button data-a="q">질문<em id="aQN" hidden></em></button>
+      <button data-a="stu">학생</button>
+      <button data-a="push">알림</button>
+    </div></div>
+    <div class="sec" id="aBody" style="padding-top:6px"></div>
   </section>
 
   <!-- ============ 플레이어 ============ -->
@@ -333,6 +478,8 @@
 const PORTAL_API = 'https://script.google.com/macros/s/AKfycbyRwaQjLjV81zxxIAhZSfOboNfC6cdTP2dIw7EQcPvWLdnH78_Lu1v3QdjA37W1SuK2/exec';
 // ② 기존 "PIF 영상 강의실" Apps Script 주소 (바꾸지 마세요)
 const VIDEO_API  = 'https://script.google.com/macros/s/AKfycbyhcI255CEU2Qn-x2i1QivUGVwk179sDB19QCvmRfWvQ-yRKJyIoJ-bhKNtUGoFNwys/exec';
+// ③ OneSignal App ID (알림). 비워 두면 알림 기능만 꺼지고 나머지는 그대로 작동해요.
+const ONESIGNAL_APP_ID = '140daecc-637e-4cba-ae4f-63ffa2eba72e';
 const BUCKET = 10;           // 영상 Code.gs의 BUCKET_SEC과 동일
 let DONE = 90;
 
@@ -342,7 +489,9 @@ const S = {
   role:'student', token:null, p:null,               // 포털
   vtoken:null, videos:[], vErr:'', vLoaded:false,    // 영상
   cls:'전체', status:'all', q:'', cur:null,
-  files:null, fq:'', lessonKind:'lesson', tab:'tHome', last:{name:'', last4:''}
+  files:null, fq:'', lessonKind:'lesson', tab:'tHome', last:{name:'', last4:''},
+  pushId:null, osReady:false, startGo:'',                     // 알림
+  ad:null, aTab:'req', aData:null, aFilter:'대기', aStu:'retest', aCls:'전체', vstat:null   // 관리자
 };
 
 function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
@@ -452,17 +601,19 @@ function logout(msg){
   $('#loginErr').textContent = msg || '';
   showView('vLogin');
 }
-$('#meBtn').addEventListener('click', () => { if (confirm('로그아웃할까요?')) logout(); });
+$('#meBtn').addEventListener('click', () => { if (confirm('로그아웃할까요?')) { osLogout(); logout(); } });
 
 /* ======================= 화면 전환 ======================= */
 function showView(id){
-  ['vLogin','vApp','vPlayer'].forEach(v => $('#'+v).hidden = (v !== id));
+  ['vLogin','vApp','vPlayer','vAdmin'].forEach(v => $('#'+v).hidden = (v !== id));
   $('#nav').hidden = id !== 'vApp';
   document.body.classList.toggle('login-mode', id === 'vLogin');
   window.scrollTo(0,0);
 }
+const TABS = ['tHome','tLesson','tScore','tFiles','tVideo','tChange','tAsk','tTools'];
 function go(tab, fromPop){
-  if (tab === 'tVideo' && S.role !== 'student') tab = 'tHome';
+  if (TABS.indexOf(tab) < 0) tab = 'tHome';
+  if ((tab === 'tVideo' || tab === 'tAsk') && S.role !== 'student') tab = 'tHome';
   if (!fromPop && S.token && tab !== S.tab) { try { history.pushState({ pif:'app', tab:tab }, ''); } catch(e){} }
   S.tab = tab; if (S.token) saveSess();
   document.querySelectorAll('.tab').forEach(t => t.hidden = (t.id !== tab));
@@ -470,6 +621,9 @@ function go(tab, fromPop){
   window.scrollTo(0,0);
   if (tab === 'tFiles' && !S.files) loadFiles();
   if (tab === 'tVideo') renderVideos();
+  if (tab === 'tChange') renderChange();
+  if (tab === 'tAsk') renderAsk();
+  if (tab === 'tTools') renderTools();
 }
 $('#nav').addEventListener('click', e => { const b = e.target.closest('button'); if (b) go(b.dataset.t); });
 
@@ -492,8 +646,10 @@ async function enterApp(startTab){
   const p = S.p;
   $('#meWho').textContent = p.role === 'parent' ? p.name + ' 학부모님' : p.classes.join(', ');
   $('#meAvatar').textContent = initials(p.name);
+  osLogin(p.pushId);
   renderHome(); renderLessons(); renderScores();
-  if (startTab && startTab !== 'tHome') go(startTab, true);
+  const want = S.startGo || startTab; S.startGo = '';
+  if (want && want !== 'tHome') go(want, want === startTab);
 }
 
 /* ======================= 홈 ======================= */
@@ -517,7 +673,7 @@ function renderHome(){
   const sc = p.schedule || {};
   const L = p.lessons[0], C = p.clinics[0];
   const reviews = p.lessons.filter(l => l.reviewScore != null);
-  let h = '<div class="hello"><div class="who">' + esc(p.school) + ' · ' + esc(p.classes.join(', ')) + '</div>' +
+  let h = '<div class="hello">' + ddayHTML(p) + '<div class="who">' + esc(p.school) + ' · ' + esc(p.classes.join(', ')) + '</div>' +
     '<h1>' + esc(p.name) + (p.role === 'parent' ? ' <small>학생 학부모님</small>' : ' <small>학생</small>') + '</h1>' +
     '<div class="sch">' +
       (sc.lessonDays ? '<div><span>정규 수업</span>매주 ' + esc(sc.lessonDays) + '요일</div>' : '') +
@@ -526,8 +682,15 @@ function renderHome(){
 
   h += '<div class="stats">' + statBox(st.attend, '수업 출석률') + statBox(st.hw, '과제 완료율') + statBox(st.wb, '워크북 완료율') + '</div>';
 
-  h += '<div class="sec">';
+  h += '<div class="sec"><div class="pushSlot"></div>';
   if (p.role === 'student') h += '<button class="vidcta" id="vidCta" hidden><div><b id="vidCtaT"></b><span>놓친 수업도, 다시 볼 수업도 여기서.</span></div><i>→</i></button>';
+
+  // 이번 주 할 일
+  h += '<div class="sec-t"><h2>' + (p.role === 'parent' ? '이번 주 할 일 <span class="meta" style="font-weight:600">(학생)</span>' : '이번 주 할 일') + '</h2></div>';
+  h += '<div class="todo" id="todoBox">' + todoHTML() + '</div>';
+
+  // 바로가기
+  h += quickHTML(p);
 
   // 최근 수업
   h += '<div class="sec-t"><h2>최근 수업</h2>' + (p.lessons.length > 1 ? '<button data-go="tLesson" data-k="lesson">전체 보기</button>' : '') + '</div>';
@@ -556,12 +719,17 @@ function renderHome(){
   h += '</div>';
   $('#tHome').innerHTML = h;
   renderInstall();
+  renderPushCard();
   updateVidCta();
 }
 $('#tHome').addEventListener('click', e => {
   const g = e.target.closest('[data-go]');
   if (g) { if (g.dataset.k) setLessonKind(g.dataset.k); go(g.dataset.go); return; }
   if (e.target.closest('#vidCta')) { go('tVideo'); return; }
+  const ti = e.target.closest('.ti[data-key]');
+  if (ti) { if (ti.dataset.to) { go(ti.dataset.to); return; } if (S.role === 'student') { toggleTodo(ti.dataset.key); } return; }
+  const q = e.target.closest('.qk[data-to]');
+  if (q) { go(q.dataset.to); return; }
   const m = e.target.closest('#moreNotice');
   if (m) { m.outerHTML = S.p.notices.slice(5).map(n => noticeItem(n)).join(''); }
 });
@@ -768,6 +936,7 @@ async function loadVideos(){
 function updateVidCta(){
   const todo = S.videos.filter(v => v.pct < DONE).length;
   $('#navVidDot').hidden = !todo; $('#navVidDot').textContent = todo > 9 ? '9+' : todo;
+  const tb = $('#todoBox'); if (tb && S.p) tb.innerHTML = todoHTML();
   const cta = $('#vidCta'); if (!cta) return;
   cta.hidden = !S.vLoaded || !todo;
   $('#vidCtaT').textContent = '아직 안 본 수업 영상 ' + todo + '개';
@@ -943,6 +1112,15 @@ $('#backBtn').addEventListener('click', () => { if (history.state && history.sta
 /* ---------- 휴대폰 뒤로 가기 ---------- */
 let lastBackAt = 0;
 window.addEventListener('popstate', e => {
+  if (S.ad && !S.token) {                                 // 관리 화면: 두 번 누르면 나가기
+    const st = e.state || {};
+    if (st.pif === 'admin') return;
+    if (Date.now() - lastBackAt < 2000) { history.back(); return; }
+    lastBackAt = Date.now();
+    try { history.pushState({ pif:'admin' }, ''); } catch(err){}
+    toast('뒤로 가기를 한 번 더 누르면 나가요');
+    return;
+  }
   if (!S.token) return;                                   // 로그아웃 상태면 브라우저 기본 동작
   const st = e.state || {};
   if (S.cur && st.pif !== 'player') { closePlayer(); return; }   // 영상 → 목록
@@ -957,6 +1135,488 @@ window.addEventListener('popstate', e => {
 });
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') flush(true); });
 window.addEventListener('pagehide', () => flush(true));
+
+/* ======================= v2: 날짜 도구 ======================= */
+function isoLocal(d){ return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
+function todayIso(){ return isoLocal(new Date()); }
+function tomorrow(){ return isoLocal(new Date(Date.now() + 86400000)); }
+function dayDiff(iso){ const d = parseD(iso), t = parseD(todayIso()); return d && t ? Math.round((d - t) / 86400000) : null; }
+function timeOpts(sel){
+  let h = '';
+  for (let m = 13 * 60; m <= 21 * 60 + 30; m += 30) {
+    const v = String(Math.floor(m / 60)).padStart(2,'0') + ':' + String(m % 60).padStart(2,'0');
+    h += '<option' + (v === sel ? ' selected' : '') + '>' + v + '</option>';
+  }
+  return h;
+}
+function statusBadge(st){
+  const c = st === '승인' || st === '답변완료' ? 'ok' : st === '반려' ? 'bad' : st === '대기' ? 'mid' : st === '클리닉 때 설명' ? 'navy' : '';
+  return '<span class="badge ' + c + '">' + esc(st === '대기' ? '처리 대기' : st) + '</span>';
+}
+function reqWhat(r){
+  if (r.kind === '추가등원') return mdw(r.newDate) + ' ' + (r.newTime || '') + ' 추가 등원';
+  if (r.kind === '결석') return mdw(r.orig) + ' 클리닉 결석';
+  return mdw(r.orig) + ' → ' + mdw(r.newDate) + ' ' + (r.newTime || '');
+}
+
+/* ======================= 홈: D-day · 할 일 · 바로가기 ======================= */
+function ddayHTML(p){
+  const d = p.dday; if (!d || !d.start) return '';
+  const n = dayDiff(d.start);
+  if (n == null || n < 0 || n > 70) return '';
+  return '<div class="dday"><small>' + esc(d.school) + ' 내신</small>' + (n === 0 ? 'D-DAY' : 'D-' + n) + '</div>';
+}
+
+const TKEY = () => 'pif_todo_' + (S.p ? S.p.disp : '');
+function todoDone(){ try { return JSON.parse(localStorage.getItem(TKEY())) || {}; } catch(e){ return {}; } }
+function toggleTodo(key){
+  const m = todoDone();
+  if (m[key]) delete m[key]; else m[key] = Date.now();
+  try { localStorage.setItem(TKEY(), JSON.stringify(m)); } catch(e){}
+  $('#todoBox').innerHTML = todoHTML();
+}
+function todoItems(p){
+  const items = [];
+  const L = p.lessons[0];
+  if (L && L.assigned && daysAgo(L.date) <= 9) items.push({ key:'hw|' + L.date, title:L.assigned, sub:mdw(L.date) + ' 수업 과제 · 다음 수업까지' });
+  const fail = p.lessons.find(l => daysAgo(l.date) <= 21 && passBadge(l).indexOf('badge bad') >= 0 && !(/통과/.test(l.retest || '') && !/미통과/.test(l.retest || '')));
+  if (fail) items.push({ key:'rt|' + fail.date, title:'리뷰테스트 재시험 준비' + (fail.reviewRange ? ' · ' + fail.reviewRange : ''),
+    sub:mdw(fail.date) + ' ' + fail.reviewScore + '점' + (fail.passLine != null ? ' (통과 ' + fail.passLine + '점)' : '') });
+  const C = p.clinics.find(c => c.todo && daysAgo(c.date) <= 10);
+  if (C) items.push({ key:'cl|' + C.date, title:C.todo, sub:mdw(C.date) + ' 클리닉에서 받은 할 일' });
+  if (p.role === 'student' && S.vLoaded) {
+    const n = S.videos.filter(v => v.pct < DONE).length;
+    if (n) items.push({ key:'vid', to:'tVideo', icon:'▶', title:'수업 영상 ' + n + '개 보기', sub:'아직 안 본 영상이 있어요' });
+  }
+  const ans = (p.questions || []).filter(q => q.status !== '대기' && q.answeredAt && daysAgo(q.answeredAt.slice(0,10)) <= 3).length;
+  if (ans) items.push({ key:'ans', to:'tAsk', icon:'💬', title:'질문 답변 ' + ans + '개', sub:'선생님 답변을 확인하세요' });
+  const rq = (p.requests || []).find(r => r.status === '대기' || (r.status !== '취소' && r.handledAt && daysAgo(r.handledAt.slice(0,10)) <= 3));
+  if (rq) items.push({ key:'rq', to:'tChange', icon:'📅', title:'일정 변경 ' + (rq.status === '대기' ? '신청 처리 대기' : rq.status + '됨'), sub:reqWhat(rq) });
+  const nc = (p.nextClinics || [])[0];
+  if (nc) {
+    const ap = (p.requests || []).find(r => r.status === '승인' && r.orig === nc.date);
+    items.push({ key:'nc', info:true, icon:'🗓', title:'다음 클리닉 ' + mdw(nc.date) + (nc.time ? ' ' + nc.time : ''),
+      sub: ap ? (ap.kind === '결석' ? '결석 승인됨 · 영상 보강' : '변경 승인됨 → ' + mdw(ap.newDate) + ' ' + ap.newTime) : '' });
+  }
+  return items;
+}
+function todoHTML(){
+  const p = S.p; if (!p) return '';
+  const items = todoItems(p), done = todoDone(), canCheck = p.role === 'student';
+  if (!items.length) return '<div class="empty sm">이번 주 할 일이 없어요.</div>';
+  return items.map(it => {
+    const on = !it.to && !it.info && done[it.key];
+    const lead = it.to || it.info || !canCheck ? '<span class="ic2">' + (it.icon || '•') + '</span>' : '<span class="ck">' + (on ? '✓' : '') + '</span>';
+    return '<button type="button" class="ti' + (on ? ' on' : '') + '" data-key="' + esc(it.key) + '"' + (it.to ? ' data-to="' + it.to + '"' : '') + '>' + lead +
+      '<span class="tt"><b>' + esc(it.title) + '</b>' + (it.sub ? '<span>' + esc(it.sub) + '</span>' : '') + '</span>' +
+      (it.to ? '<span class="go2">보기 →</span>' : '') + '</button>';
+  }).join('');
+}
+
+const ICON = {
+  cal:'<svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16" rx="3"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4M9 15l2 2 4-4"/></svg>',
+  ask:'<svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M10 9.2a2 2 0 1 1 2.8 1.8c-.5.3-.8.7-.8 1.3M12 14.2h.01"/></svg>',
+  tool:'<svg viewBox="0 0 24 24"><rect x="3" y="3" width="7.5" height="7.5" rx="2"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="2"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="2"/><path d="M17.25 13.5v7.5M13.5 17.25H21"/></svg>'
+};
+function quickHTML(p){
+  const t = [];
+  const pend = (p.requests || []).filter(r => r.status === '대기').length;
+  t.push('<button class="qk" data-to="tChange">' + ICON.cal + '<b>일정 변경</b><span>결석·변경 신청</span>' + (pend ? '<em>' + pend + '</em>' : '') + '</button>');
+  if (p.role === 'student') {
+    const fresh = (p.questions || []).filter(q => q.status !== '대기' && q.answeredAt && daysAgo(q.answeredAt.slice(0,10)) <= 3).length;
+    t.push('<button class="qk" data-to="tAsk">' + ICON.ask + '<b>질문하기</b><span>사진으로 물어보기</span>' + (fresh ? '<em>답변 ' + fresh + '</em>' : '') + '</button>');
+  }
+  if ((p.tools || []).length) t.push('<button class="qk" data-to="tTools">' + ICON.tool + '<b>학습 도구</b><span>단어·해석 연습</span></button>');
+  return '<div class="sec-t"><h2>바로가기</h2></div><div class="quick">' + t.join('') + '</div>';
+}
+
+/* ======================= 일정 변경 신청 ======================= */
+function chgState(){
+  const p = S.p, nc = p.nextClinics || [];
+  return S.chg || (S.chg = { kind:'결석', orig: nc[0] ? nc[0].date : '', newDate:'', newTime:(p.schedule || {}).clinicTime || '16:30', reason:'' });
+}
+function reqCard(r){
+  let h = '<div class="card"><div class="row"><div class="meta"><b>' + esc(r.kind === '변경' ? '날짜 변경' : r.kind === '추가등원' ? '추가 등원' : '결석') + '</b> · ' + esc(r.at.slice(5).replace('-', '/')) + ' 신청 (' + esc(r.by) + ')</div>' + statusBadge(r.status) + '</div>';
+  h += '<h3 style="margin-top:8px">' + esc(reqWhat(r)) + '</h3><dl class="kv"><dt>사유</dt><dd>' + esc(r.reason) + '</dd>';
+  if (r.memo) h += '<dt>학원 메모</dt><dd>' + esc(r.memo) + '</dd>';
+  h += '</dl>';
+  if (r.status === '대기') h += '<div class="btns"><button class="btn ghost" data-cancel="' + esc(r.id) + '">신청 취소</button></div>';
+  return h + '</div>';
+}
+function renderChange(){
+  const p = S.p; if (!p) return;
+  const k = chgState(), nc = p.nextClinics || [];
+  const needOrig = k.kind !== '추가등원', needNew = k.kind !== '결석';
+  let h = '<div class="head"><h1>클리닉 일정 변경</h1><p>내일 이후 일정만 신청할 수 있어요. 당일 변경은 학원(' + esc(p.contact) + ')으로 전화 주세요.</p></div><div class="sec">';
+  h += '<div class="form">';
+  h += '<div class="fld"><div class="lb">무엇을 신청하나요?</div><div class="seg" id="chgKind" style="margin:0">' +
+    [['결석','결석'],['변경','날짜 변경'],['추가등원','추가 등원']].map(x => '<button type="button" data-v="' + x[0] + '"' + (k.kind === x[0] ? ' class="on"' : '') + '>' + x[1] + '</button>').join('') + '</div></div>';
+  if (needOrig) {
+    const inList = nc.some(c => c.date === k.orig);
+    h += '<div class="fld"><div class="lb">원래 클리닉 날짜</div><div class="chips2" id="chgOrig">' +
+      nc.map(c => '<button type="button" class="chip' + (k.orig === c.date ? ' on' : '') + '" data-v="' + c.date + '">' + mdw(c.date) + (c.time ? ' ' + esc(c.time) : '') + '</button>').join('') + '</div>' +
+      '<input class="in" type="date" id="chgOrigD" style="margin-top:10px" min="' + tomorrow() + '" value="' + (inList ? '' : esc(k.orig)) + '" aria-label="원래 클리닉 날짜 직접 고르기">' +
+      '<div class="hint">' + (nc.length ? '목록에 없으면 날짜를 직접 골라 주세요.' : '날짜를 골라 주세요.') + '</div></div>';
+  }
+  if (needNew) h += '<div class="fld"><div class="lb">' + (k.kind === '추가등원' ? '오는 날짜 · 시간' : '바꿀 날짜 · 시간') + '</div><div class="two">' +
+    '<input class="in" type="date" id="chgNew" min="' + tomorrow() + '" value="' + esc(k.newDate) + '" aria-label="새 날짜">' +
+    '<select class="in" id="chgTime" aria-label="새 시간">' + timeOpts(k.newTime) + '</select></div></div>';
+  h += '<div class="fld"><label for="chgReason">사유</label><textarea class="in" id="chgReason" maxlength="200" placeholder="예: 학교 수행평가 준비">' + esc(k.reason) + '</textarea>' +
+    (k.kind !== '추가등원' ? '<div class="hint">결석·변경은 수강 규정의 횟수에 포함될 수 있어요.</div>' : '') + '</div>';
+  h += '<button class="btn" id="chgSend" type="button">신청 보내기</button><div class="ferr" id="chgErr" role="alert"></div></div>';
+  h += '<div class="sec-t"><h2>신청 내역</h2></div>';
+  h += (p.requests || []).length ? p.requests.map(reqCard).join('') : '<div class="card empty sm">아직 신청한 내역이 없어요.</div>';
+  $('#tChange').innerHTML = h + '</div>';
+}
+$('#tChange').addEventListener('click', async e => {
+  const k = S.chg; if (!k) return;
+  const kb = e.target.closest('#chgKind button'); if (kb) { k.kind = kb.dataset.v; renderChange(); return; }
+  const ob = e.target.closest('#chgOrig .chip'); if (ob) { k.orig = ob.dataset.v; renderChange(); return; }
+  const cb = e.target.closest('[data-cancel]');
+  if (cb) {
+    if (!confirm('이 신청을 취소할까요?')) return;
+    try { const r = await portal('cancelRequest', { id: cb.dataset.cancel }); S.p.requests = r.requests; renderChange(); toast('신청을 취소했어요'); }
+    catch (err) { toast(cleanMsg(err)); }
+    return;
+  }
+  if (e.target.closest('#chgSend')) {
+    const btn = $('#chgSend'), err = $('#chgErr');
+    k.reason = $('#chgReason').value.trim();
+    err.textContent = '';
+    if (k.kind !== '추가등원' && !k.orig) { err.textContent = '원래 클리닉 날짜를 골라 주세요.'; return; }
+    if (k.kind !== '결석' && !k.newDate) { err.textContent = '새 날짜를 골라 주세요.'; return; }
+    if (k.reason.length < 2) { err.textContent = '사유를 적어 주세요.'; return; }
+    btn.disabled = true; btn.textContent = '보내는 중…';
+    try {
+      const r = await portal('changeRequest', { kind:k.kind, orig:k.orig, newDate:k.newDate, newTime:k.newTime, reason:k.reason });
+      S.p.requests = r.requests; S.chg = null; renderChange(); renderHome();
+      toast('신청을 보냈어요. 처리되면 알려 드릴게요');
+    } catch (ex) { err.textContent = cleanMsg(ex); btn.disabled = false; btn.textContent = '신청 보내기'; }
+  }
+});
+$('#tChange').addEventListener('change', e => {
+  const k = S.chg; if (!k) return;
+  if (e.target.id === 'chgOrigD' && e.target.value) { k.orig = e.target.value; renderChange(); }
+  if (e.target.id === 'chgNew') k.newDate = e.target.value;
+  if (e.target.id === 'chgTime') k.newTime = e.target.value;
+});
+$('#tChange').addEventListener('input', e => { if (e.target.id === 'chgReason' && S.chg) S.chg.reason = e.target.value; });
+
+/* ======================= 질문하기 ======================= */
+S.askPh = [];
+function shrink(file){
+  return new Promise((res, rej) => {
+    const url = URL.createObjectURL(file), img = new Image();
+    img.onload = () => {
+      const M = 1600, r = Math.min(1, M / Math.max(img.naturalWidth, img.naturalHeight));
+      const c = document.createElement('canvas');
+      c.width = Math.round(img.naturalWidth * r); c.height = Math.round(img.naturalHeight * r);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url);
+      const d = c.toDataURL('image/jpeg', 0.82);
+      res({ mime:'image/jpeg', b64:d.split(',')[1], url:d });
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('사진을 읽지 못했어요. 다른 사진으로 해 주세요.')); };
+    img.src = url;
+  });
+}
+function qCard(q, admin){
+  let h = '<div class="card" data-q="' + esc(q.id) + '"><div class="row"><div class="meta">' + (admin ? '<b>' + esc(q.disp) + '</b> · ' + esc(q.cls) + ' · ' : '') +
+    esc(q.at.slice(5).replace('-', '/')) + (q.topic ? ' · ' + esc(q.topic) : '') + '</div>' + statusBadge(q.status) + '</div>';
+  if (q.text) h += '<div style="margin-top:8px;font-size:15.5px;line-height:1.6;white-space:pre-wrap;word-break:keep-all;overflow-wrap:anywhere">' + esc(q.text) + '</div>';
+  if (q.photos.length) h += '<button class="linkbtn" style="padding-left:0" data-ph="' + esc(q.photos.join(',')) + '">📷 사진 보기 (' + q.photos.length + ')</button><div class="photoview"></div>';
+  if (q.status !== '대기') h += '<div class="ans"><span class="meta">' + esc(q.by || '선생님') + ' · ' + esc((q.answeredAt || '').slice(5).replace('-', '/')) + '</span>' +
+    esc(q.answer || (q.status === '클리닉 때 설명' ? '클리닉 시간에 직접 설명해 줄게요.' : '')) + '</div>';
+  return h;   // 관리자 화면이 답변 칸을 붙인 뒤 닫음
+}
+function renderAsk(){
+  const p = S.p; if (!p) return;
+  let h = '<div class="head"><h1>질문하기</h1><p>모르는 문제를 사진과 함께 올리면 선생님이 답해 줘요.</p></div><div class="sec"><div class="form">';
+  h += '<div class="fld"><label for="askTopic">교재 / 범위 <span class="meta" style="font-weight:600">(선택)</span></label><input class="in" id="askTopic" maxlength="60" placeholder="예: 워크북 3과 12번"></div>';
+  h += '<div class="fld"><label for="askText">질문</label><textarea class="in" id="askText" maxlength="1000" placeholder="어디가 왜 헷갈리는지 적어 주세요"></textarea></div>';
+  h += '<div class="fld"><div class="lb">사진 <span class="meta" style="font-weight:600">(최대 3장)</span></div><div class="thumbs" id="askThumbs"></div>' +
+    '<input type="file" id="askFile" accept="image/*" multiple hidden></div>';
+  h += '<button class="btn" id="askSend" type="button">질문 올리기</button><div class="ferr" id="askErr" role="alert"></div></div>';
+  h += '<div class="sec-t"><h2>내 질문</h2><span class="meta">' + (p.questions || []).length + '개</span></div>';
+  h += (p.questions || []).length ? p.questions.map(q => qCard(q) + '</div>').join('') : '<div class="card empty sm">아직 올린 질문이 없어요.</div>';
+  $('#tAsk').innerHTML = h + '</div>';
+  drawThumbs();
+}
+function drawThumbs(){
+  const box = $('#askThumbs'); if (!box) return;
+  box.innerHTML = S.askPh.map((x, i) => '<div class="th"><img src="' + x.url + '" alt="첨부 사진 ' + (i+1) + '"><button class="x" data-rm="' + i + '" aria-label="사진 빼기">✕</button></div>').join('') +
+    (S.askPh.length < 3 ? '<button type="button" class="addph" id="askAdd">＋<br>사진</button>' : '');
+}
+async function loadPhotos(btn, action, token){
+  const box = btn.nextElementSibling; if (!box || btn.dataset.busy) return;
+  if (box.innerHTML) { box.innerHTML = ''; return; }
+  btn.dataset.busy = 1; const old = btn.textContent; btn.textContent = '불러오는 중…';
+  try {
+    const ids = btn.dataset.ph.split(',');
+    const rs = await Promise.all(ids.map(id => post(PORTAL_API, 'photo', { token:token, fileId:id })));
+    box.innerHTML = rs.map(r => '<img src="data:' + r.mime + ';base64,' + r.b64 + '" alt="질문 사진">').join('');
+  } catch (e) { toast(cleanMsg(e)); }
+  btn.textContent = old; delete btn.dataset.busy;
+}
+$('#tAsk').addEventListener('click', async e => {
+  if (e.target.closest('#askAdd')) { $('#askFile').click(); return; }
+  const rm = e.target.closest('[data-rm]'); if (rm) { S.askPh.splice(+rm.dataset.rm, 1); drawThumbs(); return; }
+  const ph = e.target.closest('[data-ph]'); if (ph) { loadPhotos(ph, 'photo', S.token); return; }
+  if (e.target.closest('#askSend')) {
+    const text = $('#askText').value.trim(), topic = $('#askTopic').value.trim(), err = $('#askErr'), btn = $('#askSend');
+    err.textContent = '';
+    if (text.length < 2 && !S.askPh.length) { err.textContent = '질문을 적거나 사진을 올려 주세요.'; return; }
+    btn.disabled = true; btn.textContent = '올리는 중…';
+    try {
+      const r = await portal('ask', { text, topic, photos: S.askPh.map(x => ({ mime:x.mime, b64:x.b64 })) });
+      S.p.questions = r.questions; S.askPh = []; renderAsk(); toast('질문을 올렸어요. 답변이 오면 알려 드릴게요');
+    } catch (ex) { err.textContent = cleanMsg(ex); btn.disabled = false; btn.textContent = '질문 올리기'; }
+  }
+});
+$('#tAsk').addEventListener('change', async e => {
+  if (e.target.id !== 'askFile') return;
+  const files = Array.from(e.target.files || []).slice(0, 3 - S.askPh.length);
+  e.target.value = '';
+  for (const f of files) { try { S.askPh.push(await shrink(f)); } catch (err) { toast(cleanMsg(err)); } }
+  drawThumbs();
+});
+
+/* ======================= 학습 도구 ======================= */
+function renderTools(){
+  const p = S.p; if (!p) return;
+  const t = p.tools || [];
+  $('#tTools').innerHTML = '<div class="head"><h1>학습 도구</h1><p>단어시험·해석 연습 같은 PIF 연습 앱이에요.</p></div><div class="sec">' +
+    (t.length ? t.map(x => '<a class="card toolc" href="' + esc(x.url) + '" target="_blank" rel="noopener"><span class="tic">' + esc((x.name || '?').charAt(0)) + '</span>' +
+      '<span><b>' + esc(x.name) + '</b>' + (x.desc ? '<span>' + esc(x.desc) + '</span>' : '') + '</span><i>열기 ↗</i></a>').join('')
+      : '<div class="card empty sm">아직 등록된 학습 도구가 없어요.</div>') + '</div>';
+}
+
+/* ======================= 알림 (OneSignal) ======================= */
+window.OneSignalDeferred = window.OneSignalDeferred || [];
+let osLoaded = false;
+function osInit(){
+  if (!ONESIGNAL_APP_ID || osLoaded || !('serviceWorker' in navigator)) return;
+  osLoaded = true;
+  const base = location.pathname.replace(/[^\/]*$/, '');
+  const sc = document.createElement('script');
+  sc.src = 'https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js'; sc.defer = true;
+  document.head.appendChild(sc);
+  OneSignalDeferred.push(async OS => {
+    try {
+      await OS.init({ appId: ONESIGNAL_APP_ID, serviceWorkerPath: base.replace(/^\//, '') + 'sw.js', serviceWorkerParam: { scope: base } });
+      S.osReady = true;
+      OS.Notifications.addEventListener('permissionChange', () => renderPushCard());
+      if (S.pushId) await OS.login(S.pushId);
+    } catch (e) {}
+    renderPushCard();
+  });
+}
+function osLogin(id){ if (!id) return; S.pushId = id; if (!ONESIGNAL_APP_ID) return; OneSignalDeferred.push(async OS => { try { await OS.login(id); } catch(e){} }); }
+function osLogout(){ S.pushId = null; if (!ONESIGNAL_APP_ID || !S.osReady) return; OneSignalDeferred.push(async OS => { try { await OS.logout(); } catch(e){} }); }
+function pushMode(){
+  if (!ONESIGNAL_APP_ID) return 'off';
+  if (isIOS() && !isStandalone()) return 'ios-install';
+  if (!('Notification' in window) || !('serviceWorker' in navigator)) return 'unsupported';
+  return Notification.permission === 'granted' ? 'on' : Notification.permission === 'denied' ? 'denied' : 'ask';
+}
+function pushCardHTML(force){
+  const m = pushMode();
+  let later = 0; try { later = +localStorage.getItem('pif_push_later') || 0; } catch(e){}
+  if (m === 'ask' && (force || Date.now() - later > 7 * 86400000))
+    return '<div class="pushcard"><div><b>알림 받기</b><span>' + (S.ad ? '새 일정 신청·질문이 오면 바로 알려 드려요' : '답변·일정 승인·학원 공지를 바로 알려 드려요') + '</span></div>' +
+      '<button data-push="on">켜기</button>' + (force ? '' : '<button class="later" data-push="later">나중에</button>') + '</div>';
+  if (force && m === 'on') return '<div class="card" style="font-size:14.5px">🔔 이 기기는 알림이 켜져 있어요.</div>';
+  if (force && m === 'denied') return '<div class="card" style="font-size:14.5px">알림이 차단돼 있어요. 휴대폰 설정 → 앱(또는 브라우저) → 알림에서 허용해 주세요.</div>';
+  if (force && m === 'ios-install') return '<div class="card" style="font-size:14.5px">아이폰은 홈 화면에 추가한 앱에서만 알림을 받을 수 있어요.</div>';
+  if (m === 'ios-install' && !force) return '';
+  return '';
+}
+function renderPushCard(){ document.querySelectorAll('.pushSlot').forEach(el => el.innerHTML = pushCardHTML(el.dataset.force === '1')); }
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-push]'); if (!b) return;
+  if (b.dataset.push === 'later') { try { localStorage.setItem('pif_push_later', Date.now()); } catch(err){} renderPushCard(); return; }
+  if (!S.osReady) { toast('알림 준비 중이에요. 잠시 후 다시 눌러 주세요'); return; }
+  OneSignalDeferred.push(async OS => {
+    try { await OS.Notifications.requestPermission(); if (S.pushId) await OS.login(S.pushId); } catch(err){}
+    renderPushCard();
+    if (window.Notification && Notification.permission === 'granted') toast('알림이 켜졌어요');
+  });
+});
+
+/* ======================= 관리자 (원장·조교) ======================= */
+const AKEY = 'pif_admin_sess';
+function showAdminForm(on){ $('#loginForm').hidden = on; $('#adminForm').hidden = !on; $('#adErr').textContent = ''; if (on) setTimeout(() => $('#adName').focus(), 50); }
+$('#toAdmin').addEventListener('click', () => showAdminForm(true));
+$('#toUser').addEventListener('click', () => showAdminForm(false));
+$('#adminForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const name = $('#adName').value.trim(), pw = $('#adPw').value, btn = $('#adBtn');
+  $('#adErr').textContent = '';
+  if (!name || !pw) { $('#adErr').textContent = '이름과 비밀번호를 입력해 주세요.'; return; }
+  btn.disabled = true; btn.textContent = '확인 중…';
+  try {
+    S.ad = await post(PORTAL_API, 'adminLogin', { name, pw });
+    try { sessionStorage.setItem(AKEY, JSON.stringify(S.ad)); localStorage.setItem('pif_admin_name', name); } catch(err){}
+    $('#adPw').value = '';
+    enterAdmin();
+  } catch (err) { $('#adErr').textContent = cleanMsg(err); }
+  btn.disabled = false; btn.textContent = '들어가기';
+});
+function adminLogout(msg){
+  if (S.ad) post(PORTAL_API, 'logout', { token:S.ad.token }).catch(()=>{});
+  try { sessionStorage.removeItem(AKEY); } catch(e){}
+  S.ad = null; S.aData = null; S.vstat = null;
+  showView('vLogin'); showAdminForm(true); $('#adErr').textContent = msg || '';
+}
+$('#adMe').addEventListener('click', () => { if (confirm('로그아웃할까요?')) { osLogout(); adminLogout(); } });
+async function aCall(action, data){
+  try { return await post(PORTAL_API, action, Object.assign({}, data, { token:S.ad.token })); }
+  catch (e) { if (String(e.message).indexOf('SESSION_EXPIRED') >= 0) adminLogout('오래 지나서 다시 로그인해 주세요.'); throw e; }
+}
+async function enterAdmin(){
+  showView('vAdmin'); $('#nav').hidden = true;
+  $('#adWho').textContent = S.ad.name + (S.ad.level === 'owner' ? ' 원장' : ' 선생님');
+  $('#adAvatar').textContent = initials(S.ad.name);
+  try { history.replaceState({ pif:'base' }, ''); history.pushState({ pif:'admin' }, ''); } catch(e){}
+  osLogin(S.ad.pushId);
+  await loadAdmin();
+}
+async function loadAdmin(){
+  $('#aBody').innerHTML = '<div class="skel" style="margin:0 0 10px"></div><div class="skel" style="margin:0"></div>';
+  try { S.aData = await aCall('adminHome'); }
+  catch (e) { if (S.ad) $('#aBody').innerHTML = '<div class="empty">불러오지 못했어요.<br>' + esc(cleanMsg(e)) + '</div>'; return; }
+  renderAdmin();
+}
+function setATab(t){ S.aTab = t; document.querySelectorAll('#aSeg button').forEach(b => b.classList.toggle('on', b.dataset.a === t)); renderAdmin(); window.scrollTo(0,0); }
+$('#aSeg').addEventListener('click', e => { const b = e.target.closest('button'); if (b) setATab(b.dataset.a); });
+function renderAdmin(){
+  const d = S.aData; if (!d) return;
+  const rq = d.requests.filter(r => r.status === '대기').length, qq = d.questions.filter(q => q.status === '대기').length;
+  $('#aReqN').hidden = !rq; $('#aReqN').textContent = rq; $('#aQN').hidden = !qq; $('#aQN').textContent = qq;
+  const f = (n, label) => '<button class="chip' + (S.aFilter === label ? ' on' : '') + '" data-f="' + label + '">' + label + (n != null ? ' ' + n : '') + '</button>';
+  let h = '';
+  if (S.aTab === 'req') {
+    const list = d.requests.filter(r => S.aFilter === '전체' || r.status === '대기');
+    h += '<div class="filt">' + f(rq, '대기') + f(null, '전체') + '<button class="chip" data-reload>새로고침</button></div>';
+    h += '<div class="meta" style="margin:-2px 4px 10px">승인하면 🔄일정변경 탭에 자동으로 한 줄 들어가고, 학생·학부모에게 알림이 가요.</div>';
+    h += list.length ? list.map(r => {
+      let c = '<div class="card"><div class="row"><div class="meta"><b>' + esc(r.disp) + '</b> · ' + esc(r.cls) + ' · ' + esc(r.by) + ' · ' + esc(r.at.slice(5)) + '</div>' + statusBadge(r.status) + '</div>' +
+        '<h3 style="margin-top:8px">' + esc(reqWhat(r)) + '</h3><dl class="kv2"><dt>구분</dt><dd>' + esc(r.kind) + '</dd><dt>사유</dt><dd>' + esc(r.reason) + '</dd>';
+      if (r.status !== '대기') c += '<dt>처리</dt><dd>' + esc(r.handler) + ' · ' + esc((r.handledAt || '').slice(5)) + (r.memo ? '<div class="meta">' + esc(r.memo) + '</div>' : '') + '</dd>';
+      c += '</dl>';
+      if (r.status === '대기') c += '<input class="in" style="margin-top:12px;height:48px;font-size:15px" data-memo="' + esc(r.id) + '" maxlength="200" placeholder="학원 메모 (반려할 땐 필수 · 학생·학부모에게 보여요)">' +
+        '<div class="btns"><button class="btn ghost" data-dec="반려" data-id="' + esc(r.id) + '">반려</button><button class="btn navy" data-dec="승인" data-id="' + esc(r.id) + '">승인</button></div>';
+      return c + '</div>';
+    }).join('') : '<div class="card empty sm">' + (S.aFilter === '대기' ? '처리할 신청이 없어요.' : '신청이 없어요.') + '</div>';
+  } else if (S.aTab === 'q') {
+    const list = d.questions.filter(q => S.aFilter === '전체' || q.status === '대기');
+    h += '<div class="filt">' + f(qq, '대기') + f(null, '전체') + '<button class="chip" data-reload>새로고침</button></div>';
+    h += list.length ? list.map(q => qCard(q, true) + (q.status === '대기' ?
+      '<textarea class="in" style="margin-top:12px;min-height:90px" data-ans="' + esc(q.id) + '" maxlength="2000" placeholder="답변 (학생 앱에 그대로 보여요)"></textarea>' +
+      '<div class="btns"><button class="btn ghost" data-qa="클리닉 때 설명" data-id="' + esc(q.id) + '">클리닉 때 설명</button><button class="btn navy" data-qa="답변완료" data-id="' + esc(q.id) + '">답변 보내기</button></div>' : '') + '</div>').join('')
+      : '<div class="card empty sm">' + (S.aFilter === '대기' ? '답할 질문이 없어요.' : '질문이 없어요.') + '</div>';
+  } else if (S.aTab === 'stu') {
+    const sub = [['retest','재시험 대상'],['access','접속 현황'],['video','영상 시청']];
+    h += '<div class="seg" id="aStu" style="margin:0 0 10px">' + sub.map(x => '<button data-s="' + x[0] + '"' + (S.aStu === x[0] ? ' class="on"' : '') + '>' + x[1] + '</button>').join('') + '</div>';
+    h += '<div class="filt">' + ['전체'].concat(d.classes).map(c => '<button class="chip' + (S.aCls === c ? ' on' : '') + '" data-cls="' + esc(c) + '">' + esc(c) + '</button>').join('') + '</div>';
+    const inCls = c => S.aCls === '전체' || String(c).split(/,\s*/).indexOf(S.aCls) >= 0;
+    if (S.aStu === 'retest') {
+      const list = d.retest.filter(r => inCls(r.cls));
+      h += '<div class="card"><div class="meta" style="margin-bottom:6px">최근 3주 리뷰 미통과 · 재시험 통과 기록 없음 (' + list.length + '명)</div>' +
+        (list.length ? list.map(r => '<div class="arow"><div><b>' + esc(r.disp) + '</b> <span class="s">' + esc(r.cls) + '</span><div class="s">' + mdw(r.date) + ' · ' + esc(r.range || '') + '</div></div>' +
+          '<div style="text-align:right"><b class="warn">' + r.score + '점</b><div class="s">통과 ' + (r.line ?? '–') + ' · ' + esc(r.retest || '재시험 전') + '</div></div></div>').join('') : '<div class="empty sm">재시험 대상이 없어요.</div>') + '</div>';
+    } else if (S.aStu === 'access') {
+      const list = d.students.filter(s => inCls(s.cls)).slice().sort((a, b) => (a.lastStu || '0').localeCompare(b.lastStu || '0'));
+      const old = s => !s.lastStu || daysAgo(s.lastStu.slice(0, 10)) > 14;
+      h += '<div class="card"><div class="meta" style="margin-bottom:6px">접속 안 한 지 오래된 순 · 빨간색은 2주 넘게 학생 접속 없음</div>' +
+        list.map(s => '<div class="arow"><div><b' + (old(s) ? ' class="warn"' : '') + '>' + esc(s.disp) + '</b> <span class="s">' + esc(s.cls) + '</span></div>' +
+          '<div style="text-align:right" class="s">학생 ' + (s.lastStu ? esc(s.lastStu.slice(5, 10).replace('-', '/')) : '—') + ' · 학부모 ' + (s.lastPar ? esc(s.lastPar.slice(5, 10).replace('-', '/')) : '—') + '</div></div>').join('') + '</div>';
+    } else {
+      if (!S.vstat) h += '<div class="card"><div style="font-size:15px;line-height:1.6">학생별 영상 시청률을 영상 강의실에서 모아 와요. 학생 수에 따라 <b>20~60초</b> 걸려요.</div><button class="btn navy" id="vstatBtn">영상 시청 현황 불러오기</button></div>';
+      else {
+        const rows = S.vstat.rows.filter(r => inCls(r.cls)).slice().sort((a, b) => (b.todo || 0) - (a.todo || 0));
+        h += '<div class="card"><div class="row"><div class="meta">' + esc(S.vstat.at) + ' 기준 · 안 본 영상 많은 순</div><button class="linkbtn" id="vstatBtn" data-force="1">다시 불러오기</button></div>' +
+          rows.map(r => '<div class="arow"><div><b' + (r.todo ? ' class="warn"' : '') + '>' + esc(r.disp) + '</b> <span class="s">' + esc(r.cls) + '</span>' +
+            (r.todoList && r.todoList.length ? '<div class="s">' + esc(r.todoList.join(' · ')) + '</div>' : '') + (r.err ? '<div class="s">' + esc(r.err) + '</div>' : '') + '</div>' +
+            '<div style="text-align:right">' + (r.err ? '<span class="s">—</span>' : '<b>' + r.done + '/' + r.total + '</b><div class="s">' + (r.todo ? '안 봄 ' + r.todo : '모두 완료') + '</div>') + '</div></div>').join('') + '</div>';
+      }
+    }
+  } else {
+    h += '<div class="pushSlot" data-force="1"></div>';
+    if (!d.pushReady) h += '<div class="alert" style="margin:0 0 10px">OneSignal 키가 아직 서버에 없어요. Apps Script에서 <b>관리자_알림_설정</b>을 실행해 주세요. (그 전엔 보내도 기록만 남아요)</div>';
+    const pf = S.pf || (S.pf = { type:'all', value:'', stu:true, par:true, title:'', body:'' });
+    const opts = pf.type === 'class' ? d.classes : pf.type === 'school' ? d.schools : pf.type === 'student' ? d.students.map(s => s.disp) : [];
+    if (pf.type !== 'all' && opts.indexOf(pf.value) < 0) pf.value = opts[0] || '';
+    h += '<div class="form"><div class="fld"><div class="lb">받는 대상</div><div class="two"><select class="in" id="pfType">' +
+      [['all','전체'],['school','학교'],['class','반'],['student','학생 한 명']].map(x => '<option value="' + x[0] + '"' + (pf.type === x[0] ? ' selected' : '') + '>' + x[1] + '</option>').join('') + '</select>' +
+      (pf.type === 'all' ? '<div></div>' : '<select class="in" id="pfVal">' + opts.map(o => '<option' + (o === pf.value ? ' selected' : '') + '>' + esc(o) + '</option>').join('') + '</select>') + '</div>' +
+      '<div class="chkrow" style="margin-top:12px"><label><input type="checkbox" id="pfStu"' + (pf.stu ? ' checked' : '') + '>학생</label><label><input type="checkbox" id="pfPar"' + (pf.par ? ' checked' : '') + '>학부모</label></div></div>' +
+      '<div class="fld"><label for="pfTitle">제목</label><input class="in" id="pfTitle" maxlength="60" value="' + esc(pf.title) + '" placeholder="예: 내일 클리닉 시간 변경"></div>' +
+      '<div class="fld"><label for="pfBody">내용</label><textarea class="in" id="pfBody" maxlength="300" placeholder="알림에 보일 내용 (짧을수록 잘 보여요)">' + esc(pf.body) + '</textarea>' +
+      '<div class="hint">알림을 켠 학생·학부모 기기에만 가요. 꼭 전해야 하는 내용은 문자로도 보내 주세요. 보낸 기록은 시트 🔔알림기록 탭에 남아요.</div></div>' +
+      '<button class="btn" id="pfSend">알림 보내기</button><div class="ferr" id="pfErr"></div></div>';
+  }
+  $('#aBody').innerHTML = h;
+  renderPushCard();
+}
+$('#aBody').addEventListener('click', async e => {
+  const fb = e.target.closest('[data-f]'); if (fb) { S.aFilter = fb.dataset.f; renderAdmin(); return; }
+  if (e.target.closest('[data-reload]')) { loadAdmin(); return; }
+  const sb = e.target.closest('#aStu button'); if (sb) { S.aStu = sb.dataset.s; renderAdmin(); return; }
+  const cb = e.target.closest('[data-cls]'); if (cb) { S.aCls = cb.dataset.cls; renderAdmin(); return; }
+  const ph = e.target.closest('[data-ph]'); if (ph) { loadPhotos(ph, 'photo', S.ad.token); return; }
+  const vb = e.target.closest('#vstatBtn');
+  if (vb) {
+    vb.disabled = true; vb.textContent = '불러오는 중… (최대 1분)';
+    try { S.vstat = await aCall('adminVideo', { force: !!vb.dataset.force }); renderAdmin(); }
+    catch (err) { toast(cleanMsg(err)); vb.disabled = false; vb.textContent = '영상 시청 현황 불러오기'; }
+    return;
+  }
+  const db = e.target.closest('[data-dec]');
+  if (db) {
+    const id = db.dataset.id, memoEl = $('#aBody [data-memo="' + id + '"]'), memo = memoEl ? memoEl.value.trim() : '';
+    if (db.dataset.dec === '반려' && !memo) { toast('반려 이유를 메모 칸에 적어 주세요'); memoEl && memoEl.focus(); return; }
+    db.disabled = true;
+    try {
+      const r = await aCall('decide', { id, decision: db.dataset.dec, memo });
+      toast(db.dataset.dec === '승인' ? (r.warnToday ? '승인했어요. 오늘 날짜라 ✅오늘 탭도 확인해 주세요' : '승인했어요. 🔄일정변경에 기록됐어요') : '반려했어요');
+      loadAdmin();
+    } catch (err) { toast(cleanMsg(err)); db.disabled = false; }
+    return;
+  }
+  const qa = e.target.closest('[data-qa]');
+  if (qa) {
+    const id = qa.dataset.id, ta = $('#aBody [data-ans="' + id + '"]'), ans = ta ? ta.value.trim() : '';
+    if (qa.dataset.qa === '답변완료' && !ans) { toast('답변 내용을 적어 주세요'); ta && ta.focus(); return; }
+    qa.disabled = true;
+    try { await aCall('answer', { id, answer: ans, mode: qa.dataset.qa }); toast('보냈어요'); loadAdmin(); }
+    catch (err) { toast(cleanMsg(err)); qa.disabled = false; }
+    return;
+  }
+  if (e.target.closest('#pfSend')) {
+    const pf = S.pf, err = $('#pfErr'), btn = $('#pfSend');
+    pf.title = $('#pfTitle').value.trim(); pf.body = $('#pfBody').value.trim(); err.textContent = '';
+    const roles = (pf.stu ? ['student'] : []).concat(pf.par ? ['parent'] : []);
+    if (!pf.title || !pf.body) { err.textContent = '제목과 내용을 적어 주세요.'; return; }
+    if (!roles.length) { err.textContent = '학생·학부모 중 하나는 골라 주세요.'; return; }
+    const who = pf.type === 'all' ? '전체' : pf.value;
+    if (!confirm(who + ' ' + roles.map(r => r === 'student' ? '학생' : '학부모').join('·') + '에게 알림을 보낼까요?')) return;
+    btn.disabled = true; btn.textContent = '보내는 중…';
+    try {
+      const r = await aCall('pushSend', { type:pf.type, value:pf.value, roles, title:pf.title, body:pf.body });
+      toast(r.sent ? '보냈어요' : '결과: ' + r.result);
+      if (r.sent) { pf.title = ''; pf.body = ''; renderAdmin(); }
+    } catch (ex) { err.textContent = cleanMsg(ex); }
+    btn.disabled = false; btn.textContent = '알림 보내기';
+  }
+});
+$('#aBody').addEventListener('change', e => {
+  const pf = S.pf; if (!pf) return;
+  if (e.target.id === 'pfType') { pf.type = e.target.value; pf.value = ''; pf.title = $('#pfTitle').value; pf.body = $('#pfBody').value; renderAdmin(); }
+  if (e.target.id === 'pfVal') pf.value = e.target.value;
+  if (e.target.id === 'pfStu') pf.stu = e.target.checked;
+  if (e.target.id === 'pfPar') pf.par = e.target.checked;
+});
 
 /* ======================= 앱 설치 ======================= */
 let installEvt = null;
@@ -1002,6 +1662,16 @@ if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.
   setRole(r === 'parent' ? 'parent' : 'student');
   renderPin();
   renderInstall();
+  osInit();
+  // 알림을 눌러 들어온 경우 (?go=tAsk 등): 로그인 뒤 그 화면으로
+  try {
+    const g = new URLSearchParams(location.search).get('go');
+    if (g) { S.startGo = g; history.replaceState(null, '', location.pathname); }
+  } catch(e){}
+  try { const an = localStorage.getItem('pif_admin_name'); if (an) $('#adName').value = an; } catch(e){}
+  let ad = null; try { ad = JSON.parse(sessionStorage.getItem(AKEY)); } catch(e){}
+  if (ad && ad.token) { S.ad = ad; S.startGo = ''; enterAdmin(); return; }
+  if (S.startGo === 'admin') { S.startGo = ''; showView('vLogin'); showAdminForm(true); return; }
   const saved = loadSess();
   if (saved && saved.token) {
     S.token = saved.token; S.role = saved.role === 'parent' ? 'parent' : 'student'; S.vtoken = saved.vtoken || null;
