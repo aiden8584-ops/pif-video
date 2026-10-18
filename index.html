@@ -242,8 +242,11 @@ body{font-size:16px}
 .stat:nth-child(2)::before{background:#2E3F69}.stat:nth-child(3)::before{background:var(--ok)}
 .stat .n{font-size:27px;font-weight:900}
 .stat .l{font-size:13px}
-.vidcta{border-radius:18px;background:var(--coral);}
-.vidcta b,.vidcta i{color:#fff}.vidcta span{color:rgba(255,255,255,.85)}
+.vidcta{border-radius:18px;background:var(--paper);box-shadow:0 2px 12px rgba(21,27,44,.06)}
+.vidcta .pl{flex:0 0 40px;height:40px;border-radius:12px;background:var(--navy);color:#fff;display:grid;place-items:center;font-size:14px}
+.vidcta b,.vidcta i{color:var(--navy)}.vidcta span{color:var(--sub)}
+.vidcta em{font-style:normal;background:var(--bg);color:var(--sub);font-size:11.5px;font-weight:700;border-radius:999px;padding:2px 8px;margin-left:6px;vertical-align:1px}
+.nav .dot.soft{background:var(--navy-2)}
 .sec-t h2{font-size:18px;font-weight:900}
 .sec-t button{font-size:14px}
 .card,.notice,.fgroup{border:0;border-radius:20px;box-shadow:0 2px 12px rgba(21,27,44,.06)}
@@ -376,7 +379,7 @@ input[type=date].in{min-height:54px}
       <div class="help">로그인이 안 되면 학원 <a href="tel:025258584">02-525-8584</a></div>
       <div class="installSlot"></div>
       <div style="text-align:center;margin-top:10px"><button type="button" class="linkbtn" id="toAdmin">선생님 로그인</button></div>
-      <div class="ver">버전 10.18-3</div>
+      <div class="ver">버전 10.18-4</div>
     </form>
     <form class="sheet" id="adminForm" autocomplete="on" novalidate hidden>
       <h2 style="font-size:20px;font-weight:900;margin-bottom:16px">선생님 로그인</h2>
@@ -712,7 +715,7 @@ function renderHome(){
   h += '<div class="stats">' + statBox(st.attend, '수업 출석률') + statBox(st.hw, '과제 완료율') + statBox(st.wb, '워크북 완료율') + '</div>';
 
   h += '<div class="sec"><div class="pushSlot"></div>';
-  if (p.role === 'student') h += '<button class="vidcta" id="vidCta" hidden><div><b id="vidCtaT"></b><span>놓친 수업도, 다시 볼 수업도 여기서.</span></div><i>→</i></button>';
+  if (p.role === 'student') h += '<button class="vidcta" id="vidCta" hidden><span class="pl">▶</span><div><b id="vidCtaT"></b><span>놓친 수업도, 다시 볼 수업도 여기서.</span></div><i>→</i></button>';
 
   // 이번 주 할 일
   h += '<div class="sec-t"><h2>' + (p.role === 'parent' ? '이번 주 할 일 <span class="meta" style="font-weight:600">(학생)</span>' : '이번 주 할 일') + '</h2></div>';
@@ -963,13 +966,14 @@ async function loadVideos(){
   updateVidCta();
   if (S.tab === 'tVideo') renderVideos();
 }
+// 수업 영상은 복습용(선택) → 의무처럼 보이지 않게: 최근 7일 새 영상만 살짝 표시
 function updateVidCta(){
-  const todo = S.videos.filter(v => v.pct < DONE).length;
-  $('#navVidDot').hidden = !todo; $('#navVidDot').textContent = todo > 9 ? '9+' : todo;
+  const fresh = S.videos.filter(v => v.pct < DONE && daysAgo(v.date) <= 7).length;
+  const dot = $('#navVidDot'); dot.hidden = !fresh; dot.textContent = fresh > 9 ? '9+' : fresh; dot.classList.add('soft');
   const tb = $('#todoBox'); if (tb && S.p) tb.innerHTML = todoHTML();
   const cta = $('#vidCta'); if (!cta) return;
-  cta.hidden = !S.vLoaded || !todo;
-  $('#vidCtaT').textContent = '아직 안 본 수업 영상 ' + todo + '개';
+  cta.hidden = !S.vLoaded || !S.videos.length;
+  $('#vidCtaT').innerHTML = (fresh ? '새 수업 영상 ' + fresh + '개' : '수업 영상 다시 보기') + '<em>복습용</em>';
 }
 
 function renderVideos(){
@@ -1214,9 +1218,13 @@ function todoItems(p){
     sub:mdw(fail.date) + ' ' + fail.reviewScore + '점' + (fail.passLine != null ? ' (통과 ' + fail.passLine + '점)' : '') });
   const C = p.clinics.find(c => c.todo && daysAgo(c.date) <= 10);
   if (C) items.push({ key:'cl|' + C.date, title:C.todo, sub:mdw(C.date) + ' 클리닉에서 받은 할 일' });
+  // 영상은 복습용(선택)이라 할 일에 넣지 않음. 단, 결석한 수업의 '영상 보강'만 할 일로 표시
   if (p.role === 'student' && S.vLoaded) {
-    const n = S.videos.filter(v => v.pct < DONE).length;
-    if (n) items.push({ key:'vid', to:'tVideo', icon:'▶', title:'수업 영상 ' + n + '개 보기', sub:'아직 안 본 영상이 있어요' });
+    const absent = p.lessons.filter(l => /결석/.test(l.attendance || '') && daysAgo(l.date) <= 14).map(l => l.date);
+    const mk = p.clinics.some(c => c.makeupVideo && daysAgo(c.date) <= 14);
+    const need = S.videos.filter(v => v.pct < DONE && absent.indexOf(v.date) >= 0);
+    if (need.length) items.push({ key:'mk', to:'tVideo', icon:'▶', title:'영상 보강: ' + need.map(v => md(v.date) + ' 수업').join(', '), sub:'결석한 수업은 영상으로 보강해요' });
+    else if (mk && absent.length) items.push({ key:'mk', to:'tVideo', icon:'▶', title:'영상 보강하기', sub:'결석한 수업 영상을 봐 주세요' });
   }
   const ans = (p.questions || []).filter(q => q.status !== '대기' && q.answeredAt && daysAgo(q.answeredAt.slice(0,10)) <= 3).length;
   if (ans) items.push({ key:'ans', to:'tAsk', icon:'💬', title:'질문 답변 ' + ans + '개', sub:'선생님 답변을 확인하세요' });
@@ -1566,8 +1574,8 @@ function renderAdmin(){
       if (!S.vstat) h += '<div class="card"><div style="font-size:15px;line-height:1.6">학생별 영상 시청률을 영상 강의실에서 모아 와요. 학생 수에 따라 <b>20~60초</b> 걸려요.</div><button class="btn navy" id="vstatBtn">영상 시청 현황 불러오기</button></div>';
       else {
         const rows = S.vstat.rows.filter(r => inCls(r.cls)).slice().sort((a, b) => (b.todo || 0) - (a.todo || 0));
-        h += '<div class="card"><div class="row"><div class="meta">' + esc(S.vstat.at) + ' 기준 · 안 본 영상 많은 순</div><button class="linkbtn" id="vstatBtn" data-force="1">다시 불러오기</button></div>' +
-          rows.map(r => '<div class="arow"><div><b' + (r.todo ? ' class="warn"' : '') + '>' + esc(r.disp) + '</b> <span class="s">' + esc(r.cls) + '</span>' +
+        h += '<div class="card"><div class="row"><div class="meta">' + esc(S.vstat.at) + ' 기준 · 시청 적은 순 (영상은 복습용·선택)</div><button class="linkbtn" id="vstatBtn" data-force="1">다시 불러오기</button></div>' +
+          rows.map(r => '<div class="arow"><div><b>' + esc(r.disp) + '</b> <span class="s">' + esc(r.cls) + '</span>' +
             (r.todoList && r.todoList.length ? '<div class="s">' + esc(r.todoList.join(' · ')) + '</div>' : '') + (r.err ? '<div class="s">' + esc(r.err) + '</div>' : '') + '</div>' +
             '<div style="text-align:right">' + (r.err ? '<span class="s">—</span>' : '<b>' + r.done + '/' + r.total + '</b><div class="s">' + (r.todo ? '안 봄 ' + r.todo : '모두 완료') + '</div>') + '</div></div>').join('') + '</div>';
       }
