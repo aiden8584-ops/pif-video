@@ -392,7 +392,7 @@ input[type=date].in{min-height:54px}
       <div class="help">로그인이 안 되면 학원 <a href="tel:025258584">02-525-8584</a></div>
       <div class="installSlot"></div>
       <div style="text-align:center;margin-top:10px"><button type="button" class="linkbtn" id="toAdmin">선생님 로그인</button></div>
-      <div class="ver">버전 10.18-12</div>
+      <div class="ver">버전 10.18-13</div>
     </form>
     <form class="sheet" id="adminForm" autocomplete="on" novalidate hidden>
       <h2 style="font-size:20px;font-weight:900;margin-bottom:16px">선생님 로그인</h2>
@@ -620,13 +620,13 @@ $('#loginForm').addEventListener('submit', async e => {
   busy = true;
   const btn = $('#loginBtn'); btn.disabled = true; btn.textContent = '확인 중…';
   try {
-    const r = await post(PORTAL_API, 'login', { name, last4, role:S.role });
+    const r = await post(PORTAL_API, 'login', { name, last4, role:S.role, withPortal:true });
     S.token = r.token; S.role = r.role; S.last = { name, last4 }; S.vtoken = null;
     const keep = $('#keepLogin').checked;
     try { localStorage.setItem('pif_keep_pref', keep ? '1' : '0'); } catch(e2){}
-    if (keep) keepSet({ name, last4, role:S.role }); else keepClear();
+    if (keep) keepSet({ name, last4, role:S.role }); else { keepClear(); snapClear(); }
     saveSess();
-    await enterApp();
+    await enterApp(null, r.portal || null);
   } catch (err) {
     $('#loginErr').textContent = cleanMsg(err);
     $('#inPhone').value = ''; renderPin();
@@ -665,7 +665,7 @@ function askConfirm(o){
 async function askLogout(){
   const ok = await askConfirm({ icon:'👋', title:'로그아웃할까요?', ok:'로그아웃',
     msg: keepGet() ? '다음에 들어올 때 이름과 휴대폰 뒷자리를 다시 입력해야 해요.' : '' });
-  if (ok) { keepClear(); osLogout(); logout(); }
+  if (ok) { keepClear(); snapClear(); osLogout(); logout(); }
 }
 $('#meBtn').addEventListener('click', askLogout);
 document.addEventListener('click', e => { if (e.target.closest('[data-logout]')) askLogout(); });
@@ -694,29 +694,44 @@ function go(tab, fromPop){
 }
 $('#nav').addEventListener('click', e => { const b = e.target.closest('button'); if (b) go(b.dataset.t); });
 
-async function enterApp(startTab){
+// 속도: 마지막으로 본 화면을 이 기기에 보관 → 앱을 열면 바로 보여 주고, 최신 정보는 뒤에서 받아 바꿈 (로그인 유지일 때만)
+const SNAP = 'pif_snap';
+function snapGet(){ const k = keepGet(); if (!k) return null; try { const o = JSON.parse(localStorage.getItem(SNAP)); return o && o.who === k.name + '|' + k.role ? o.p : null; } catch(e){ return null; } }
+function snapSet(p){ const k = keepGet(); if (!k) return; try { localStorage.setItem(SNAP, JSON.stringify({ who: k.name + '|' + k.role, p: p })); } catch(e){} }
+function snapClear(){ try { localStorage.removeItem(SNAP); } catch(e){} }
+
+function appShell(){
   showView('vApp');
-  $('#tHome').innerHTML = '<div class="skel" style="height:150px;margin-top:6px"></div><div class="skel"></div><div class="skel"></div>';
-  // 뒤로 가기 처리용 기록: [base] → [app]
   try { history.replaceState({ pif:'base' }, ''); history.pushState({ pif:'app', tab:'tHome' }, ''); } catch(e){}
   S.tab = 'tHome'; go('tHome', true);
   const isStudent = S.role === 'student';
   $('#navVideo').hidden = !isStudent;
   if (isStudent) loadVideos();      // 영상은 따로, 기다리지 않음
-  try {
-    S.p = await portal('portal');
-  } catch (e) {
-    if (String(e.message).indexOf('SESSION_EXPIRED') >= 0) return;
-    $('#tHome').innerHTML = '<div class="empty">정보를 불러오지 못했어요.<br>' + esc(cleanMsg(e)) + '</div>';
-    return;
-  }
-  const p = S.p;
+}
+function skeleton(){ $('#tHome').innerHTML = '<div class="skel" style="height:150px;margin-top:6px"></div><div class="skel"></div><div class="skel"></div>'; }
+// 받은 데이터로 화면 그리기 (보관본 → 최신본 순서로 두 번 불릴 수 있음)
+function applyPortal(p, startTab){
+  S.p = p;
   $('#meWho').textContent = p.role === 'parent' ? p.name + ' 학부모님' : p.classes.join(', ');
   $('#meAvatar').textContent = initials(p.name);
-  osLogin(p.pushId);
   renderHome(); renderLessons(); renderScores();
+  if (S.tab === 'tChange') renderChange(); else if (S.tab === 'tAsk') renderAsk(); else if (S.tab === 'tTools') renderTools();
   const want = S.startGo || startTab; S.startGo = '';
-  if (want && want !== 'tHome') go(want, want === startTab);
+  if (want && want !== 'tHome' && want !== S.tab) go(want, want === startTab);
+}
+async function enterApp(startTab, pre){
+  appShell();
+  const snap = pre ? null : snapGet();
+  if (pre) { applyPortal(pre, startTab); snapSet(pre); osLogin(pre.pushId); return; }
+  if (snap) applyPortal(snap, startTab); else skeleton();
+  try {
+    const p = await portal('portal');
+    applyPortal(p, snap ? null : startTab); snapSet(p); osLogin(p.pushId);
+  } catch (e) {
+    if (String(e.message).indexOf('SESSION_EXPIRED') >= 0) return;
+    if (snap) toast('최신 정보를 불러오지 못했어요. 잠시 후 다시 열어 주세요');
+    else $('#tHome').innerHTML = '<div class="empty">정보를 불러오지 못했어요.<br>' + esc(cleanMsg(e)) + '</div>';
+  }
 }
 
 /* ======================= 홈 ======================= */
@@ -1371,7 +1386,7 @@ $('#tChange').addEventListener('click', async e => {
     btn.disabled = true; btn.textContent = '보내는 중…';
     try {
       const r = await portal('changeRequest', { kind:k.kind, orig:k.orig, newDate:k.newDate, newTime:k.newTime, reason:k.reason });
-      S.p.requests = r.requests; S.p.quota = r.quota; S.chg = null; renderChange(); renderHome();
+      S.p.requests = r.requests; S.p.quota = r.quota; S.chg = null; renderChange(); renderHome(); snapSet(S.p);
       toast('신청을 보냈어요. 처리되면 알려 드릴게요');
     } catch (ex) { err.textContent = cleanMsg(ex); btn.disabled = false; btn.textContent = '신청 보내기'; }
   }
@@ -1764,11 +1779,15 @@ if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.
   const saved = loadSess();
   if (!(saved && saved.token) && keep) {        // 로그인 유지: 앱을 열면 바로 입장
     S.role = keep.role === 'parent' ? 'parent' : 'student';
-    showView('vApp'); $('#tHome').innerHTML = '<div class="skel" style="height:150px;margin-top:6px"></div><div class="skel"></div>';
-    post(PORTAL_API, 'login', keep).then(r => {
-      S.token = r.token; S.role = r.role; S.vtoken = null; saveSess(); enterApp();
+    appShell();
+    const snap = snapGet();
+    if (snap) applyPortal(snap); else skeleton();
+    post(PORTAL_API, 'login', Object.assign({}, keep, { withPortal:true })).then(r => {
+      S.token = r.token; S.role = r.role; S.vtoken = S.vtoken || null; saveSess();
+      if (r.portal) { applyPortal(r.portal); snapSet(r.portal); osLogin(r.portal.pushId); }
+      else enterApp();
     }).catch(err => {
-      keepClear(); setRole(S.role); $('#inName').value = keep.name || '';
+      keepClear(); snapClear(); setRole(S.role); $('#inName').value = keep.name || '';
       showView('vLogin'); $('#loginErr').textContent = '자동 로그인이 안 됐어요: ' + cleanMsg(err);
     });
     return;
