@@ -349,6 +349,19 @@ input[type=date].in{min-height:54px}
 .topR{display:flex;align-items:center;gap:8px}
 .outbtn{border:1px solid var(--line);background:#fff;border-radius:999px;font-size:12.5px;font-weight:700;color:var(--sub);padding:6px 11px;white-space:nowrap}
 .ver{text-align:center;font-size:11px;color:var(--faint);margin-top:4px}
+/* 확인 창 (브라우저 기본 팝업 대신) */
+.dlg-back{position:fixed;inset:0;z-index:50;background:rgba(15,21,36,.45);display:flex;align-items:flex-end;justify-content:center;opacity:0;transition:opacity .18s;padding:0 0 env(safe-area-inset-bottom)}
+.dlg-back.show{opacity:1}
+.dlg{width:100%;max-width:560px;background:#fff;border-radius:26px 26px 0 0;padding:26px 22px calc(18px + env(safe-area-inset-bottom));transform:translateY(24px);transition:transform .2s ease-out;box-shadow:0 -8px 30px rgba(15,21,36,.18)}
+.dlg-back.show .dlg{transform:none}
+.dlg .ic{width:48px;height:48px;border-radius:16px;display:grid;place-items:center;font-size:22px;background:var(--bg);margin-bottom:14px}
+.dlg .ic.danger{background:var(--bad-bg)}
+.dlg h3{font-size:20px;font-weight:900;letter-spacing:-.035em;line-height:1.35}
+.dlg p{font-size:15px;color:var(--sub);margin-top:8px;line-height:1.6;white-space:pre-line;word-break:keep-all}
+.dlg .btns{margin-top:22px}
+.dlg .btns .btn{height:52px;font-size:16px}
+.dlg .btn.danger{background:var(--bad)}
+@media (min-width:600px){ .dlg-back{align-items:center} .dlg{border-radius:24px;margin:0 16px} }
 </style>
 </head>
 <body class="login-mode">
@@ -379,7 +392,7 @@ input[type=date].in{min-height:54px}
       <div class="help">로그인이 안 되면 학원 <a href="tel:025258584">02-525-8584</a></div>
       <div class="installSlot"></div>
       <div style="text-align:center;margin-top:10px"><button type="button" class="linkbtn" id="toAdmin">선생님 로그인</button></div>
-      <div class="ver">버전 10.18-10</div>
+      <div class="ver">버전 10.18-11</div>
     </form>
     <form class="sheet" id="adminForm" autocomplete="on" novalidate hidden>
       <h2 style="font-size:20px;font-weight:900;margin-bottom:16px">선생님 로그인</h2>
@@ -631,7 +644,29 @@ function logout(msg){
   $('#loginErr').textContent = msg || '';
   showView('vLogin');
 }
-function askLogout(){ if (confirm('로그아웃할까요?' + (keepGet() ? '\n(다음엔 이름과 번호를 다시 입력해야 해요)' : ''))) { keepClear(); osLogout(); logout(); } }
+// 예쁜 확인 창: await askConfirm({ title, msg, ok, icon, danger }) → true/false
+function askConfirm(o){
+  return new Promise(res => {
+    const back = document.createElement('div');
+    back.className = 'dlg-back';
+    back.innerHTML = '<div class="dlg" role="dialog" aria-modal="true"><div class="ic' + (o.danger ? ' danger' : '') + '">' + (o.icon || '❔') + '</div>' +
+      '<h3>' + esc(o.title || '') + '</h3>' + (o.msg ? '<p>' + esc(o.msg) + '</p>' : '') +
+      '<div class="btns"><button class="btn ghost" data-a="0">' + esc(o.cancel || '취소') + '</button>' +
+      '<button class="btn ' + (o.danger ? 'danger' : 'navy') + '" data-a="1">' + esc(o.ok || '확인') + '</button></div></div>';
+    const done = v => { back.classList.remove('show'); document.removeEventListener('keydown', key); setTimeout(() => back.remove(), 200); res(v); };
+    const key = e => { if (e.key === 'Escape') done(false); };
+    back.addEventListener('click', e => { const b = e.target.closest('[data-a]'); if (b) done(b.dataset.a === '1'); else if (e.target === back) done(false); });
+    document.addEventListener('keydown', key);
+    document.body.appendChild(back);
+    requestAnimationFrame(() => back.classList.add('show'));
+    setTimeout(() => { const b = back.querySelector('[data-a="1"]'); if (b) b.focus(); }, 60);
+  });
+}
+async function askLogout(){
+  const ok = await askConfirm({ icon:'👋', title:'로그아웃할까요?', ok:'로그아웃',
+    msg: keepGet() ? '다음에 들어올 때 이름과 휴대폰 뒷자리를 다시 입력해야 해요.' : '' });
+  if (ok) { keepClear(); osLogout(); logout(); }
+}
 $('#meBtn').addEventListener('click', askLogout);
 document.addEventListener('click', e => { if (e.target.closest('[data-logout]')) askLogout(); });
 
@@ -1321,7 +1356,7 @@ $('#tChange').addEventListener('click', async e => {
   const ob = e.target.closest('#chgOrig .chip'); if (ob) { k.orig = ob.dataset.v; renderChange(); return; }
   const cb = e.target.closest('[data-cancel]');
   if (cb) {
-    if (!confirm('이 신청을 취소할까요?')) return;
+    if (!(await askConfirm({ icon:'🗓', title:'이 신청을 취소할까요?', msg:'취소하면 학원에서 처리하지 않아요. 필요하면 다시 신청할 수 있어요.', ok:'신청 취소', cancel:'그대로 두기', danger:true }))) return;
     try { const r = await portal('cancelRequest', { id: cb.dataset.cancel }); S.p.requests = r.requests; S.p.quota = r.quota; renderChange(); toast('신청을 취소했어요'); }
     catch (err) { toast(cleanMsg(err)); }
     return;
@@ -1515,8 +1550,9 @@ function adminLogout(msg){
   S.ad = null; S.aData = null; S.vstat = null;
   showView('vLogin'); showAdminForm(true); $('#adErr').textContent = msg || '';
 }
-$('#adMe').addEventListener('click', () => { if (confirm('로그아웃할까요?')) { osLogout(); adminLogout(); } });
-$('#adOut').addEventListener('click', () => { if (confirm('로그아웃할까요?')) { osLogout(); adminLogout(); } });
+async function askAdminLogout(){ if (await askConfirm({ icon:'👋', title:'로그아웃할까요?', ok:'로그아웃' })) { osLogout(); adminLogout(); } }
+$('#adMe').addEventListener('click', askAdminLogout);
+$('#adOut').addEventListener('click', askAdminLogout);
 async function aCall(action, data){
   try { return await post(PORTAL_API, action, Object.assign({}, data, { token:S.ad.token })); }
   catch (e) { if (String(e.message).indexOf('SESSION_EXPIRED') >= 0) adminLogout('오래 지나서 다시 로그인해 주세요.'); throw e; }
@@ -1650,7 +1686,7 @@ $('#aBody').addEventListener('click', async e => {
     if (!pf.title || !pf.body) { err.textContent = '제목과 내용을 적어 주세요.'; return; }
     if (!roles.length) { err.textContent = '학생·학부모 중 하나는 골라 주세요.'; return; }
     const who = pf.type === 'all' ? '전체' : pf.value;
-    if (!confirm(who + ' ' + roles.map(r => r === 'student' ? '학생' : '학부모').join('·') + '에게 알림을 보낼까요?')) return;
+    if (!(await askConfirm({ icon:'🔔', title:'알림을 보낼까요?', msg: who + ' ' + roles.map(r => r === 'student' ? '학생' : '학부모').join('·') + '에게 보내요.\n\n' + pf.title + '\n' + pf.body, ok:'보내기' }))) return;
     btn.disabled = true; btn.textContent = '보내는 중…';
     try {
       const r = await aCall('pushSend', { type:pf.type, value:pf.value, roles, title:pf.title, body:pf.body });
