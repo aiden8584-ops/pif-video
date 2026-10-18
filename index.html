@@ -379,7 +379,7 @@ input[type=date].in{min-height:54px}
       <div class="help">로그인이 안 되면 학원 <a href="tel:025258584">02-525-8584</a></div>
       <div class="installSlot"></div>
       <div style="text-align:center;margin-top:10px"><button type="button" class="linkbtn" id="toAdmin">선생님 로그인</button></div>
-      <div class="ver">버전 10.18-9</div>
+      <div class="ver">버전 10.18-10</div>
     </form>
     <form class="sheet" id="adminForm" autocomplete="on" novalidate hidden>
       <h2 style="font-size:20px;font-weight:900;margin-bottom:16px">선생님 로그인</h2>
@@ -1549,7 +1549,9 @@ function renderAdmin(){
     h += '<div class="meta" style="margin:-2px 4px 10px">승인하면 🔄일정변경 탭에 자동으로 한 줄 들어가고, 학생·학부모에게 알림이 가요.</div>';
     h += list.length ? list.map(r => {
       let c = '<div class="card"><div class="row"><div class="meta"><b>' + esc(r.disp) + '</b> · ' + esc(r.cls) + ' · ' + esc(r.by) + ' · ' + esc(r.at.slice(5)) + '</div>' + statusBadge(r.status) + '</div>' +
-        '<h3 style="margin-top:8px">' + esc(reqWhat(r)) + '</h3><dl class="kv2"><dt>구분</dt><dd>' + esc(r.kind) + '</dd><dt>사유</dt><dd>' + esc(r.reason) + '</dd>';
+        '<h3 style="margin-top:8px">' + esc(reqWhat(r)) + '</h3><dl class="kv2"><dt>구분</dt><dd>' + esc(r.kind) + '</dd><dt>사유</dt><dd>' + esc(r.reason) + '</dd>' +
+        (r.quota ? '<dt>횟수</dt><dd><b style="color:' + (r.quota.nth > r.quota.limit ? 'var(--bad)' : 'inherit') + '">이번 기간 ' + r.quota.nth + '/' + r.quota.limit + '회째</b>' +
+          (r.status === '대기' ? (r.quota.nth > r.quota.limit ? ' <span class="badge bad">한도 초과</span>' : '') + '<div class="meta">승인하면 ' + r.quota.nth + '회째 · ' + md(r.quota.from) + '~' + md(r.quota.to) + '</div>' : '') + '</dd>' : '');
       if (r.status !== '대기') c += '<dt>처리</dt><dd>' + esc(r.handler) + ' · ' + esc((r.handledAt || '').slice(5)) + (r.memo ? '<div class="meta">' + esc(r.memo) + '</div>' : '') + '</dd>';
       c += '</dl>';
       if (r.status === '대기') c += '<input class="in" style="margin-top:12px;height:48px;font-size:15px" data-memo="' + esc(r.id) + '" maxlength="200" placeholder="학원 메모 (반려할 땐 필수 · 학생·학부모에게 보여요)">' +
