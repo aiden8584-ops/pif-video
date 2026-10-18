@@ -340,6 +340,12 @@ input[type=date].in{min-height:54px}
 .chkrow{display:flex;gap:16px;font-size:15px;font-weight:700}
 .chkrow label{display:flex;gap:6px;align-items:center;margin:0}
 .chkrow input{width:20px;height:20px;accent-color:var(--navy)}
+.keep{display:flex;gap:8px;align-items:center;font-size:15px;font-weight:700;margin:-2px 0 16px;cursor:pointer}
+.keep input{width:20px;height:20px;accent-color:var(--navy);margin:0}
+.keep span{color:var(--faint);font-weight:500;font-size:13px}
+.topR{display:flex;align-items:center;gap:8px}
+.outbtn{border:1px solid var(--line);background:#fff;border-radius:999px;font-size:12.5px;font-weight:700;color:var(--sub);padding:6px 11px;white-space:nowrap}
+.ver{text-align:center;font-size:11px;color:var(--faint);margin-top:4px}
 </style>
 </head>
 <body class="login-mode">
@@ -364,11 +370,13 @@ input[type=date].in{min-height:54px}
           <div></div><div></div><div></div><div></div>
           <input id="inPhone" name="last4" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" aria-label="휴대폰 뒷자리 4개">
         </div></div>
+      <label class="keep"><input type="checkbox" id="keepLogin" checked>로그인 유지 <span>(같이 쓰는 휴대폰이면 해제)</span></label>
       <button class="go" id="loginBtn" type="submit">들어가기</button>
       <div class="err" id="loginErr" role="alert"></div>
       <div class="help">로그인이 안 되면 학원 <a href="tel:025258584">02-525-8584</a></div>
       <div class="installSlot"></div>
       <div style="text-align:center;margin-top:10px"><button type="button" class="linkbtn" id="toAdmin">선생님 로그인</button></div>
+      <div class="ver">버전 10.18-3</div>
     </form>
     <form class="sheet" id="adminForm" autocomplete="on" novalidate hidden>
       <h2 style="font-size:20px;font-weight:900;margin-bottom:16px">선생님 로그인</h2>
@@ -384,7 +392,7 @@ input[type=date].in{min-height:54px}
   <section id="vApp" hidden>
     <div class="top">
       <div class="logo"><b>PIF</b> 학습실</div>
-      <button class="me" id="meBtn" title="로그아웃"><span id="meWho"></span><i id="meAvatar"></i></button>
+      <div class="topR"><button class="me" id="meBtn" title="로그아웃"><span id="meWho"></span><i id="meAvatar"></i></button><button class="outbtn" data-logout>로그아웃</button></div>
     </div>
 
     <!-- 홈 -->
@@ -436,7 +444,7 @@ input[type=date].in{min-height:54px}
   <section id="vAdmin" hidden>
     <div class="top">
       <div class="logo"><b>PIF</b> 학습실 <span style="font-weight:700;color:var(--sub);font-size:14px">관리</span></div>
-      <button class="me" id="adMe" title="로그아웃"><span id="adWho"></span><i id="adAvatar"></i></button>
+      <div class="topR"><button class="me" id="adMe" title="로그아웃"><span id="adWho"></span><i id="adAvatar"></i></button><button class="outbtn" id="adOut">로그아웃</button></div>
     </div>
     <div class="aseg"><div class="seg" id="aSeg">
       <button class="on" data-a="req">일정<em id="aReqN" hidden></em></button>
@@ -525,10 +533,26 @@ function post(url, action, data){
     .then(r => r.json())
     .then(j => { if (j.error) throw new Error(j.error); return j.result; });
 }
-async function portal(action, data){
+async function portal(action, data, retried){
   try { return await post(PORTAL_API, action, Object.assign({}, data, { token:S.token })); }
-  catch (e) { if (String(e.message).indexOf('SESSION_EXPIRED') >= 0) logout('오래 지나서 다시 로그인해 주세요.'); throw e; }
+  catch (e) {
+    if (String(e.message).indexOf('SESSION_EXPIRED') < 0) throw e;
+    const k = keepGet();
+    if (k && !retried) {                       // 로그인 유지 중이면 조용히 다시 로그인하고 한 번 더
+      try {
+        const r = await post(PORTAL_API, 'login', k);
+        S.token = r.token; S.role = r.role; S.last = { name:k.name, last4:k.last4 }; saveSess();
+        return await portal(action, data, true);
+      } catch (e2) { keepClear(); logout('자동 로그인이 풀렸어요. 다시 로그인해 주세요.'); throw e2; }
+    }
+    logout('오래 지나서 다시 로그인해 주세요.'); throw e;
+  }
 }
+// 로그인 유지 (이 기기에만 저장, 로그아웃하면 지워짐)
+const KKEY = 'pif_keep';
+function keepGet(){ try { const v = localStorage.getItem(KKEY); return v ? JSON.parse(decodeURIComponent(escape(atob(v)))) : null; } catch(e){ return null; } }
+function keepSet(o){ try { localStorage.setItem(KKEY, btoa(unescape(encodeURIComponent(JSON.stringify(o))))); } catch(e){} }
+function keepClear(){ try { localStorage.removeItem(KKEY); } catch(e){} }
 function video(action, data){ return post(VIDEO_API, action, Object.assign({}, data, { token:S.vtoken })); }
 
 // 로그인 유지: 같은 탭에서 새로고침할 때만 유지 (탭을 닫으면 사라짐)
@@ -582,6 +606,9 @@ $('#loginForm').addEventListener('submit', async e => {
   try {
     const r = await post(PORTAL_API, 'login', { name, last4, role:S.role });
     S.token = r.token; S.role = r.role; S.last = { name, last4 }; S.vtoken = null;
+    const keep = $('#keepLogin').checked;
+    try { localStorage.setItem('pif_keep_pref', keep ? '1' : '0'); } catch(e2){}
+    if (keep) keepSet({ name, last4, role:S.role }); else keepClear();
     saveSess();
     await enterApp();
   } catch (err) {
@@ -601,7 +628,9 @@ function logout(msg){
   $('#loginErr').textContent = msg || '';
   showView('vLogin');
 }
-$('#meBtn').addEventListener('click', () => { if (confirm('로그아웃할까요?')) { osLogout(); logout(); } });
+function askLogout(){ if (confirm('로그아웃할까요?' + (keepGet() ? '\n(다음엔 이름과 번호를 다시 입력해야 해요)' : ''))) { keepClear(); osLogout(); logout(); } }
+$('#meBtn').addEventListener('click', askLogout);
+document.addEventListener('click', e => { if (e.target.closest('[data-logout]')) askLogout(); });
 
 /* ======================= 화면 전환 ======================= */
 function showView(id){
@@ -715,7 +744,8 @@ function renderHome(){
       (p.notices.length > 5 ? '<button class="card" id="moreNotice" style="width:100%;text-align:center;font-weight:700;color:var(--navy-2);font-size:14px">공지 ' + (p.notices.length - 5) + '개 더 보기</button>' : '')
     : '<div class="card empty sm">새 공지가 없어요.</div>';
   h += '<div class="installSlot" data-home="1"></div>';
-  h += '<div class="empty sm" style="padding-bottom:10px">문의 <a href="tel:' + esc(String(p.contact).replace(/\D/g,'')) + '" style="color:inherit">' + esc(p.contact) + '</a></div>';
+  h += '<div class="empty sm" style="padding-bottom:10px">문의 <a href="tel:' + esc(String(p.contact).replace(/\D/g,'')) + '" style="color:inherit">' + esc(p.contact) + '</a>' +
+    '<div style="margin-top:8px"><button class="linkbtn" data-logout>로그아웃</button></div></div>';
   h += '</div>';
   $('#tHome').innerHTML = h;
   renderInstall();
@@ -1469,6 +1499,7 @@ function adminLogout(msg){
   showView('vLogin'); showAdminForm(true); $('#adErr').textContent = msg || '';
 }
 $('#adMe').addEventListener('click', () => { if (confirm('로그아웃할까요?')) { osLogout(); adminLogout(); } });
+$('#adOut').addEventListener('click', () => { if (confirm('로그아웃할까요?')) { osLogout(); adminLogout(); } });
 async function aCall(action, data){
   try { return await post(PORTAL_API, action, Object.assign({}, data, { token:S.ad.token })); }
   catch (e) { if (String(e.message).indexOf('SESSION_EXPIRED') >= 0) adminLogout('오래 지나서 다시 로그인해 주세요.'); throw e; }
@@ -1672,7 +1703,21 @@ if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.
   let ad = null; try { ad = JSON.parse(sessionStorage.getItem(AKEY)); } catch(e){}
   if (ad && ad.token) { S.ad = ad; S.startGo = ''; enterAdmin(); return; }
   if (S.startGo === 'admin') { S.startGo = ''; showView('vLogin'); showAdminForm(true); return; }
+  try { if (localStorage.getItem('pif_keep_pref') === '0') $('#keepLogin').checked = false; } catch(e){}
+  const keep = keepGet();
+  if (keep) { S.last = { name:keep.name, last4:keep.last4 }; }
   const saved = loadSess();
+  if (!(saved && saved.token) && keep) {        // 로그인 유지: 앱을 열면 바로 입장
+    S.role = keep.role === 'parent' ? 'parent' : 'student';
+    showView('vApp'); $('#tHome').innerHTML = '<div class="skel" style="height:150px;margin-top:6px"></div><div class="skel"></div>';
+    post(PORTAL_API, 'login', keep).then(r => {
+      S.token = r.token; S.role = r.role; S.vtoken = null; saveSess(); enterApp();
+    }).catch(err => {
+      keepClear(); setRole(S.role); $('#inName').value = keep.name || '';
+      showView('vLogin'); $('#loginErr').textContent = '자동 로그인이 안 됐어요: ' + cleanMsg(err);
+    });
+    return;
+  }
   if (saved && saved.token) {
     S.token = saved.token; S.role = saved.role === 'parent' ? 'parent' : 'student'; S.vtoken = saved.vtoken || null;
     if (saved.kind === 'clinic') setLessonKind('clinic');
