@@ -146,6 +146,13 @@
   .notice summary .pre{font-size:13px;color:var(--sub);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .notice[open] summary .pre{display:none}
   .notice .body{padding:0 16px 16px;font-size:14px;line-height:1.7;white-space:pre-wrap;word-break:keep-all;overflow-wrap:anywhere}
+  .natt{padding:0 16px 16px;display:flex;flex-direction:column;gap:8px}
+  .nimg{border-radius:12px;overflow:hidden;background:var(--bg);min-height:60px;display:grid;place-items:center}
+  .nimg span{font-size:13px;color:var(--sub);padding:18px}
+  .nimg img{display:block;width:100%;height:auto}
+  .nfile{display:flex;align-items:center;gap:10px;width:100%;text-align:left;border:1px solid var(--line);background:#fff;border-radius:12px;padding:11px 13px}
+  .nfile b{flex:1;font-size:14px;font-weight:700;overflow-wrap:anywhere}
+  .nfile i{font-style:normal;font-size:13px;font-weight:800;color:var(--navy-2);white-space:nowrap}
   .pinmark{font-size:11px;font-weight:800;color:#fff;background:var(--coral);border-radius:5px;padding:2px 6px;flex:0 0 auto;margin-top:2px}
 
   /* 성적 */
@@ -455,7 +462,7 @@ html.fz2 #vApp,html.fz2 #nav{zoom:1.25}
       <div class="help">로그인이 안 되면 학원 <a id="loginTel"></a></div>
       <div class="installSlot"></div>
       <div style="text-align:center;margin-top:10px"><button type="button" class="linkbtn" id="toAdmin">선생님 로그인</button></div>
-      <div class="ver">버전 10.20-4</div>
+      <div class="ver">버전 10.20-5</div>
     </form>
     <form class="sheet" id="adminForm" autocomplete="on" novalidate hidden>
       <h2 style="font-size:20px;font-weight:900;margin-bottom:16px">선생님 로그인</h2>
@@ -885,6 +892,7 @@ function renderHome(){
     '<div style="margin-top:8px"><button class="linkbtn" data-logout>로그아웃</button></div></div>';
   h += '</div>';
   $('#tHome').innerHTML = h;
+  loadNoticeImgs($('#tHome'));
   renderInstall();
   renderPushCard();
   updateVidCta();
@@ -906,8 +914,33 @@ function noticeItem(n, open){
   return '<details class="notice"' + (open ? ' open' : '') + '><summary>' + (n.pinned ? '<span class="pinmark">중요</span>' : '') +
     '<div class="t"><b>' + esc(n.title || '공지') + '</b><div class="pre">' + esc(first) + '</div>' +
     '<div class="meta" style="margin-top:4px">' + esc(mdw(n.date)) + ' · ' + esc(n.source) + '</div></div></summary>' +
-    '<div class="body">' + esc(n.body) + '</div></details>';
+    '<div class="body">' + esc(n.body) + '</div>' + noticeFilesHTML(n.files) + '</details>';
 }
+// 공지 첨부: 사진은 공지를 펼칠 때 불러와서 바로 보여 주고, 다른 파일은 '받기' 버튼
+function noticeFilesHTML(files){
+  if (!files || !files.length) return '';
+  return '<div class="natt">' + files.map(f => /^image\//.test(f.mime)
+    ? '<div class="nimg" data-nimg="' + esc(f.id) + '"><span>사진 불러오는 중…</span></div>'
+    : '<button type="button" class="nfile" data-nfile="' + esc(f.id) + '"><b>📎 ' + esc(f.name) + '</b><i>받기</i></button>').join('') + '</div>';
+}
+const NIMG = {};   // 한 번 불러온 공지 사진은 다시 받지 않음
+function loadNoticeImgs(root){
+  root.querySelectorAll('details.notice[open] [data-nimg]:not([data-done])').forEach(async el => {
+    const id = el.dataset.nimg; el.dataset.done = 1;
+    try {
+      if (!NIMG[id]) { const r = await portal('noticeFile', { fileId:id }); NIMG[id] = URL.createObjectURL(b64Blob(r.b64, r.mime)); }
+      el.innerHTML = '<img src="' + NIMG[id] + '" alt="공지 사진">';
+    } catch (err) { el.innerHTML = '<span>사진을 불러오지 못했어요</span>'; delete el.dataset.done; }
+  });
+}
+document.addEventListener('toggle', e => { if (e.target.matches && e.target.matches('details.notice')) loadNoticeImgs(e.target.parentNode); }, true);
+document.addEventListener('click', async e => {
+  const b = e.target.closest('[data-nfile]'); if (!b || b.dataset.busy) return;
+  const i = b.querySelector('i'); b.dataset.busy = 1; i.textContent = '받는 중…';
+  try { saveB64(await portal('noticeFile', { fileId:b.dataset.nfile })); i.textContent = '완료'; }
+  catch (err) { i.textContent = '받기'; toast(cleanMsg(err)); }
+  finally { delete b.dataset.busy; setTimeout(() => { if (i.textContent === '완료') i.textContent = '받기'; }, 3000); }
+});
 
 /* ======================= 진도·과제 ======================= */
 function passBadge(l){
@@ -1064,18 +1097,25 @@ function renderFiles(){
   $('#fileBody').innerHTML = html || '<div class="empty">' + (q ? '찾는 자료가 없어요.' : '아직 올라온 자료가 없어요.') + '</div>';
 }
 $('#fq').addEventListener('input', e => { S.fq = e.target.value; renderFiles(); });
+// 서버가 보낸 파일(b64)을 이 기기에 저장
+function b64Blob(b64, mime){
+  const bin = atob(b64), arr = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+  return new Blob([arr], { type: mime || 'application/pdf' });
+}
+function saveB64(r){
+  const url = URL.createObjectURL(b64Blob(r.b64, r.mime));
+  const a = document.createElement('a');
+  a.href = url; a.download = r.name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
+  toast('내려받았어요: ' + r.name);
+}
 $('#fileBody').addEventListener('click', async e => {
   const b = e.target.closest('.file'); if (!b || b.dataset.busy) return;
   const dl = b.querySelector('.dl'); b.dataset.busy = 1; dl.textContent = '받는 중…';
   try {
-    const r = await portal('download', { fileId: b.dataset.id });
-    const bin = atob(r.b64), arr = new Uint8Array(bin.length);
-    for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
-    const url = URL.createObjectURL(new Blob([arr], { type: r.mime || 'application/pdf' }));
-    const a = document.createElement('a');
-    a.href = url; a.download = r.name; document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 60000);
-    dl.textContent = '완료'; toast('내려받았어요: ' + r.name);
+    saveB64(await portal('download', { fileId: b.dataset.id }));
+    dl.textContent = '완료';
   } catch (err) {
     dl.textContent = '받기'; toast(cleanMsg(err));
   } finally { delete b.dataset.busy; setTimeout(() => { if (dl.textContent === '완료') dl.textContent = '받기'; }, 3000); }
