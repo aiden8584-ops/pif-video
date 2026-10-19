@@ -6,6 +6,21 @@
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="theme-color" content="#1E2B4A">
 <script>
+  // 카카오톡(알림톡 링크) 안에서 열리면 앱 설치가 안 되므로 기본 브라우저(크롬·사파리)로 다시 열기
+  (function () {
+    if (!/KAKAOTALK/i.test(navigator.userAgent)) return;
+    try { location.replace('kakaotalk://web/openExternal?url=' + encodeURIComponent(location.href)); } catch (e) {}
+    // 자동으로 안 넘어가는 경우(예전 카톡 등) 안내 띠
+    window.addEventListener('load', function () {
+      setTimeout(function () {
+        var d = document.createElement('div');
+        d.setAttribute('role', 'alert');
+        d.style.cssText = 'position:fixed;left:0;right:0;top:0;z-index:99999;background:#FEE500;color:#191919;font:600 14px/1.5 system-ui,sans-serif;padding:12px 16px calc(12px) 16px;padding-top:calc(12px + env(safe-area-inset-top,0px));box-shadow:0 2px 10px rgba(0,0,0,.2)';
+        d.innerHTML = '카카오톡 안에서 열렸어요. 앱으로 설치하려면 화면 오른쪽 위(아이폰은 오른쪽 아래) <b>⋮ 또는 공유</b> 버튼 → <b>다른 브라우저로 열기</b>(Safari·Chrome)를 눌러 주세요.';
+        document.body.appendChild(d);
+      }, 1200);
+    });
+  })();
   // 삼성 인터넷은 "앱 설치" 시 구형 패키지를 만들어 Play 프로텍트 경고가 뜸 → 삼성 인터넷에는 앱 정보(manifest)를 주지 않고
   // 일반 "홈 화면 바로가기"로만 추가되게 함. 크롬 등 다른 브라우저는 정상 설치.
   if (!/SamsungBrowser/i.test(navigator.userAgent)) {
@@ -435,7 +450,7 @@ input[type=date].in{min-height:54px}
       <div class="help">로그인이 안 되면 학원 <a href="tel:025258584">02-525-8584</a></div>
       <div class="installSlot"></div>
       <div style="text-align:center;margin-top:10px"><button type="button" class="linkbtn" id="toAdmin">선생님 로그인</button></div>
-      <div class="ver">버전 10.19-1</div>
+      <div class="ver">버전 10.19-2</div>
     </form>
     <form class="sheet" id="adminForm" autocomplete="on" novalidate hidden>
       <h2 style="font-size:20px;font-weight:900;margin-bottom:16px">선생님 로그인</h2>
