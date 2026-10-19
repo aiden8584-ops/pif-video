@@ -450,7 +450,7 @@ input[type=date].in{min-height:54px}
       <div class="help">로그인이 안 되면 학원 <a href="tel:025258584">02-525-8584</a></div>
       <div class="installSlot"></div>
       <div style="text-align:center;margin-top:10px"><button type="button" class="linkbtn" id="toAdmin">선생님 로그인</button></div>
-      <div class="ver">버전 10.19-2</div>
+      <div class="ver">버전 10.20-1</div>
     </form>
     <form class="sheet" id="adminForm" autocomplete="on" novalidate hidden>
       <h2 style="font-size:20px;font-weight:900;margin-bottom:16px">선생님 로그인</h2>
@@ -820,7 +820,7 @@ function renderHome(){
       (sc.clinicDay ? '<div><span>클리닉</span>매주 ' + esc(sc.clinicDay) + '요일 ' + esc(sc.clinicTime||'') + '</div>' : '') +
     '</div></div>';
 
-  h += '<div class="stats">' + statBox(st.attend, '수업 출석률') + statBox(st.hw, '과제 완료율') + statBox(st.wb, '워크북 완료율') + '</div>';
+  h += '<div class="stats">' + statBox(st.attend, '수업 출석률') + statBox(clinicAttend(p), '클리닉 참석률') + statBox(st.hw, '과제 완료율') + '</div>';
 
   h += '<div class="sec"><div class="pushSlot"></div>';
   if (p.role === 'student') h += '<button class="vidcta" id="vidCta" hidden><span class="pl">▶</span><div><b id="vidCtaT"></b><span>놓친 수업도, 다시 볼 수업도 여기서.</span></div><i>→</i></button>';
