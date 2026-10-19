@@ -450,7 +450,7 @@ input[type=date].in{min-height:54px}
       <div class="help">로그인이 안 되면 학원 <a href="tel:025258584">02-525-8584</a></div>
       <div class="installSlot"></div>
       <div style="text-align:center;margin-top:10px"><button type="button" class="linkbtn" id="toAdmin">선생님 로그인</button></div>
-      <div class="ver">버전 10.20-1</div>
+      <div class="ver">버전 10.20-2</div>
     </form>
     <form class="sheet" id="adminForm" autocomplete="on" novalidate hidden>
       <h2 style="font-size:20px;font-weight:900;margin-bottom:16px">선생님 로그인</h2>
@@ -1375,7 +1375,7 @@ function quickHTML(p){
     const fresh = (p.questions || []).filter(q => q.status !== '대기' && q.answeredAt && daysAgo(q.answeredAt.slice(0,10)) <= 3).length;
     t.push('<button class="qk" data-to="tAsk">' + ICON.ask + '<b>질문하기</b><span>사진으로 물어보기</span>' + (fresh ? '<em>답변 ' + fresh + '</em>' : '') + '</button>');
   }
-  if ((p.tools || []).length) t.push('<button class="qk" data-to="tTools">' + ICON.tool + '<b>학습 도구</b><span>단어·해석 연습</span></button>');
+  if ((p.tools || []).length) t.push('<button class="qk" data-to="tTools">' + ICON.tool + '<b>단어 연습</b><span>단어시험 미리 풀기</span></button>');
   t.push('<button class="qk" data-settings>' + ICON.gear + '<b>설정</b><span id="qkPush">' + esc(pushLabel()) + '</span></button>');
   return '<div class="sec-t"><h2>바로가기</h2></div><div class="quick">' + t.join('') + '</div>';
 }
@@ -1588,10 +1588,10 @@ $('#tAsk').addEventListener('change', async e => {
 function renderTools(){
   const p = S.p; if (!p) return;
   const t = p.tools || [];
-  $('#tTools').innerHTML = '<div class="head"><h1>학습 도구</h1><p>단어시험·해석 연습 같은 PIF 연습 앱이에요.</p></div><div class="sec">' +
+  $('#tTools').innerHTML = '<div class="head"><h1>단어 연습</h1><p>단어시험을 미리 풀어 보는 PIF 연습 앱이에요.</p></div><div class="sec">' +
     (t.length ? t.map(x => '<a class="card toolc" href="' + esc(x.url) + '" target="_blank" rel="noopener"><span class="tic">' + esc((x.name || '?').charAt(0)) + '</span>' +
       '<span><b>' + esc(x.name) + '</b>' + (x.desc ? '<span>' + esc(x.desc) + '</span>' : '') + '</span><i>열기 ↗</i></a>').join('')
-      : '<div class="card empty sm">아직 등록된 학습 도구가 없어요.</div>') + '</div>';
+      : '<div class="card empty sm">아직 등록된 단어 연습이 없어요.</div>') + '</div>';
 }
 
 /* ======================= 알림 (OneSignal) ======================= */
