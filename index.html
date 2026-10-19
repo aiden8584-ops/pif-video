@@ -462,7 +462,7 @@ html.fz2 #vApp,html.fz2 #nav{zoom:1.25}
       <div class="help">로그인이 안 되면 학원 <a id="loginTel"></a></div>
       <div class="installSlot"></div>
       <div style="text-align:center;margin-top:10px"><button type="button" class="linkbtn" id="toAdmin">선생님 로그인</button></div>
-      <div class="ver">버전 10.20-5</div>
+      <div class="ver">버전 10.20-6</div>
     </form>
     <form class="sheet" id="adminForm" autocomplete="on" novalidate hidden>
       <h2 style="font-size:20px;font-weight:900;margin-bottom:16px">선생님 로그인</h2>
@@ -537,6 +537,7 @@ html.fz2 #vApp,html.fz2 #nav{zoom:1.25}
       <button data-a="q">질문<em id="aQN" hidden></em></button>
       <button data-a="stu">학생</button>
       <button data-a="push">알림</button>
+      <button data-a="notice" id="aNoticeTab" hidden>공지</button>
     </div></div>
     <div class="sec" id="aBody" style="padding-top:6px"></div>
   </section>
@@ -1846,6 +1847,8 @@ async function enterAdmin(){
   showView('vAdmin'); $('#nav').hidden = true;
   $('#adWho').textContent = S.ad.name + (S.ad.level === 'owner' ? ' 원장' : ' 선생님');
   $('#adAvatar').textContent = initials(S.ad.name);
+  $('#aNoticeTab').hidden = S.ad.level !== 'owner';          // 공지 올리기는 원장님만
+  if (S.ad.level !== 'owner' && S.aTab === 'notice') S.aTab = 'req';
   try { history.replaceState({ pif:'base' }, ''); history.pushState({ pif:'admin' }, ''); } catch(e){}
   osLogin(S.ad.pushId);
   await loadAdmin();
@@ -1860,6 +1863,7 @@ function setATab(t){ S.aTab = t; document.querySelectorAll('#aSeg button').forEa
 $('#aSeg').addEventListener('click', e => { const b = e.target.closest('button'); if (b) setATab(b.dataset.a); });
 function renderAdmin(){
   const d = S.aData; if (!d) return;
+  if ($('#nfTitle')) nfSave();     // 공지 쓰던 글이 새로고침·탭 이동으로 사라지지 않게
   const rq = d.requests.filter(r => r.status === '대기').length, qq = d.questions.filter(q => q.status === '대기').length;
   $('#aReqN').hidden = !rq; $('#aReqN').textContent = rq; $('#aQN').hidden = !qq; $('#aQN').textContent = qq;
   const f = (n, label) => '<button class="chip' + (S.aFilter === label ? ' on' : '') + '" data-f="' + label + '">' + label + (n != null ? ' ' + n : '') + '</button>';
@@ -1912,6 +1916,8 @@ function renderAdmin(){
             '<div style="text-align:right">' + (r.err ? '<span class="s">—</span>' : '<b>' + r.done + '/' + r.total + '</b><div class="s">' + (r.todo ? '안 봄 ' + r.todo : '모두 완료') + '</div>') + '</div></div>').join('') + '</div>';
       }
     }
+  } else if (S.aTab === 'notice') {
+    h += noticeAdminHTML(d);
   } else {
     h += '<div class="pushSlot" data-force="1"></div>';
     if (!d.pushReady) h += '<div class="alert" style="margin:0 0 10px">OneSignal 키가 아직 서버에 없어요. Apps Script에서 <b>관리자_알림_설정</b>을 실행해 주세요. (그 전엔 보내도 기록만 남아요)</div>';
@@ -1930,7 +1936,94 @@ function renderAdmin(){
   $('#aBody').innerHTML = h;
   renderPushCard();
 }
+/* ---------- 관리: 공지 올리기·숨기기 (원장만) ---------- */
+function nfState(){ return S.nf || (S.nf = { type:'all', value:'', who:'전체', title:'', body:'', pin:false, push:true, ph:[] }); }
+function nfSave(){   // 다시 그리기 전에 입력 중인 글 보관
+  const nf = nfState(), t = $('#nfTitle'), b = $('#nfBody');
+  if (t) nf.title = t.value; if (b) nf.body = b.value;
+}
+function noticeAdminHTML(d){
+  const nf = nfState();
+  const opts = nf.type === 'class' ? d.classes : nf.type === 'school' ? d.schools : nf.type === 'student' ? d.students.map(s => s.disp) : [];
+  if (nf.type !== 'all' && opts.indexOf(nf.value) < 0) nf.value = opts[0] || '';
+  let h = '<div class="form"><div class="fld"><div class="lb">보이는 대상</div><div class="two"><select class="in" id="nfType">' +
+    [['all','전체'],['school','학교'],['class','반'],['student','학생 한 명']].map(x => '<option value="' + x[0] + '"' + (nf.type === x[0] ? ' selected' : '') + '>' + x[1] + '</option>').join('') + '</select>' +
+    (nf.type === 'all' ? '<div></div>' : '<select class="in" id="nfVal">' + opts.map(o => '<option' + (o === nf.value ? ' selected' : '') + '>' + esc(o) + '</option>').join('') + '</select>') + '</div>' +
+    '<div class="lb" style="margin-top:12px">보는 사람</div><select class="in" id="nfWho">' +
+    ['전체','학생','학부모'].map(x => '<option' + (nf.who === x ? ' selected' : '') + '>' + x + '</option>').join('') + '</select></div>' +
+    '<div class="fld"><label for="nfTitle">제목</label><input class="in" id="nfTitle" maxlength="80" value="' + esc(nf.title) + '" placeholder="예: 중간고사 대비 일정 안내"></div>' +
+    '<div class="fld"><label for="nfBody">내용</label><textarea class="in" id="nfBody" maxlength="2000" style="min-height:140px" placeholder="학생·학부모 앱 홈 화면 공지사항에 그대로 보여요">' + esc(nf.body) + '</textarea></div>' +
+    '<div class="fld"><div class="lb">사진 (최대 3장, 선택)</div><div class="thumbs" id="nfThumbs">' +
+      nf.ph.map((x, i) => '<div class="th"><img src="' + x.url + '" alt="공지 사진 ' + (i+1) + '"><button class="x" data-nfrm="' + i + '" aria-label="사진 빼기">✕</button></div>').join('') +
+      (nf.ph.length < 3 ? '<button type="button" class="addph" id="nfAdd">＋<br>사진</button>' : '') + '</div>' +
+      '<input type="file" id="nfFile" accept="image/*" multiple hidden></div>' +
+    '<div class="chkrow"><label><input type="checkbox" id="nfPin"' + (nf.pin ? ' checked' : '') + '>상단 고정 (중요 표시·펼쳐서 보임)</label></div>' +
+    '<div class="chkrow" style="margin-top:6px"><label><input type="checkbox" id="nfPush"' + (nf.push ? ' checked' : '') + '>알림도 함께 보내기</label></div>' +
+    (nf.push && !d.pushReady ? '<div class="hint">OneSignal 키가 아직 없어서 알림은 기록만 남아요.</div>' : '') +
+    '<div class="hint">올리면 시트 📢공지 탭에 한 줄로 기록돼요. 시트에서 고쳐도 돼요.</div>' +
+    '<button class="btn" id="nfSend">공지 올리기</button><div class="ferr" id="nfErr"></div></div>';
+  // 최근 공지 + 숨기기
+  const list = d.notices || [];
+  h += '<div class="sec-t"><h2>최근 공지</h2><button data-reload>새로고침</button></div>';
+  h += list.length ? list.map(n => '<div class="card" style="margin-bottom:8px' + (n.shown ? '' : ';opacity:.55') + '"><div class="row"><div class="meta">' +
+      esc(md(n.date) || '') + ' · ' + esc(n.target) + ' · ' + esc(n.who) + (n.pinned ? ' · <b>상단 고정</b>' : '') + (n.files ? ' · 📎' + n.files : '') + '</div>' +
+      (n.shown ? '<span class="badge ok">공개</span>' : '<span class="badge">숨김</span>') + '</div>' +
+      '<h3 style="margin-top:6px">' + esc(n.title) + '</h3><div class="meta" style="margin-top:4px;white-space:pre-wrap">' + esc(n.body.length > 80 ? n.body.slice(0, 80) + '…' : n.body) + '</div>' +
+      '<div class="btns" style="margin-top:10px"><button class="btn ghost" data-nshow="' + (n.shown ? 0 : 1) + '" data-row="' + n.row + '" data-title="' + esc(n.title) + '">' + (n.shown ? '숨기기' : '다시 보이기') + '</button></div></div>').join('')
+    : '<div class="card empty sm">아직 공지가 없어요.</div>';
+  return h;
+}
+async function nfClick(e){
+  const nf = nfState();
+  if (e.target.closest('#nfAdd')) { $('#nfFile').click(); return true; }
+  const rm = e.target.closest('[data-nfrm]'); if (rm) { nfSave(); nf.ph.splice(+rm.dataset.nfrm, 1); renderAdmin(); return true; }
+  const sh = e.target.closest('[data-nshow]');
+  if (sh) {
+    const show = sh.dataset.nshow === '1';
+    if (!show && !(await askConfirm({ icon:'🙈', title:'이 공지를 숨길까요?', msg: sh.dataset.title + '\n\n학생·학부모 앱에서 안 보이게 돼요. (시트의 \'공개\' 체크가 꺼져요)', ok:'숨기기' }))) return true;
+    sh.disabled = true;
+    try { const r = await aCall('noticeShow', { row: +sh.dataset.row, title: sh.dataset.title, show }); nfSave(); S.aData.notices = r.notices; renderAdmin(); toast(show ? '다시 보이게 했어요' : '숨겼어요'); }
+    catch (err) { toast(cleanMsg(err)); sh.disabled = false; }
+    return true;
+  }
+  if (e.target.closest('#nfSend')) {
+    nfSave();
+    const err = $('#nfErr'), btn = $('#nfSend'); err.textContent = '';
+    nf.title = nf.title.trim(); nf.body = nf.body.trim();
+    if (!nf.title || !nf.body) { err.textContent = '제목과 내용을 적어 주세요.'; return true; }
+    const target = nf.type === 'all' ? '전체' : nf.value;
+    if (!(await askConfirm({ icon:'📢', title:'공지를 올릴까요?', ok:'올리기',
+      msg: target + ' · ' + nf.who + (nf.ph.length ? ' · 사진 ' + nf.ph.length + '장' : '') + (nf.push ? ' · 알림도 보냄' : '') + '\n\n' + nf.title + '\n' + (nf.body.length > 100 ? nf.body.slice(0, 100) + '…' : nf.body) }))) return true;
+    btn.disabled = true; btn.textContent = '올리는 중…';
+    try {
+      const r = await aCall('noticePost', { type:nf.type, value:nf.value, who:nf.who, title:nf.title, body:nf.body, pinned:nf.pin, push:nf.push,
+        photos: nf.ph.map(x => ({ mime:x.mime, b64:x.b64 })) });
+      S.aData.notices = r.notices;
+      S.nf = null; renderAdmin();
+      toast('공지를 올렸어요' + (r.push ? (r.push.sent ? ' · 알림도 보냈어요' : ' · 알림: ' + (r.push.result || '못 보냄')) : ''));
+    } catch (ex) { err.textContent = cleanMsg(ex); btn.disabled = false; btn.textContent = '공지 올리기'; }
+    return true;
+  }
+  return false;
+}
+$('#aBody').addEventListener('change', async e => {
+  const nf = S.nf; if (!nf || S.aTab !== 'notice') return;
+  const id = e.target.id;
+  if (id === 'nfType') { nfSave(); nf.type = e.target.value; nf.value = ''; renderAdmin(); }
+  else if (id === 'nfVal') nf.value = e.target.value;
+  else if (id === 'nfWho') nf.who = e.target.value;
+  else if (id === 'nfPin') nf.pin = e.target.checked;
+  else if (id === 'nfPush') { nfSave(); nf.push = e.target.checked; renderAdmin(); }
+  else if (id === 'nfFile') {
+    const files = Array.from(e.target.files || []).slice(0, 3 - nf.ph.length);
+    e.target.value = ''; nfSave();
+    for (const f of files) { try { nf.ph.push(await shrink(f)); } catch (err) { toast(cleanMsg(err)); } }
+    renderAdmin();
+  }
+});
+
 $('#aBody').addEventListener('click', async e => {
+  if (S.aTab === 'notice' && await nfClick(e)) return;
   const fb = e.target.closest('[data-f]'); if (fb) { S.aFilter = fb.dataset.f; renderAdmin(); return; }
   if (e.target.closest('[data-reload]')) { loadAdmin(); return; }
   const sb = e.target.closest('#aStu button'); if (sb) { S.aStu = sb.dataset.s; renderAdmin(); return; }
