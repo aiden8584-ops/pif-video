@@ -428,9 +428,9 @@ input[type=date].in{min-height:54px}
   <!-- ============ 로그인 ============ -->
   <section id="vLogin" hidden>
     <div class="brand">
-      <h1><span class="pif">PIF</span><span class="room">학습실</span></h1>
+      <h1><span class="pif" data-brand></span><span class="room" data-room></span></h1>
       <div class="lead">진도·과제·성적·자료,<br>여기서 한 번에.</div>
-      <div class="catch">결국, 영어는 <span>주찬솔</span></div>
+      <div class="catch" id="loginCatch"></div>
     </div>
     <form class="sheet" id="loginForm" autocomplete="on" novalidate>
       <div class="role" id="roleSeg" role="tablist" aria-label="로그인 구분">
@@ -447,14 +447,14 @@ input[type=date].in{min-height:54px}
       <label class="keep"><input type="checkbox" id="keepLogin" checked>로그인 유지 <span>(같이 쓰는 휴대폰이면 해제)</span></label>
       <button class="go" id="loginBtn" type="submit">들어가기</button>
       <div class="err" id="loginErr" role="alert"></div>
-      <div class="help">로그인이 안 되면 학원 <a href="tel:025258584">02-525-8584</a></div>
+      <div class="help">로그인이 안 되면 학원 <a id="loginTel"></a></div>
       <div class="installSlot"></div>
       <div style="text-align:center;margin-top:10px"><button type="button" class="linkbtn" id="toAdmin">선생님 로그인</button></div>
-      <div class="ver">버전 10.20-2</div>
+      <div class="ver">버전 10.20-3</div>
     </form>
     <form class="sheet" id="adminForm" autocomplete="on" novalidate hidden>
       <h2 style="font-size:20px;font-weight:900;margin-bottom:16px">선생님 로그인</h2>
-      <div class="fld"><label for="adName">이름</label><input class="in" id="adName" autocomplete="username" placeholder="예: 주찬솔"></div>
+      <div class="fld"><label for="adName">이름</label><input class="in" id="adName" autocomplete="username" placeholder=""></div>
       <div class="fld"><label for="adPw">비밀번호</label><input class="in" id="adPw" type="password" autocomplete="current-password"></div>
       <button class="go" id="adBtn" type="submit">들어가기</button>
       <div class="err" id="adErr" role="alert"></div>
@@ -465,7 +465,7 @@ input[type=date].in{min-height:54px}
   <!-- ============ 앱 ============ -->
   <section id="vApp" hidden>
     <div class="top">
-      <div class="logo"><b>PIF</b> 학습실</div>
+      <div class="logo"><b data-brand></b> <span data-room></span></div>
       <div class="topR"><button class="me" id="meBtn" title="설정"><span id="meWho"></span><i id="meAvatar"></i></button><button class="gear" id="setBtn" data-settings aria-label="설정"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button><button class="outbtn" data-logout>로그아웃</button></div>
     </div>
 
@@ -517,7 +517,7 @@ input[type=date].in{min-height:54px}
   <!-- ============ 관리자 (원장·조교) ============ -->
   <section id="vAdmin" hidden>
     <div class="top">
-      <div class="logo"><b>PIF</b> 학습실 <span style="font-weight:700;color:var(--sub);font-size:14px">관리</span></div>
+      <div class="logo"><b data-brand></b> <span data-room></span> <span style="font-weight:700;color:var(--sub);font-size:14px">관리</span></div>
       <div class="topR"><button class="me" id="adMe" title="로그아웃"><span id="adWho"></span><i id="adAvatar"></i></button><button class="outbtn" id="adOut">로그아웃</button></div>
     </div>
     <div class="aseg"><div class="seg" id="aSeg">
@@ -531,7 +531,7 @@ input[type=date].in{min-height:54px}
 
   <!-- ============ 플레이어 ============ -->
   <section id="vPlayer" hidden>
-    <div class="top"><button class="back" id="backBtn">← 목록</button><div class="logo"><b>PIF</b> 학습실</div></div>
+    <div class="top"><button class="back" id="backBtn">← 목록</button><div class="logo"><b data-brand></b> <span data-room></span></div></div>
     <div class="pwrap" id="pwrap"></div>
     <div class="pinfo">
       <div class="pmeta" id="pMeta"></div>
@@ -564,6 +564,27 @@ const VIDEO_API  = 'https://script.google.com/macros/s/AKfycbyhcI255CEU2Qn-x2i1Q
 const ONESIGNAL_APP_ID = '140daecc-637e-4cba-ae4f-63ffa2eba72e';
 const BUCKET = 10;           // 영상 Code.gs의 BUCKET_SEC과 동일
 let DONE = 90;
+
+// ④ 학원 정보 — 학원마다 다른 값은 여기에만 둡니다. (앱 설치 이름은 manifest.webmanifest와 맨 위 <title>도 함께)
+const ACADEMY = {
+  brand: 'PIF',                     // 로고 굵은 글씨
+  room: '학습실',                    // 로고 뒤 글씨
+  catchText: '결국, 영어는 ',         // 로그인 화면 문구
+  owner: '주찬솔',                   // 원장님 이름 (로그인 문구 끝 강조, 선생님 로그인 예시)
+  tel: '02-525-8584',               // 학원 전화 (로그인 화면). 로그인 뒤에는 서버가 보내는 번호를 씀
+  offDays: [0, 6],                  // 휴원 요일 (0=일, 6=토) — 일정 변경에서 고를 수 없음
+  changeLimit: 3                    // 내신대비 기간 결석·날짜 변경 횟수 안내 (서버 값이 오면 그쪽을 씀)
+};
+ACADEMY.appName = ACADEMY.brand + ' ' + ACADEMY.room;
+document.querySelectorAll('[data-brand]').forEach(el => el.textContent = ACADEMY.brand);
+document.querySelectorAll('[data-room]').forEach(el => el.textContent = ACADEMY.room);
+(function(){
+  const c = document.getElementById('loginCatch'), b = document.createElement('span');
+  b.textContent = ACADEMY.owner; c.textContent = ACADEMY.catchText; c.appendChild(b);
+  const a = document.getElementById('loginTel');
+  a.textContent = ACADEMY.tel; a.href = 'tel:' + ACADEMY.tel.replace(/\D/g, '');
+  document.getElementById('adName').placeholder = '예: ' + ACADEMY.owner;
+})();
 
 /* ======================= 공통 ======================= */
 const $ = s => document.querySelector(s);
@@ -1381,7 +1402,7 @@ function quickHTML(p){
 }
 
 /* ======================= 일정 변경 신청 ======================= */
-const OFF_DAYS = [0, 6];            // 휴원 요일 (0=일, 6=토)
+const OFF_DAYS = ACADEMY.offDays;
 function isOff(iso){ const d = parseD(iso); return !!d && OFF_DAYS.indexOf(d.getDay()) >= 0; }
 function timeList(sel){             // 14:00~19:00, 30분 간격 (+기존 시간이 범위 밖이면 추가)
   const a = [];
@@ -1454,7 +1475,7 @@ function renderChange(){
       '<div class="lb2">시간</div><div class="tms" id="chgTimes">' + timeList(k.newTime).map(t => '<button type="button" class="chip' + (k.newTime === t ? ' on' : '') + '" data-v="' + t + '">' + t + (t === baseTime ? '<span>기존</span>' : '') + '</button>').join('') + '</div></div>';
   }
   h += '<div class="fld"><div class="stp"><span class="n">' + (++sn) + '</span><label for="chgReason">사유</label></div><textarea class="in" id="chgReason" maxlength="200" placeholder="예: 학교 수행평가 준비">' + esc(k.reason) + '</textarea>' +
-    (k.kind !== '추가등원' ? '<div class="hint">내신대비 기간에는 결석·날짜 변경을 3회까지 신청할 수 있어요.</div>' : '') + '</div>';
+    (k.kind !== '추가등원' ? '<div class="hint">내신대비 기간에는 결석·날짜 변경을 ' + ((p.quota && p.quota.limit) || ACADEMY.changeLimit) + '회까지 신청할 수 있어요.</div>' : '') + '</div>';
   h += '<div id="chgSum">' + chgSumHTML(k) + '</div>';
   h += '<button class="btn' + (chgReady(k) ? '' : ' dim') + '" id="chgSend" type="button">' + (k.kind === '변경' ? '이대로 변경 신청하기' : '신청 보내기') + '</button><div class="ferr" id="chgErr" role="alert"></div></div>';
   h += '<div class="sec-t"><h2>신청 내역</h2></div>';
@@ -1588,7 +1609,7 @@ $('#tAsk').addEventListener('change', async e => {
 function renderTools(){
   const p = S.p; if (!p) return;
   const t = p.tools || [];
-  $('#tTools').innerHTML = '<div class="head"><h1>단어 연습</h1><p>단어시험을 미리 풀어 보는 PIF 연습 앱이에요.</p></div><div class="sec">' +
+  $('#tTools').innerHTML = '<div class="head"><h1>단어 연습</h1><p>단어시험을 미리 풀어 보는 ' + esc(ACADEMY.brand) + ' 연습 앱이에요.</p></div><div class="sec">' +
     (t.length ? t.map(x => '<a class="card toolc" href="' + esc(x.url) + '" target="_blank" rel="noopener"><span class="tic">' + esc((x.name || '?').charAt(0)) + '</span>' +
       '<span><b>' + esc(x.name) + '</b>' + (x.desc ? '<span>' + esc(x.desc) + '</span>' : '') + '</span><i>열기 ↗</i></a>').join('')
       : '<div class="card empty sm">아직 등록된 단어 연습이 없어요.</div>') + '</div>';
@@ -1663,10 +1684,10 @@ function settingsHTML(){
     on:['on','켜짐','이 휴대폰으로 일정 승인·질문 답변·학원 공지 알림을 받아요.'],
     paused:['off','꺼짐','앱에서 알림을 꺼 둔 상태예요. "알림 켜기"를 누르면 다시 받아요.'],
     ask:['off','꺼짐','아직 알림을 켜지 않았어요. "알림 켜기"를 누르고, 뜨는 창에서 "허용"을 눌러 주세요.'],
-    denied:['bad','차단됨', ios ? '아이폰 설정 → 알림 → PIF 학습실 → "알림 허용"을 켜 주세요.'
-      : and ? '휴대폰 설정 → 애플리케이션 → PIF 학습실(또는 Chrome) → 알림 → 허용으로 바꿔 주세요.\n또는 주소창 왼쪽 자물쇠 → 권한 → 알림 → 허용.'
+    denied:['bad','차단됨', ios ? '아이폰 설정 → 알림 → ' + ACADEMY.appName + ' → "알림 허용"을 켜 주세요.'
+      : and ? '휴대폰 설정 → 애플리케이션 → ' + ACADEMY.appName + '(또는 Chrome) → 알림 → 허용으로 바꿔 주세요.\n또는 주소창 왼쪽 자물쇠 → 권한 → 알림 → 허용.'
       : '브라우저 주소창 왼쪽 자물쇠 → 알림 → 허용으로 바꿔 주세요.'],
-    'ios-install':['mid','설치 필요','아이폰은 홈 화면에 추가한 앱에서만 알림을 받을 수 있어요.\nSafari 공유 버튼 □↑ → "홈 화면에 추가" 후, 홈 화면의 PIF 아이콘으로 열어 주세요.'],
+    'ios-install':['mid','설치 필요','아이폰은 홈 화면에 추가한 앱에서만 알림을 받을 수 있어요.\nSafari 공유 버튼 □↑ → "홈 화면에 추가" 후, 홈 화면의 ' + ACADEMY.brand + ' 아이콘으로 열어 주세요.'],
     unsupported:['bad','지원 안 됨','이 브라우저는 알림을 지원하지 않아요. 크롬(안드로이드)이나 홈 화면 앱(아이폰)으로 열어 주세요.'],
     off:['off','미설정','학원에서 알림 기능을 아직 설정하지 않았어요.']
   }[m];
@@ -1919,7 +1940,7 @@ const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.
 const inAppBrowser = () => /KAKAOTALK|NAVER|Instagram|FBAN|FBAV|Line\//i.test(navigator.userAgent);
 function installHTML(home){
   if (isStandalone()) return '';
-  let title = 'PIF 학습실 앱으로 설치', sub = '', btn = '';
+  let title = ACADEMY.appName + ' 앱으로 설치', sub = '', btn = '';
   if (installEvt) { sub = '홈 화면에 아이콘이 생기고 앱처럼 열려요'; btn = '<i>설치</i>'; }
   else if (inAppBrowser()) { sub = isIOS() ? '메뉴에서 "Safari로 열기" 후 설치할 수 있어요' : '메뉴에서 "다른 브라우저로 열기" 후 설치할 수 있어요'; }
   else if (isIOS()) { sub = '아래 공유 버튼 □↑ → "홈 화면에 추가"'; }
@@ -1931,7 +1952,7 @@ function renderInstall(){
   document.querySelectorAll('.installSlot').forEach(el => el.innerHTML = installHTML(el.dataset.home === '1'));
 }
 window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; renderInstall(); });
-window.addEventListener('appinstalled', () => { installEvt = null; renderInstall(); toast('설치됐어요! 홈 화면의 PIF 아이콘으로 열어 보세요.'); });
+window.addEventListener('appinstalled', () => { installEvt = null; renderInstall(); toast('설치됐어요! 홈 화면의 ' + ACADEMY.brand + ' 아이콘으로 열어 보세요.'); });
 document.addEventListener('click', async e => {
   const b = e.target.closest('[data-install]'); if (!b) return;
   e.preventDefault();
