@@ -462,7 +462,7 @@ html.fz2 #vApp,html.fz2 #nav{zoom:1.25}
       <div class="help">로그인이 안 되면 학원 <a id="loginTel"></a></div>
       <div class="installSlot"></div>
       <div style="text-align:center;margin-top:10px"><button type="button" class="linkbtn" id="toAdmin">선생님 로그인</button></div>
-      <div class="ver">버전 10.20-6</div>
+      <div class="ver">버전 10.20-7</div>
     </form>
     <form class="sheet" id="adminForm" autocomplete="on" novalidate hidden>
       <h2 style="font-size:20px;font-weight:900;margin-bottom:16px">선생님 로그인</h2>
@@ -1923,10 +1923,10 @@ function renderAdmin(){
     if (!d.pushReady) h += '<div class="alert" style="margin:0 0 10px">OneSignal 키가 아직 서버에 없어요. Apps Script에서 <b>관리자_알림_설정</b>을 실행해 주세요. (그 전엔 보내도 기록만 남아요)</div>';
     const pf = S.pf || (S.pf = { type:'all', value:'', stu:true, par:true, title:'', body:'' });
     const opts = pf.type === 'class' ? d.classes : pf.type === 'school' ? d.schools : pf.type === 'student' ? d.students.map(s => s.disp) : [];
-    if (pf.type !== 'all' && opts.indexOf(pf.value) < 0) pf.value = opts[0] || '';
+    if (pf.type !== 'all' && opts.indexOf(pf.value) < 0) pf.value = pf.type === 'student' ? '' : (opts[0] || '');   // 학생은 직접 쳐서 고름
     h += '<div class="form"><div class="fld"><div class="lb">받는 대상</div><div class="two"><select class="in" id="pfType">' +
       [['all','전체'],['school','학교'],['class','반'],['student','학생 한 명']].map(x => '<option value="' + x[0] + '"' + (pf.type === x[0] ? ' selected' : '') + '>' + x[1] + '</option>').join('') + '</select>' +
-      (pf.type === 'all' ? '<div></div>' : '<select class="in" id="pfVal">' + opts.map(o => '<option' + (o === pf.value ? ' selected' : '') + '>' + esc(o) + '</option>').join('') + '</select>') + '</div>' +
+      targetPicker('pfVal', pf.type, opts, pf.value) + '</div>' +
       '<div class="chkrow" style="margin-top:12px"><label><input type="checkbox" id="pfStu"' + (pf.stu ? ' checked' : '') + '>학생</label><label><input type="checkbox" id="pfPar"' + (pf.par ? ' checked' : '') + '>학부모</label></div></div>' +
       '<div class="fld"><label for="pfTitle">제목</label><input class="in" id="pfTitle" maxlength="60" value="' + esc(pf.title) + '" placeholder="예: 내일 클리닉 시간 변경"></div>' +
       '<div class="fld"><label for="pfBody">내용</label><textarea class="in" id="pfBody" maxlength="300" placeholder="알림에 보일 내용 (짧을수록 잘 보여요)">' + esc(pf.body) + '</textarea>' +
@@ -1936,6 +1936,20 @@ function renderAdmin(){
   $('#aBody').innerHTML = h;
   renderPushCard();
 }
+// 대상 고르기: 학교·반은 목록에서, '학생 한 명'은 이름을 쳐서 찾기 (목록에서 골라야 함)
+function targetPicker(id, type, opts, val){
+  if (type === 'all') return '<div></div>';
+  if (type === 'student') return '<input class="in" id="' + id + '" list="' + id + 'List" autocomplete="off" value="' + esc(val) + '" placeholder="이름을 쳐서 찾기">' +
+    '<datalist id="' + id + 'List">' + opts.map(o => '<option value="' + esc(o) + '">').join('') + '</datalist>';
+  return '<select class="in" id="' + id + '">' + opts.map(o => '<option' + (o === val ? ' selected' : '') + '>' + esc(o) + '</option>').join('') + '</select>';
+}
+$('#aBody').addEventListener('input', e => {
+  if (e.target.id === 'pfVal' && S.pf) S.pf.value = e.target.value.trim();
+  if (e.target.id === 'nfVal' && S.nf) S.nf.value = e.target.value.trim();
+});
+// '학생 한 명'일 때 친 이름이 실제 학생인지
+function badStudent(type, val){ return type === 'student' && !(S.aData.students || []).some(s => s.disp === val); }
+
 /* ---------- 관리: 공지 올리기·숨기기 (원장만) ---------- */
 function nfState(){ return S.nf || (S.nf = { type:'all', value:'', who:'전체', title:'', body:'', pin:false, push:true, ph:[] }); }
 function nfSave(){   // 다시 그리기 전에 입력 중인 글 보관
@@ -1945,10 +1959,10 @@ function nfSave(){   // 다시 그리기 전에 입력 중인 글 보관
 function noticeAdminHTML(d){
   const nf = nfState();
   const opts = nf.type === 'class' ? d.classes : nf.type === 'school' ? d.schools : nf.type === 'student' ? d.students.map(s => s.disp) : [];
-  if (nf.type !== 'all' && opts.indexOf(nf.value) < 0) nf.value = opts[0] || '';
+  if (nf.type !== 'all' && opts.indexOf(nf.value) < 0) nf.value = nf.type === 'student' ? '' : (opts[0] || '');
   let h = '<div class="form"><div class="fld"><div class="lb">보이는 대상</div><div class="two"><select class="in" id="nfType">' +
     [['all','전체'],['school','학교'],['class','반'],['student','학생 한 명']].map(x => '<option value="' + x[0] + '"' + (nf.type === x[0] ? ' selected' : '') + '>' + x[1] + '</option>').join('') + '</select>' +
-    (nf.type === 'all' ? '<div></div>' : '<select class="in" id="nfVal">' + opts.map(o => '<option' + (o === nf.value ? ' selected' : '') + '>' + esc(o) + '</option>').join('') + '</select>') + '</div>' +
+    targetPicker('nfVal', nf.type, opts, nf.value) + '</div>' +
     '<div class="lb" style="margin-top:12px">보는 사람</div><select class="in" id="nfWho">' +
     ['전체','학생','학부모'].map(x => '<option' + (nf.who === x ? ' selected' : '') + '>' + x + '</option>').join('') + '</select></div>' +
     '<div class="fld"><label for="nfTitle">제목</label><input class="in" id="nfTitle" maxlength="80" value="' + esc(nf.title) + '" placeholder="예: 중간고사 대비 일정 안내"></div>' +
@@ -1991,6 +2005,7 @@ async function nfClick(e){
     const err = $('#nfErr'), btn = $('#nfSend'); err.textContent = '';
     nf.title = nf.title.trim(); nf.body = nf.body.trim();
     if (!nf.title || !nf.body) { err.textContent = '제목과 내용을 적어 주세요.'; return true; }
+    if (badStudent(nf.type, nf.value)) { err.textContent = '학생 이름을 쳐서 목록에서 골라 주세요.'; return true; }
     const target = nf.type === 'all' ? '전체' : nf.value;
     if (!(await askConfirm({ icon:'📢', title:'공지를 올릴까요?', ok:'올리기',
       msg: target + ' · ' + nf.who + (nf.ph.length ? ' · 사진 ' + nf.ph.length + '장' : '') + (nf.push ? ' · 알림도 보냄' : '') + '\n\n' + nf.title + '\n' + (nf.body.length > 100 ? nf.body.slice(0, 100) + '…' : nf.body) }))) return true;
@@ -2010,7 +2025,7 @@ $('#aBody').addEventListener('change', async e => {
   const nf = S.nf; if (!nf || S.aTab !== 'notice') return;
   const id = e.target.id;
   if (id === 'nfType') { nfSave(); nf.type = e.target.value; nf.value = ''; renderAdmin(); }
-  else if (id === 'nfVal') nf.value = e.target.value;
+  else if (id === 'nfVal') nf.value = e.target.value.trim();
   else if (id === 'nfWho') nf.who = e.target.value;
   else if (id === 'nfPin') nf.pin = e.target.checked;
   else if (id === 'nfPush') { nfSave(); nf.push = e.target.checked; renderAdmin(); }
@@ -2063,6 +2078,7 @@ $('#aBody').addEventListener('click', async e => {
     const roles = (pf.stu ? ['student'] : []).concat(pf.par ? ['parent'] : []);
     if (!pf.title || !pf.body) { err.textContent = '제목과 내용을 적어 주세요.'; return; }
     if (!roles.length) { err.textContent = '학생·학부모 중 하나는 골라 주세요.'; return; }
+    if (badStudent(pf.type, pf.value)) { err.textContent = '학생 이름을 쳐서 목록에서 골라 주세요.'; return; }
     const who = pf.type === 'all' ? '전체' : pf.value;
     if (!(await askConfirm({ icon:'🔔', title:'알림을 보낼까요?', msg: who + ' ' + roles.map(r => r === 'student' ? '학생' : '학부모').join('·') + '에게 보내요.\n\n' + pf.title + '\n' + pf.body, ok:'보내기' }))) return;
     btn.disabled = true; btn.textContent = '보내는 중…';
@@ -2077,7 +2093,7 @@ $('#aBody').addEventListener('click', async e => {
 $('#aBody').addEventListener('change', e => {
   const pf = S.pf; if (!pf) return;
   if (e.target.id === 'pfType') { pf.type = e.target.value; pf.value = ''; pf.title = $('#pfTitle').value; pf.body = $('#pfBody').value; renderAdmin(); }
-  if (e.target.id === 'pfVal') pf.value = e.target.value;
+  if (e.target.id === 'pfVal') pf.value = e.target.value.trim();
   if (e.target.id === 'pfStu') pf.stu = e.target.checked;
   if (e.target.id === 'pfPar') pf.par = e.target.checked;
 });
