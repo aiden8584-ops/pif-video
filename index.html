@@ -23,6 +23,8 @@
   })();
   // 삼성 인터넷은 "앱 설치" 시 구형 패키지를 만들어 Play 프로텍트 경고가 뜸 → 삼성 인터넷에는 앱 정보(manifest)를 주지 않고
   // 일반 "홈 화면 바로가기"로만 추가되게 함. 크롬 등 다른 브라우저는 정상 설치.
+  // 글자 크기: 화면이 그려지기 전에 적용 (0=보통, 1=크게, 2=아주 크게)
+  try { var fz = localStorage.getItem('pif_font'); if (fz === '1' || fz === '2') document.documentElement.classList.add('fz' + fz); } catch (e) {}
   if (!/SamsungBrowser/i.test(navigator.userAgent)) {
     var l = document.createElement('link'); l.rel = 'manifest'; l.href = 'manifest.webmanifest'; document.head.appendChild(l);
   }
@@ -256,7 +258,7 @@ body{font-size:16px}
 .stat::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--coral)}
 .stat:nth-child(2)::before{background:#2E3F69}.stat:nth-child(3)::before{background:var(--ok)}
 .stat .n{font-size:27px;font-weight:900}
-.stat .l{font-size:13px}
+.stat .l{font-size:13px;word-break:keep-all}
 .vidcta{border-radius:18px;background:var(--paper);box-shadow:0 2px 12px rgba(21,27,44,.06)}
 .vidcta .pl{flex:0 0 40px;height:40px;border-radius:12px;background:var(--navy);color:#fff;display:grid;place-items:center;font-size:14px}
 .vidcta b,.vidcta i{color:var(--navy)}.vidcta span{color:var(--sub)}
@@ -401,6 +403,9 @@ input[type=date].in{min-height:54px}
 .srow .acts button{flex:1;height:42px;border-radius:12px;border:1px solid var(--line);background:#fff;font-weight:800;font-size:14px;color:var(--ink)}
 .srow .acts button.pri{background:var(--navy);border-color:var(--navy);color:#fff}
 .srow .acts button:disabled{opacity:.45}
+/* 글자 크기 (설정에서 고름): 로그인 뒤 화면과 아래 메뉴를 통째로 키움 */
+html.fz1 #vApp,html.fz1 #nav{zoom:1.12}
+html.fz2 #vApp,html.fz2 #nav{zoom:1.25}
 .stt{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:800;border-radius:999px;padding:4px 10px;white-space:nowrap}
 .stt::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
 .stt.on{background:#E5F5EC;color:#1E8A4C}.stt.off{background:var(--bg);color:var(--sub)}.stt.bad{background:var(--bad-bg);color:var(--bad)}.stt.mid{background:#FFF3DF;color:#B4690E}
@@ -450,7 +455,7 @@ input[type=date].in{min-height:54px}
       <div class="help">로그인이 안 되면 학원 <a id="loginTel"></a></div>
       <div class="installSlot"></div>
       <div style="text-align:center;margin-top:10px"><button type="button" class="linkbtn" id="toAdmin">선생님 로그인</button></div>
-      <div class="ver">버전 10.20-3</div>
+      <div class="ver">버전 10.20-4</div>
     </form>
     <form class="sheet" id="adminForm" autocomplete="on" novalidate hidden>
       <h2 style="font-size:20px;font-weight:900;margin-bottom:16px">선생님 로그인</h2>
@@ -1701,6 +1706,9 @@ function settingsHTML(){
     (m === 'on' ? '<p>이 기기 연결: ' + (linked ? '<b style="color:#1E8A4C">연결됨</b>' : (S.osReady ? '<b style="color:var(--bad)">연결 안 됨</b> · 아래 "다시 연결"을 눌러 주세요' : '확인 중…')) + '</p>' : '') +
     (acts ? '<div class="acts">' + acts + '</div>' : '') +
     (m === 'on' && S.osReady && !linked ? '<div class="acts"><button data-sact="relink">다시 연결</button></div>' : '') + '</div>';
+  const fz = fontSize();
+  h += '<div class="srow"><div class="t"><b>🔠 글자 크기</b></div><p>이 휴대폰의 앱 화면 글자 크기를 바꿔요.</p><div class="acts">' +
+    ['보통', '크게', '아주 크게'].map((t, i) => '<button data-sact="font" data-fz="' + i + '"' + (i === fz ? ' class="pri" aria-pressed="true"' : '') + '>' + t + '</button>').join('') + '</div></div>';
   h += '<div class="srow"><div class="t"><b>📲 앱 설치</b><span class="stt ' + (isStandalone() ? 'on">설치됨' : 'mid">브라우저로 보는 중') + '</span></div>' +
     (isStandalone() ? '<p>홈 화면 앱으로 열려 있어요.</p>' : '<p>홈 화면에 추가하면 앱처럼 열리고 알림도 받을 수 있어요.</p><div class="acts"><button data-install>설치 방법</button></div>') + '</div>';
   h += '<div class="srow"><div class="t"><b>🔑 로그인 유지</b><span class="stt ' + (keep ? 'on">켜짐' : 'off">꺼짐') + '</span></div>' +
@@ -1723,6 +1731,7 @@ function openSettings(){
     if (a === 'close') return close();
     if (a === 'logout') { close(); return askLogout(); }
     if (a === 'keepoff') { keepClear(); try { localStorage.setItem('pif_keep_pref', '0'); } catch(err){} toast('로그인 유지를 껐어요'); return refreshSettings(); }
+    if (a === 'font') { setFontSize(+b.dataset.fz); return refreshSettings(); }
     if (a === 'recheck') { refreshSettings(); renderPushCard(); return toast(pushMode() === 'denied' ? '아직 차단돼 있어요' : '확인했어요'); }
     if (!S.osReady) return toast('알림 준비 중이에요. 잠시 후 다시 눌러 주세요');
     const OS = S.os; b.disabled = true;
@@ -1751,6 +1760,13 @@ function openSettings(){
   requestAnimationFrame(() => back.classList.add('show'));
 }
 function refreshSettings(){ const d = $('#setSheet .dlg'); if (d) d.innerHTML = settingsHTML(); }
+// 글자 크기 (이 기기에만 저장)
+function fontSize(){ const h = document.documentElement.classList; return h.contains('fz2') ? 2 : h.contains('fz1') ? 1 : 0; }
+function setFontSize(n){
+  const h = document.documentElement.classList;
+  h.remove('fz1', 'fz2'); if (n) h.add('fz' + n);
+  try { localStorage.setItem('pif_font', String(n)); } catch(e){}
+}
 document.addEventListener('click', e => { if (e.target.closest('[data-settings]')) openSettings(); });
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { refreshSettings(); renderPushCard(); } });
 
