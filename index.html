@@ -37,6 +37,12 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <title>PIF 학습실</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<!-- 서버·유튜브 연결을 미리 열어 두기 (처음 부를 때 더 빠르게) -->
+<link rel="preconnect" href="https://script.google.com">
+<link rel="preconnect" href="https://script.googleusercontent.com">
+<link rel="preconnect" href="https://www.youtube-nocookie.com">
+<link rel="preconnect" href="https://www.youtube.com">
+<link rel="preconnect" href="https://i.ytimg.com">
 <style>
   :root{
     --navy:#1E2B4A; --navy-2:#2E3F69; --ink:#151B2C; --sub:#69707E; --faint:#9AA0AC;
@@ -464,7 +470,7 @@ html.fz2 #vApp,html.fz2 #nav{zoom:1.25}
       <div class="help">로그인이 안 되면 학원 <a id="loginTel"></a></div>
       <div class="installSlot"></div>
       <div style="text-align:center;margin-top:10px"><button type="button" class="linkbtn" id="toAdmin">선생님 로그인</button></div>
-      <div class="ver">버전 10.20-8</div>
+      <div class="ver">버전 10.20-9</div>
     </form>
     <form class="sheet" id="adminForm" autocomplete="on" novalidate hidden>
       <h2 style="font-size:20px;font-weight:900;margin-bottom:16px">선생님 로그인</h2>
@@ -793,7 +799,11 @@ $('#nav').addEventListener('click', e => { const b = e.target.closest('button');
 const SNAP = 'pif_snap';
 function snapGet(){ const k = keepGet(); if (!k) return null; try { const o = JSON.parse(localStorage.getItem(SNAP)); return o && o.who === k.name + '|' + k.role ? o.p : null; } catch(e){ return null; } }
 function snapSet(p){ const k = keepGet(); if (!k) return; try { localStorage.setItem(SNAP, JSON.stringify({ who: k.name + '|' + k.role, p: p })); } catch(e){} }
-function snapClear(){ try { localStorage.removeItem(SNAP); } catch(e){} }
+function snapClear(){ try { localStorage.removeItem(SNAP); localStorage.removeItem(VSNAP); } catch(e){} }
+// 영상 목록 보관본 (로그인 유지 중일 때만): 앱을 열면 바로 보여 주고 뒤에서 최신으로 바꿈
+const VSNAP = 'pif_vsnap';
+function vsnapGet(){ const k = keepGet(); if (!k) return null; try { const o = JSON.parse(localStorage.getItem(VSNAP)); return o && o.who === k.name + '|' + k.role && Array.isArray(o.videos) ? o : null; } catch(e){ return null; } }
+function vsnapSet(){ const k = keepGet(); if (!k) return; try { localStorage.setItem(VSNAP, JSON.stringify({ who: k.name + '|' + k.role, videos: S.videos, donePct: DONE })); } catch(e){} }
 
 function appShell(){
   showView('vApp');
@@ -1127,7 +1137,13 @@ $('#fileBody').addEventListener('click', async e => {
 
 /* ======================= 영상 (기존 영상 강의실 API) ======================= */
 async function loadVideos(){
-  S.vLoaded = false; S.vErr = '';
+  S.vErr = '';
+  const snap = vsnapGet();
+  if (snap) {                                   // 보관본 먼저 → 기다리지 않고 바로 목록
+    S.videos = snap.videos; DONE = snap.donePct || DONE; S.vLoaded = true;
+    updateVidCta();
+    if (S.tab === 'tVideo') renderVideos();
+  } else S.vLoaded = false;
   try {
     if (!S.vtoken) {
       if (!S.last.last4) throw new Error('영상을 보려면 다시 로그인해 주세요.');
@@ -1135,14 +1151,20 @@ async function loadVideos(){
       S.vtoken = r.token; saveSess();
     }
     const v = await video('videos');
+    if (S.role !== 'student' || !S.token) return;   // 기다리는 사이 로그아웃함
     S.videos = v.videos || []; DONE = v.donePct || DONE;
+    vsnapSet();
   } catch (e) {
-    S.videos = []; S.vErr = cleanMsg(e);
-    if (S.vErr.indexOf('SESSION_EXPIRED') >= 0) { S.vtoken = null; saveSess(); S.vErr = '영상 로그인 시간이 지났어요. 로그아웃 후 다시 로그인해 주세요.'; }
+    const msg = cleanMsg(e), expired = msg.indexOf('SESSION_EXPIRED') >= 0;
+    if (expired) { S.vtoken = null; saveSess(); }
+    if (!snap || expired) {                     // 보관본이 있으면 인터넷이 잠깐 끊겨도 그대로 보여 줌
+      S.videos = []; S.vErr = expired ? '영상 로그인 시간이 지났어요. 로그아웃 후 다시 로그인해 주세요.' : msg;
+    }
   }
   S.vLoaded = true;
   updateVidCta();
-  if (S.tab === 'tVideo') renderVideos();
+  if (S.tab === 'tVideo' && !S.cur) renderVideos();
+  loadYT();                                      // 유튜브 재생기를 미리 받아 둠 → 영상을 누르면 바로 시작
 }
 // 수업 영상은 복습용(선택) → 의무처럼 보이지 않게: 최근 7일 새 영상만 살짝 표시
 function updateVidCta(){
@@ -1296,7 +1318,7 @@ function flush(final){
     return;
   }
   video('progress', payload)
-    .then(r => { v.pct = r.pct; v.pos = r.pos; if (S.cur === v) updatePlayerProg(); })
+    .then(r => { v.pct = r.pct; v.pos = r.pos; vsnapSet(); if (S.cur === v) updatePlayerProg(); })   // 본 만큼(%)·이어보기 위치도 보관본에
     .catch(err => {
       if (String(err.message).indexOf('SESSION_EXPIRED') >= 0) { toast('영상 로그인이 만료됐어요. 다시 로그인해 주세요.'); return; }
       payload.buckets.forEach(b => pending.add(b));
