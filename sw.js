@@ -1,7 +1,7 @@
 // PIF 학습실 서비스 워커 — 화면 파일만 보관 (학습 데이터·로그인은 저장하지 않음)
 // 푸시 알림(OneSignal)도 이 파일 하나로 처리합니다. 불러오기 실패해도 앱은 그대로 작동.
 try { importScripts('https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js'); } catch (e) {}
-const CACHE = 'pif-shell-v2';
+const CACHE = 'pif-shell-v3';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', e => {
