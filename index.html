@@ -470,7 +470,7 @@ html.fz2 #vApp,html.fz2 #nav{zoom:1.25}
       <div class="help">로그인이 안 되면 학원 <a id="loginTel"></a></div>
       <div class="installSlot"></div>
       <div style="text-align:center;margin-top:10px"><button type="button" class="linkbtn" id="toAdmin">선생님 로그인</button></div>
-      <div class="ver">버전 10.20-9</div>
+      <div class="ver">버전 10.20-10</div>
     </form>
     <form class="sheet" id="adminForm" autocomplete="on" novalidate hidden>
       <h2 style="font-size:20px;font-weight:900;margin-bottom:16px">선생님 로그인</h2>
@@ -1145,12 +1145,14 @@ async function loadVideos(){
     if (S.tab === 'tVideo') renderVideos();
   } else S.vLoaded = false;
   try {
+    let v = null;
     if (!S.vtoken) {
       if (!S.last.last4) throw new Error('영상을 보려면 다시 로그인해 주세요.');
-      const r = await post(VIDEO_API, 'login', { name:S.last.name, last4:S.last.last4 });
+      const r = await post(VIDEO_API, 'login', { name:S.last.name, last4:S.last.last4, withVideos:true });   // 로그인 + 목록 한 번에
       S.vtoken = r.token; saveSess();
+      if (Array.isArray(r.videos)) v = r;
     }
-    const v = await video('videos');
+    if (!v) v = await video('videos');
     if (S.role !== 'student' || !S.token) return;   // 기다리는 사이 로그아웃함
     S.videos = v.videos || []; DONE = v.donePct || DONE;
     vsnapSet();
