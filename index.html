@@ -470,7 +470,7 @@ html.fz2 #vApp,html.fz2 #nav{zoom:1.25}
       <div class="help">로그인이 안 되면 학원 <a id="loginTel"></a></div>
       <div class="installSlot"></div>
       <div style="text-align:center;margin-top:10px"><button type="button" class="linkbtn" id="toAdmin">선생님 로그인</button></div>
-      <div class="ver">버전 10.23-1</div>
+      <div class="ver">버전 10.23-2</div>
     </form>
     <form class="sheet" id="adminForm" autocomplete="on" novalidate hidden>
       <h2 style="font-size:20px;font-weight:900;margin-bottom:16px">선생님 로그인</h2>
@@ -817,6 +817,17 @@ function appShell(){
   $('#navVideo').hidden = !isStudent;
   if (isStudent) loadVideos();      // 영상은 따로, 기다리지 않음
 }
+// 앱으로 돌아오거나 앱 알림이 오면 공지·기록을 조용히 다시 받기 (30초에 한 번까지, 입력 중인 신청·질문 화면에서는 안 함)
+let pRefreshing = false;
+async function refreshPortal(force){
+  if (!S.token || !S.p || pRefreshing || document.visibilityState !== 'visible') return;
+  if (S.tab === 'tChange' || S.tab === 'tAsk') return;
+  if (!force && Date.now() - (S.pAt || 0) < 30000) return;
+  pRefreshing = true;
+  try { const p = await portal('portal'); S.pAt = Date.now(); applyPortal(p, null); snapSet(p); } catch(e){} finally { pRefreshing = false; }
+}
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') refreshPortal(); });
+window.addEventListener('focus', () => refreshPortal());
 function skeleton(){ $('#tHome').innerHTML = '<div class="skel" style="height:150px;margin-top:6px"></div><div class="skel"></div><div class="skel"></div>'; }
 // 받은 데이터로 화면 그리기 (보관본 → 최신본 순서로 두 번 불릴 수 있음)
 function applyPortal(p, startTab){
@@ -835,7 +846,7 @@ async function enterApp(startTab, pre){
   if (snap) applyPortal(snap, startTab); else skeleton();
   try {
     const p = await portal('portal');
-    applyPortal(p, snap ? null : startTab); snapSet(p); osLogin(p.pushId);
+    applyPortal(p, snap ? null : startTab); snapSet(p); osLogin(p.pushId); S.pAt = Date.now();
   } catch (e) {
     if (String(e.message).indexOf('SESSION_EXPIRED') >= 0) return;
     if (snap) toast('최신 정보를 불러오지 못했어요. 잠시 후 다시 열어 주세요');
@@ -1714,6 +1725,7 @@ function osInit(){
       await OS.init({ appId: ONESIGNAL_APP_ID, serviceWorkerPath: base.replace(/^\//, '') + 'sw.js', serviceWorkerParam: { scope: base } });
       S.osReady = true; S.os = OS;
       OS.Notifications.addEventListener('permissionChange', () => { renderPushCard(); refreshSettings(); });
+      OS.Notifications.addEventListener('foregroundWillDisplay', () => setTimeout(() => refreshPortal(true), 1000));   // 앱을 보고 있을 때 알림이 오면 바로 새로
       try { OS.User.PushSubscription.addEventListener('change', () => { renderPushCard(); refreshSettings(); }); } catch(e){}
       if (S.pushId) await OS.login(S.pushId);
     } catch (e) {}
