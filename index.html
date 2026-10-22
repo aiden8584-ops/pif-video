@@ -470,7 +470,7 @@ html.fz2 #vApp,html.fz2 #nav{zoom:1.25}
       <div class="help">로그인이 안 되면 학원 <a id="loginTel"></a></div>
       <div class="installSlot"></div>
       <div style="text-align:center;margin-top:10px"><button type="button" class="linkbtn" id="toAdmin">선생님 로그인</button></div>
-      <div class="ver">버전 10.20-10</div>
+      <div class="ver">버전 10.23-1</div>
     </form>
     <form class="sheet" id="adminForm" autocomplete="on" novalidate hidden>
       <h2 style="font-size:20px;font-weight:900;margin-bottom:16px">선생님 로그인</h2>
@@ -577,10 +577,14 @@ html.fz2 #vApp,html.fz2 #nav{zoom:1.25}
 
 <script>
 /* ======================= 설정 ======================= */
-// ① 새로 배포한 "PIF 학습관리 포털" Apps Script 웹앱 주소 (끝이 /exec)
-const PORTAL_API = 'https://script.google.com/macros/s/AKfycbyRwaQjLjV81zxxIAhZSfOboNfC6cdTP2dIw7EQcPvWLdnH78_Lu1v3QdjA37W1SuK2/exec';
-// ② 기존 "PIF 영상 강의실" Apps Script 주소 (바꾸지 마세요)
-const VIDEO_API  = 'https://script.google.com/macros/s/AKfycbyhcI255CEU2Qn-x2i1QivUGVwk179sDB19QCvmRfWvQ-yRKJyIoJ-bhKNtUGoFNwys/exec';
+// ① 학습실 서버 (새 학원관리 서버, 10.23-1부터). 되돌리려면 아래 '옛 주소' 두 줄을 살리고 새 주소 두 줄을 지우면 됨
+const PORTAL_API = 'https://ndivspksctjatkkvakja.supabase.co/functions/v1/lr';
+// ② 영상 서버 (같은 새 서버, 끝에 ?video=1)
+const VIDEO_API  = 'https://ndivspksctjatkkvakja.supabase.co/functions/v1/lr?video=1';
+// 옛 주소: const PORTAL_API = 'https://script.google.com/macros/s/AKfycbyRwaQjLjV81zxxIAhZSfOboNfC6cdTP2dIw7EQcPvWLdnH78_Lu1v3QdjA37W1SuK2/exec';
+// 옛 주소: const VIDEO_API  = 'https://script.google.com/macros/s/AKfycbyhcI255CEU2Qn-x2i1QivUGVwk179sDB19QCvmRfWvQ-yRKJyIoJ-bhKNtUGoFNwys/exec';
+// 선생님 화면 (공지·답변·자료·영상 올리기)은 새 학원관리 앱에서
+const ADMIN_APP = 'https://academy-app.academy-app.workers.dev';
 // ③ OneSignal App ID (알림). 비워 두면 알림 기능만 꺼지고 나머지는 그대로 작동해요.
 const ONESIGNAL_APP_ID = '140daecc-637e-4cba-ae4f-63ffa2eba72e';
 const BUCKET = 10;           // 영상 Code.gs의 BUCKET_SEC과 동일
@@ -1848,7 +1852,7 @@ document.addEventListener('visibilitychange', () => { if (document.visibilitySta
 /* ======================= 관리자 (원장·조교) ======================= */
 const AKEY = 'pif_admin_sess';
 function showAdminForm(on){ $('#loginForm').hidden = on; $('#adminForm').hidden = !on; $('#adErr').textContent = ''; if (on) setTimeout(() => $('#adName').focus(), 50); }
-$('#toAdmin').addEventListener('click', () => showAdminForm(true));
+$('#toAdmin').addEventListener('click', () => { location.href = ADMIN_APP; });
 $('#toUser').addEventListener('click', () => showAdminForm(false));
 $('#adminForm').addEventListener('submit', async e => {
   e.preventDefault();
