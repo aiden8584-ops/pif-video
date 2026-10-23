@@ -369,6 +369,17 @@ input[type=date].in{min-height:54px}
 .btn.navy{background:var(--navy)}.btn.ghost{background:var(--bg);color:var(--ink)}
 .btn:disabled{opacity:.55}
 .btns{display:flex;gap:8px;margin-top:12px}.btns .btn{margin:0;height:46px;font-size:15px}
+/* 온라인 시험 */
+.oxi{display:flex;width:100%;text-align:left;align-items:center;justify-content:space-between;gap:10px;font:inherit;color:inherit;cursor:pointer}.oxi h3{margin:0 0 2px}.oxi:disabled{opacity:.55}
+.badge.coral{background:var(--coral);color:#fff}
+.oxtimer{margin-top:10px;font-weight:800;font-size:18px;color:var(--navy)}.oxtimer.low{color:var(--bad)}
+.oxres{display:flex;align-items:baseline;gap:12px;margin-top:8px}
+.oximg{padding:6px}.oximg img{width:100%;border-radius:10px;display:block}
+.omr{padding:6px 12px}.orow{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}.orow:last-child{border-bottom:0}
+.orow>b{width:28px;text-align:right;font-size:15px}.ochs{display:flex;gap:6px;flex-wrap:wrap}
+.och{width:40px;height:40px;border-radius:50%;border:1.5px solid var(--line);background:#fff;font-weight:800;font-size:15px;color:var(--ink)}.och.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.oinp{flex:1;height:42px;border:1.5px solid var(--line);border-radius:10px;padding:0 12px;font-size:15px}
+.orow.ok{background:#EDF8F1}.orow.bad{background:#FFF1EF}.omark{margin-left:auto;font-size:14px;white-space:nowrap}.omark small{color:var(--bad);font-weight:700}.oval{font-weight:700}
 .ferr{color:var(--bad);font-size:14px;margin-top:10px;min-height:0}
 .thumbs{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 .thumbs .th{position:relative;width:78px;height:78px;border-radius:12px;overflow:hidden;background:var(--bg)}
@@ -470,7 +481,7 @@ html.fz2 #vApp,html.fz2 #nav{zoom:1.25}
       <div class="help">로그인이 안 되면 학원 <a id="loginTel"></a></div>
       <div class="installSlot"></div>
       <div style="text-align:center;margin-top:10px"><button type="button" class="linkbtn" id="toAdmin">선생님 로그인</button></div>
-      <div class="ver">버전 10.23-2</div>
+      <div class="ver">버전 10.24-1</div>
     </form>
     <form class="sheet" id="adminForm" autocomplete="on" novalidate hidden>
       <h2 style="font-size:20px;font-weight:900;margin-bottom:16px">선생님 로그인</h2>
@@ -792,6 +803,7 @@ function go(tab, fromPop){
   document.querySelectorAll('#nav button').forEach(b => b.classList.toggle('on', b.dataset.t === tab));
   window.scrollTo(0,0);
   if (tab === 'tFiles' && !S.files) loadFiles();
+  if (tab === 'tScore') loadOnline();
   if (tab === 'tVideo') renderVideos();
   if (tab === 'tChange') renderChange();
   if (tab === 'tAsk') renderAsk();
@@ -1046,8 +1058,9 @@ function practiceRate(p){
 /* ======================= 성적 ======================= */
 function renderScores(){
   const p = S.p; if (!p) return;
+  if (S.ox) { renderExam(); return; }
   const rv = p.lessons.filter(l => l.reviewScore != null).slice().reverse();   // 오래된 → 최근
-  let h = '<div class="sec-t"><h2>리뷰테스트</h2><span class="meta">' + rv.length + '회</span></div>';
+  let h = '<div id="onlineBox"></div><div class="sec-t"><h2>리뷰테스트</h2><span class="meta">' + rv.length + '회</span></div>';
   if (rv.length) {
     const avg = Math.round(rv.reduce((a, l) => a + l.reviewScore, 0) / rv.length);
     h += '<div class="card"><div class="row"><div><div class="meta">평균</div><div class="score">' + avg + '<small>점</small></div></div>' +
@@ -1069,6 +1082,104 @@ function renderScores(){
     (x.note ? '<div class="memo">' + esc(x.note) + '</div>' : '') + '</div>').join('')
     : '<div class="card empty sm">아직 등록된 시험 성적이 없어요.</div>';
   $('#scoreBody').innerHTML = h;
+  renderOnline();
+}
+
+
+/* ======================= 온라인 시험 (10.24-1) ======================= */
+// 성적 탭 맨 위: 내 온라인 시험 목록 → 열면 시험지 + 답안지 → 제출하면 바로 채점 (서버 lr_online_*)
+// 고른 답은 이 기기에 보관 (pif_ox_<시험>) → 앱을 닫았다 열어도 이어서. 제한 시간이 끝나면 자동 제출
+S.online = null; S.ox = null; let oxTick = null;
+const OX_KEY = id => 'pif_ox_' + id;
+function oxGet(id){ try { return JSON.parse(localStorage.getItem(OX_KEY(id)) || '{}'); } catch(e){ return {}; } }
+function oxSet(id, a){ try { localStorage.setItem(OX_KEY(id), JSON.stringify(a)); } catch(e){} }
+async function loadOnline(){
+  try { S.online = await portal('online'); } catch (e) { S.online = []; }
+  renderOnline();
+}
+function renderOnline(){
+  const box = $('#onlineBox'); if (!box || S.ox) return;
+  const L = S.online || [];
+  if (!L.length) { box.innerHTML = ''; return; }
+  const st = { todo:['풀기', 'coral'], doing:['이어서 풀기', 'coral'], done:['결과 보기', 'navy'], closed:['마감', ''] };
+  box.innerHTML = '<div class="sec-t"><h2>온라인 시험</h2><span class="meta">' + L.filter(x => x.status === 'todo' || x.status === 'doing').length + '개 남음</span></div>' +
+    L.map(x => '<button type="button" class="card oxi" data-ox="' + esc(x.id) + '"' + (x.status === 'closed' ? ' disabled' : '') + '>' +
+      '<div><h3>' + esc(x.title) + '</h3><div class="meta">' + x.nq + '문항' + (x.timeLimit ? ' · ' + x.timeLimit + '분' : '') + (x.closesOn ? ' · ' + mdw(x.closesOn) + '까지' : '') + '</div></div>' +
+      (x.status === 'done' ? '<div class="score">' + x.score + '<small>/' + x.max + '</small></div>' : '<span class="badge ' + (st[x.status][1] === 'coral' ? 'coral' : '') + '">' + st[x.status][0] + '</span>') +
+      '</button>').join('');
+}
+document.addEventListener('click', async e => {
+  const b = e.target.closest('[data-ox]'); if (!b) return;
+  if (S.role !== 'student' && !(S.online || []).find(x => x.id === b.dataset.ox && x.status === 'done')) { toast('시험은 학생 로그인으로 볼 수 있어요'); return; }
+  b.disabled = true;
+  try { S.ox = await portal('onlineOpen', { id:b.dataset.ox }); S.oxDrift = Date.now() - Date.parse(S.ox.now); renderExam(); window.scrollTo(0,0); }
+  catch (err) { toast(cleanMsg(err)); } finally { b.disabled = false; }
+});
+function oxLeft(){
+  const x = S.ox; if (!x || !x.timeLimit || x.submittedAt) return null;
+  return Math.max(0, Date.parse(x.startedAt) + x.timeLimit * 60000 - (Date.now() - S.oxDrift));
+}
+function renderExam(){
+  const x = S.ox, body = $('#scoreBody'); clearInterval(oxTick);
+  const done = !!x.submittedAt, mine = done ? (x.answers || {}) : Object.assign({}, x.answers || {}, oxGet(x.id));
+  const det = {}; ((x.result && x.result.detail) || []).forEach(d => det[d.n] = d);
+  let h = '<button type="button" class="linkbtn" id="oxBack">← 성적으로</button>' +
+    '<div class="card"><h3>' + esc(x.title) + '</h3><div class="meta">' + x.questions.length + '문항' + (x.closesOn ? ' · ' + mdw(x.closesOn) + '까지' : '') + '</div>' +
+    (done ? '<div class="oxres"><div class="score">' + x.result.score + '<small>/' + x.result.max + '</small></div><div class="meta">맞힌 문항 ' +
+      ((x.result.detail || []).filter(d => d.ok).length) + '/' + x.questions.length + '</div></div>' : '') +
+    (!done && x.timeLimit ? '<div class="oxtimer" id="oxTimer"></div>' : '') + '</div>';
+  if (x.files && x.files.length && !done) h += '<div class="sec-t"><h2>시험지</h2></div>' + x.files.map(f => /^image\//.test(f.mime)
+    ? '<div class="card oximg" data-oximg="' + esc(f.id) + '"><span class="meta">시험지 불러오는 중…</span></div>'
+    : '<button type="button" class="card nfile" data-oxfile="' + esc(f.id) + '"><b>📄 ' + esc(f.name) + '</b><i>열기</i></button>').join('');
+  h += '<div class="sec-t"><h2>' + (done ? '채점 결과' : '답안지') + '</h2>' + (done ? '' : '<span class="meta">고르면 바로 저장돼요</span>') + '</div><div class="card omr">';
+  x.questions.forEach(q => {
+    const v = mine[q.n] || '', d = det[q.n];
+    h += '<div class="orow' + (done ? (d && d.ok ? ' ok' : ' bad') : '') + '"><b>' + q.n + '</b>';
+    if (q.k === 'short') h += done ? '<span class="oval">' + esc(v || '(안 씀)') + '</span>'
+      : '<input class="oinp" data-on="' + q.n + '" value="' + esc(v) + '" placeholder="답 쓰기" autocomplete="off">';
+    else { h += '<span class="ochs">'; for (let i = 1; i <= q.c; i++) h += '<button type="button" class="och' + (String(i) === v ? ' on' : '') + '" ' + (done ? 'disabled' : 'data-on="' + q.n + '" data-ov="' + i + '"') + '>' + i + '</button>'; h += '</span>'; }
+    if (done) h += '<span class="omark">' + (d && d.ok ? '⭕' : '❌' + (x.key && x.key[q.n] ? ' <small>정답 ' + esc(x.key[q.n]) + '</small>' : '')) + '</span>';
+    h += '</div>';
+  });
+  h += '</div>' + (done ? '' : '<button type="button" class="btn" id="oxSubmit">제출하기</button><p class="meta" style="text-align:center;margin-top:8px">제출하면 고칠 수 없어요</p>');
+  body.innerHTML = h;
+  body.querySelectorAll('[data-oximg]').forEach(async el => {
+    try { const r = await portal('examFile', { fileId:el.dataset.oximg }); el.innerHTML = '<img src="' + URL.createObjectURL(b64Blob(r.b64, r.mime)) + '" alt="시험지">'; }
+    catch (err) { el.innerHTML = '<span class="meta">시험지를 불러오지 못했어요</span>'; }
+  });
+  if (!done && x.timeLimit) {
+    const tick = () => { const ms = oxLeft(), t = $('#oxTimer'); if (!t) { clearInterval(oxTick); return; }
+      const s = Math.ceil(ms / 1000); t.textContent = '남은 시간 ' + Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); t.classList.toggle('low', s <= 60);
+      if (ms <= 0) { clearInterval(oxTick); toast('시간이 끝나서 제출했어요'); oxSubmit(true); } };
+    tick(); oxTick = setInterval(tick, 1000);
+  }
+}
+function oxAns(){ const x = S.ox; return Object.assign({}, x.answers || {}, oxGet(x.id)); }
+document.addEventListener('click', async e => {
+  const c = e.target.closest('.och[data-on]');
+  if (c && S.ox && !S.ox.submittedAt) {
+    const a = oxAns(); a[c.dataset.on] = a[c.dataset.on] === c.dataset.ov ? '' : c.dataset.ov; oxSet(S.ox.id, a);
+    c.parentNode.querySelectorAll('.och').forEach(b => b.classList.toggle('on', b.dataset.ov === a[c.dataset.on]));
+    return;
+  }
+  if (e.target.closest('#oxBack')) { clearInterval(oxTick); S.ox = null; renderScores(); loadOnline(); return; }
+  if (e.target.closest('#oxSubmit')) { oxSubmit(false); return; }
+  const f = e.target.closest('[data-oxfile]');
+  if (f) { const i = f.querySelector('i'); i.textContent = '여는 중…';
+    try { const r = await portal('examFile', { fileId:f.dataset.oxfile }); const u = URL.createObjectURL(b64Blob(r.b64, r.mime)); if (!window.open(u, '_blank')) saveB64(r); i.textContent = '열기'; }
+    catch (err) { i.textContent = '열기'; toast(cleanMsg(err)); } }
+});
+document.addEventListener('input', e => {
+  const t = e.target.closest('.oinp'); if (!t || !S.ox) return;
+  const a = oxAns(); a[t.dataset.on] = t.value; oxSet(S.ox.id, a);
+});
+async function oxSubmit(auto){
+  const x = S.ox; if (!x || x.submittedAt) return;
+  const a = oxAns(), blank = x.questions.filter(q => !String(a[q.n] || '').trim()).length;
+  if (!auto && !(await askConfirm({ icon:'📝', title: blank ? '안 푼 문항이 ' + blank + '개 있어요. 제출할까요?' : '제출할까요?', msg:'제출하면 고칠 수 없어요.', ok:'제출' }))) return;
+  const btn = $('#oxSubmit'); if (btn) { btn.disabled = true; btn.textContent = '채점 중…'; }
+  try { S.ox = await portal('onlineSubmit', { id:x.id, answers:a }); try { localStorage.removeItem(OX_KEY(x.id)); } catch(e){} renderExam(); window.scrollTo(0,0); toast('제출했어요'); }
+  catch (err) { toast(cleanMsg(err)); if (btn) { btn.disabled = false; btn.textContent = '제출하기'; } }
 }
 
 function chart(rows){
