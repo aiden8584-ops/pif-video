@@ -229,6 +229,16 @@
   .pprog{display:flex;align-items:center;gap:10px;margin-top:14px}
   .pprog .bar{flex:1;margin:0}
   .memo{margin-top:14px;font-size:13.5px;line-height:1.6;background:var(--bg);border-radius:10px;padding:11px 13px;white-space:pre-wrap}
+  /* 지문별 바로가기 (10.25-1): 메모의 '17:22 제목' 줄 → 누르면 그 시각으로 */
+  .chap{margin-top:14px}
+  .chap h3{margin:0 0 6px;font-size:13px;font-weight:800;color:var(--sub);letter-spacing:-.01em}
+  .chap button{display:flex;align-items:baseline;gap:10px;width:100%;text-align:left;background:var(--bg);border:0;border-radius:10px;
+    padding:10px 12px;margin-top:6px;font:inherit;font-size:14px;line-height:1.45;color:var(--ink);cursor:pointer}
+  .chap button .t{flex:none;min-width:3.6em;font-weight:800;color:var(--navy-2);font-variant-numeric:tabular-nums}
+  .chap button .n{flex:1}
+  .chap button .s{display:block;font-size:12px;color:var(--sub)}
+  .chap button.on{background:var(--coral-bg);box-shadow:inset 3px 0 0 var(--coral)}
+  .chap button.on .t{color:var(--coral)}
   .alert{margin:14px 18px 0;background:#FFF4E5;color:#7A4300;border-radius:12px;padding:12px 14px;font-size:13.5px;line-height:1.55}
   .fallback{padding:16px 18px 40px;font-size:13px;color:var(--sub);text-align:center}
   .fallback a{color:var(--navy-2);font-weight:700}
@@ -481,7 +491,7 @@ html.fz2 #vApp,html.fz2 #nav{zoom:1.25}
       <div class="help">로그인이 안 되면 학원 <a id="loginTel"></a></div>
       <div class="installSlot"></div>
       <div style="text-align:center;margin-top:10px"><button type="button" class="linkbtn" id="toAdmin">선생님 로그인</button></div>
-      <div class="ver">버전 10.24-1</div>
+      <div class="ver">버전 10.25-1</div>
     </form>
     <form class="sheet" id="adminForm" autocomplete="on" novalidate hidden>
       <h2 style="font-size:20px;font-weight:900;margin-bottom:16px">선생님 로그인</h2>
@@ -570,6 +580,7 @@ html.fz2 #vApp,html.fz2 #nav{zoom:1.25}
       <h2 id="pTitle"></h2>
       <div class="prange" id="pRange"></div>
       <div class="pprog"><div class="bar"><i id="pBar"></i></div><span class="st" id="pPct"></span></div>
+      <div class="chap" id="pChap" hidden></div>
       <div class="memo" id="pMemo" hidden></div>
     </div>
     <div class="alert" id="pErr" hidden></div>
@@ -1390,7 +1401,9 @@ function openVideo(id){
   $('#pMeta').textContent = md(v.date) + ' (' + wd(v.date) + ') ' + v.classes.join(', ');
   $('#pTitle').textContent = v.title;
   $('#pRange').textContent = v.range;
-  $('#pMemo').hidden = !v.memo; $('#pMemo').textContent = v.memo;
+  const cm = splitChapters(v.memo);
+  S.chaps = cm.chaps; drawChapters();
+  $('#pMemo').hidden = !cm.rest; $('#pMemo').textContent = cm.rest;
   $('#pErr').hidden = true;
   updatePlayerProg();
 
@@ -1428,6 +1441,7 @@ function startTick(){
   tick = setInterval(() => {
     try {
       const t = player.getCurrentTime();
+      markChapter(t);
       duration = player.getDuration() || duration;
       pending.add(Math.floor(t / BUCKET));
       if (Date.now() - lastSent > 30000) flush();
@@ -1460,6 +1474,46 @@ function updatePlayerProg(){
   $('#pPct').className = 'st' + (ok ? ' ok' : (v.pct > 0 ? ' mid' : ''));
   $('#pPct').textContent = ok ? '완료' : (v.pct > 0 ? v.pct + '% 봤어요' : '아직 안 봤어요');
 }
+/* 지문별 바로가기 (10.25-1): 메모에서 '0:00 …', '17:22 …', '1:02:05 …'로 시작하는 줄을 목차로, 나머지는 메모로.
+   목차 줄은 '17:22 Passage 02 · 제목 (출처)' — 괄호 안 출처는 작은 글씨 */
+function splitChapters(memo){
+  const chaps = [], rest = [];
+  String(memo || '').split(/\r?\n/).forEach(line => {
+    const m = line.match(/^\s*(?:(\d+):)?(\d{1,2}):(\d{2})\s+(.+?)\s*$/);
+    if (m) {
+      const sec = (+(m[1] || 0)) * 3600 + (+m[2]) * 60 + (+m[3]);
+      const src = m[4].match(/^(.*?)\s*\(([^()]*)\)$/);
+      chaps.push({ sec, label: src ? src[1] : m[4], sub: src ? src[2] : '', time: (m[1] ? m[1] + ':' : '') + m[2] + ':' + m[3] });
+    } else rest.push(line);
+  });
+  chaps.sort((a, b) => a.sec - b.sec);
+  return { chaps: chaps.length >= 2 ? chaps : [], rest: (chaps.length >= 2 ? rest : String(memo || '').split(/\r?\n/)).join('\n').trim() };
+}
+function drawChapters(){
+  const box = $('#pChap'), list = S.chaps || [];
+  box.hidden = !list.length;
+  box.innerHTML = list.length ? '<h3>지문별 바로가기</h3>' + list.map((c, i) =>
+    '<button type="button" data-i="' + i + '"><span class="t">' + esc(c.time) + '</span><span class="n">' + esc(c.label) +
+    (c.sub ? '<span class="s">' + esc(c.sub) + '</span>' : '') + '</span></button>').join('') : '';
+  S.chapOn = -1;
+  if (list.length) markChapter(S.cur && S.cur.pos > 10 && S.cur.pct < DONE ? Math.max(0, S.cur.pos - 3) : 0);
+}
+function markChapter(t){
+  const list = S.chaps || []; if (!list.length) return;
+  let k = 0; list.forEach((c, i) => { if (t + 0.5 >= c.sec) k = i; });
+  if (k === S.chapOn) return;
+  S.chapOn = k;
+  $('#pChap').querySelectorAll('button').forEach((b, i) => b.classList.toggle('on', i === k));
+}
+$('#pChap').addEventListener('click', e => {
+  const b = e.target.closest('button[data-i]'); if (!b) return;
+  const c = (S.chaps || [])[+b.dataset.i]; if (!c) return;
+  markChapter(c.sec);
+  try {
+    if (player && player.seekTo) { player.seekTo(c.sec, true); if (player.playVideo) player.playVideo(); }
+    $('#pwrap').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } catch(err) {}
+});
 function closePlayer(){
   if (!S.cur) return;
   stopTick(); flush();
