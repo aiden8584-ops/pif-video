@@ -491,7 +491,7 @@ html.fz2 #vApp,html.fz2 #nav{zoom:1.25}
       <div class="help">로그인이 안 되면 학원 <a id="loginTel"></a></div>
       <div class="installSlot"></div>
       <div style="text-align:center;margin-top:10px"><button type="button" class="linkbtn" id="toAdmin">선생님 로그인</button></div>
-      <div class="ver">버전 10.25-2</div>
+      <div class="ver">버전 10.28-1</div>
     </form>
     <form class="sheet" id="adminForm" autocomplete="on" novalidate hidden>
       <h2 style="font-size:20px;font-weight:900;margin-bottom:16px">선생님 로그인</h2>
@@ -1562,7 +1562,6 @@ window.addEventListener('pagehide', () => flush(true));
 /* ======================= v2: 날짜 도구 ======================= */
 function isoLocal(d){ return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
 function todayIso(){ return isoLocal(new Date()); }
-function tomorrow(){ return isoLocal(new Date(Date.now() + 86400000)); }
 function dayDiff(iso){ const d = parseD(iso), t = parseD(todayIso()); return d && t ? Math.round((d - t) / 86400000) : null; }
 function timeOpts(sel){
   let h = '';
@@ -1698,7 +1697,7 @@ function renderChange(){
   const q = p.quota, full = !!(q && q.left <= 0);
   if (full && k.kind !== '추가등원') k.kind = '추가등원';
   const needOrig = k.kind !== '추가등원', needNew = k.kind !== '결석';
-  let h = '<div class="head"><h1>클리닉 일정 변경</h1><p>내일 이후 일정만 신청할 수 있어요. 당일 변경은 학원(' + esc(p.contact) + ')으로 전화 주세요.</p></div><div class="sec">';
+  let h = '<div class="head"><h1>클리닉 일정 변경</h1><p>오늘 일정도 신청할 수 있어요. 급하면 학원(' + esc(p.contact) + ')으로 전화 주세요.</p></div><div class="sec">';
   if (q) h += '<div class="card" style="display:flex;align-items:center;gap:12px;' + (full ? 'background:var(--bad-bg)' : '') + '">' +
     '<div style="flex:1"><b style="font-size:15.5px">이번 내신대비 기간 클리닉 결석·날짜 변경</b><div class="meta" style="margin-top:3px">' + md(q.from) + ' ~ ' + md(q.to) + ' · 최대 ' + q.limit + '회 (추가 등원 제외)</div></div>' +
     '<div style="text-align:right"><div class="score" style="font-size:28px;' + (full ? 'color:var(--bad)' : '') + '">' + q.used + '<small>/' + q.limit + '회</small></div></div></div>' +
@@ -1715,23 +1714,23 @@ function renderChange(){
     const showFree = k.origFree || (!inList && !!k.orig) || !nc.length;
     h += '<div class="fld"><div class="stp"><span class="n">' + (++sn) + '</span>' + (k.kind === '결석' ? '어느 날 클리닉을 빠지나요?' : '어느 날 클리닉을 옮길까요?') + '</div>' +
       (nc.length ? '<div class="chips2" id="chgOrig">' + nc.map(c => '<button type="button" class="chip' + (k.orig === c.date ? ' on' : '') + '" data-v="' + c.date + '">' + mdw(c.date) + (c.time ? ' ' + esc(c.time) : '') + '</button>').join('') + '</div>' : '') +
-      (showFree ? '<input class="in" type="date" id="chgOrigD" style="margin-top:10px" min="' + tomorrow() + '" value="' + (inList ? '' : esc(k.orig)) + '" aria-label="원래 클리닉 날짜 직접 고르기"><div class="hint">원래 클리닉 날짜를 달력에서 골라 주세요.</div>'
+      (showFree ? '<input class="in" type="date" id="chgOrigD" style="margin-top:10px" min="' + todayIso() + '" value="' + (inList ? '' : esc(k.orig)) + '" aria-label="원래 클리닉 날짜 직접 고르기"><div class="hint">원래 클리닉 날짜를 달력에서 골라 주세요.</div>'
         : '<button type="button" class="more2" id="chgOrigMore">목록에 없어요 ›</button>') + '</div>';
   }
   if (needNew) {
-    const days = [], t0 = parseD(tomorrow());
+    const days = [], t0 = parseD(todayIso());   // 오늘부터 (10.28-1 당일 신청)
     for (let i = 0; i < 21; i++) days.push(isoLocal(new Date(t0.getFullYear(), t0.getMonth(), t0.getDate() + i)));
     const inStrip = days.indexOf(k.newDate) >= 0;
     h += '<div class="fld"><div class="stp"><span class="n">' + (++sn) + '</span>' + (k.kind === '추가등원' ? '언제 올까요?' : '언제로 옮길까요?') + '</div>' +
       '<div class="lb2">날짜 <span>옆으로 넘기면 다음 주 · 토·일 휴원</span></div><div class="days" id="chgDays">' +
       days.map((d, i) => {
         const dt = parseD(d), off = isOff(d), mon = i === 0 || dt.getDate() === 1;
-        const tag = needOrig && d === k.orig ? '원래' : off ? '휴원' : '';
+        const tag = needOrig && d === k.orig ? '원래' : off ? '휴원' : i === 0 ? '오늘' : '';
         return '<button type="button" class="day' + (k.newDate === d ? ' on' : '') + (tag === '원래' ? ' orig' : '') + '" data-v="' + d + '"' + (off ? ' disabled' : '') + '>' +
           '<i>' + (mon ? (dt.getMonth() + 1) + '월' : '') + '</i><small>' + '일월화수목금토'[dt.getDay()] + '</small><b>' + dt.getDate() + '</b><em>' + tag + '</em></button>';
       }).join('') +
       '<button type="button" class="day etc' + (k.newDate && !inStrip ? ' on' : '') + '" id="chgNewMore"><b>📅</b><small>' + (k.newDate && !inStrip ? md(k.newDate) : '다른 날') + '</small></button></div>' +
-      (k.newFree || (k.newDate && !inStrip) ? '<input class="in" type="date" id="chgNew" style="margin:-2px 0 12px" min="' + tomorrow() + '" value="' + (inStrip ? '' : esc(k.newDate)) + '" aria-label="다른 날짜 고르기">' : '') +
+      (k.newFree || (k.newDate && !inStrip) ? '<input class="in" type="date" id="chgNew" style="margin:-2px 0 12px" min="' + todayIso() + '" value="' + (inStrip ? '' : esc(k.newDate)) + '" aria-label="다른 날짜 고르기">' : '') +
       '<div class="lb2">시간</div><div class="tms" id="chgTimes">' + timeList(k.newTime).map(t => '<button type="button" class="chip' + (k.newTime === t ? ' on' : '') + '" data-v="' + t + '">' + t + (t === baseTime ? '<span>기존</span>' : '') + '</button>').join('') + '</div></div>';
   }
   h += '<div class="fld"><div class="stp"><span class="n">' + (++sn) + '</span><label for="chgReason">사유</label></div><textarea class="in" id="chgReason" maxlength="200" placeholder="예: 학교 수행평가 준비">' + esc(k.reason) + '</textarea>' +
