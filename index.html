@@ -316,6 +316,23 @@ body{font-size:16px}
 /* ===== v2: D-day · 할 일 · 바로가기 · 신청/질문 · 관리자 ===== */
 .hello .dday{position:absolute;right:16px;top:16px;z-index:1;background:var(--coral);color:#fff;font-weight:900;font-size:13.5px;letter-spacing:-.01em;padding:6px 11px;border-radius:999px;box-shadow:0 4px 12px rgba(232,97,60,.35)}
 .hello .dday small{font-weight:700;opacity:.9;margin-right:4px;font-size:12px}
+/* 중요 공지 띠 (홈 이름 카드 아래) */
+.pinbar{margin:10px 14px 0;display:grid;gap:8px}
+.pinbar button{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:#FFF1EC;border:1px solid #F8D3C6;border-radius:14px;padding:12px 14px;color:var(--ink,#1A2233)}
+.pinbar .pinmark{margin-top:0}
+.pinbar b{flex:1;min-width:0;font-size:15px;font-weight:800;letter-spacing:-.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pinbar i{font-style:normal;font-size:20px;line-height:1;color:var(--coral)}
+.pinbar button:active{background:#FDE4DA}
+/* 영상 목록 썸네일 (유튜브 그림, 못 불러오면 날짜 네모) */
+.thumb{flex:0 0 112px;height:63px;border-radius:10px;background:var(--navy);color:#fff;position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1}
+.thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.thumb .d{font-size:18px;font-weight:800;letter-spacing:-.03em}
+.thumb .w{font-size:11px;opacity:.72;margin-top:5px}
+.thumb .dt{display:none;position:absolute;left:5px;bottom:5px;background:rgba(15,21,36,.78);color:#fff;font-size:11px;font-weight:800;border-radius:5px;padding:3px 5px;line-height:1}
+.thumb img~.dt{display:block}
+.thumb.done img{filter:saturate(.4) brightness(.8)}
+.thumb.done::after{content:"✓";position:absolute;right:5px;top:5px;width:20px;height:20px;border-radius:50%;background:var(--ok);color:#fff;font-size:12px;font-weight:900;display:grid;place-items:center}
+.it .t .chap{font-style:normal;display:inline-block;margin-top:5px;font-size:11.5px;font-weight:800;color:var(--navy-2,#2E3F69);background:var(--bg);border-radius:6px;padding:2px 7px}
 .todo{background:var(--paper);border-radius:20px;box-shadow:0 2px 12px rgba(21,27,44,.06);padding:6px 6px 6px}
 .todo .ti{display:flex;gap:12px;align-items:flex-start;width:100%;text-align:left;border:0;background:none;padding:11px 12px;border-radius:14px}
 .todo .ti + .ti{border-top:1px solid var(--line);border-radius:0}
@@ -491,7 +508,7 @@ html.fz2 #vApp,html.fz2 #nav{zoom:1.25}
       <div class="help">로그인이 안 되면 학원 <a id="loginTel"></a></div>
       <div class="installSlot"></div>
       <div style="text-align:center;margin-top:10px"><button type="button" class="linkbtn" id="toAdmin">선생님 로그인</button></div>
-      <div class="ver">버전 10.28-1</div>
+      <div class="ver">버전 10.31-1</div>
     </form>
     <form class="sheet" id="adminForm" autocomplete="on" novalidate hidden>
       <h2 style="font-size:20px;font-weight:900;margin-bottom:16px">선생님 로그인</h2>
@@ -507,7 +524,7 @@ html.fz2 #vApp,html.fz2 #nav{zoom:1.25}
   <section id="vApp" hidden>
     <div class="top">
       <div class="logo"><b data-brand></b> <span data-room></span></div>
-      <div class="topR"><button class="me" id="meBtn" title="설정"><span id="meWho"></span><i id="meAvatar"></i></button><button class="gear" id="setBtn" data-settings aria-label="설정"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button><button class="outbtn" data-logout>로그아웃</button></div>
+      <div class="topR"><button class="me" id="meBtn" title="설정"><span id="meWho"></span><i id="meAvatar"></i></button><button class="gear" id="setBtn" data-settings aria-label="설정"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button></div>
     </div>
 
     <!-- 홈 -->
@@ -905,6 +922,11 @@ function renderHome(){
       (sc.clinicDay ? '<div><span>클리닉</span>매주 ' + esc(sc.clinicDay) + '요일 ' + esc(sc.clinicTime||'') + '</div>' : '') +
     '</div></div>';
 
+  // 중요 공지는 이름 카드 바로 아래 띠로 (누르면 아래 공지사항에서 펼침)
+  const pins = p.notices.map((n, i) => ({ n, i })).filter(x => x.n.pinned).slice(0, 2);
+  if (pins.length) h += '<div class="pinbar">' + pins.map(x =>
+    '<button type="button" data-pin="' + x.i + '"><span class="pinmark">중요</span><b>' + esc(x.n.title || '공지') + '</b><i>›</i></button>').join('') + '</div>';
+
   h += '<div class="stats">' + statBox(st.attend, '수업 출석률') + statBox(clinicAttend(p), '클리닉 참석률') + statBox(st.hw, '과제 완료율') + '</div>';
 
   h += '<div class="sec"><div class="pushSlot"></div>';
@@ -936,7 +958,7 @@ function renderHome(){
 
   // 공지
   h += '<div class="sec-t"><h2>공지사항</h2></div>';
-  h += p.notices.length ? p.notices.slice(0, 5).map((n, i) => noticeItem(n, i === 0 && n.pinned)).join('') +
+  h += p.notices.length ? p.notices.slice(0, 5).map((n, i) => noticeItem(n, i === 0 && n.pinned, i)).join('') +
       (p.notices.length > 5 ? '<button class="card" id="moreNotice" style="width:100%;text-align:center;font-weight:700;color:var(--navy-2);font-size:14px">공지 ' + (p.notices.length - 5) + '개 더 보기</button>' : '')
     : '<div class="card empty sm">새 공지가 없어요.</div>';
   h += '<div class="installSlot" data-home="1"></div>';
@@ -958,12 +980,18 @@ $('#tHome').addEventListener('click', e => {
   const q = e.target.closest('.qk[data-to]');
   if (q) { go(q.dataset.to); return; }
   const m = e.target.closest('#moreNotice');
-  if (m) { m.outerHTML = S.p.notices.slice(5).map(n => noticeItem(n)).join(''); }
+  if (m) { m.outerHTML = S.p.notices.slice(5).map((n, i) => noticeItem(n, false, i + 5)).join(''); return; }
+  const pb = e.target.closest('[data-pin]');
+  if (pb) {
+    let d = $('#tHome details.notice[data-ni="' + pb.dataset.pin + '"]');
+    if (!d && $('#moreNotice')) { $('#moreNotice').click(); d = $('#tHome details.notice[data-ni="' + pb.dataset.pin + '"]'); }
+    if (d) { d.open = true; d.scrollIntoView({ behavior:'smooth', block:'center' }); }
+  }
 });
 
-function noticeItem(n, open){
+function noticeItem(n, open, idx){
   const first = String(n.body||'').split('\n').find(x => x.trim()) || '';
-  return '<details class="notice"' + (open ? ' open' : '') + '><summary>' + (n.pinned ? '<span class="pinmark">중요</span>' : '') +
+  return '<details class="notice"' + (idx != null ? ' data-ni="' + idx + '"' : '') + (open ? ' open' : '') + '><summary>' + (n.pinned ? '<span class="pinmark">중요</span>' : '') +
     '<div class="t"><b>' + esc(n.title || '공지') + '</b><div class="pre">' + esc(first) + '</div>' +
     '<div class="meta" style="margin-top:4px">' + esc(mdw(n.date)) + ' · ' + esc(n.source) + '</div></div></summary>' +
     '<div class="body">' + esc(n.body) + '</div>' + noticeFilesHTML(n.files) + '</details>';
@@ -1351,9 +1379,13 @@ function vrow(v){
   else if (mid) right = '<span class="st mid">' + v.pct + '%</span>';
   else if (daysAgo(v.date) <= 7) right = '<span class="new">NEW</span>';
   else right = '<span class="st">안 봄</span>';
+  const nChap = splitChapters(v.memo).chaps.length;
   return '<button class="it" data-id="' + esc(v.id) + '">' +
-    '<div class="tile' + tileCls + '"><div class="d">' + esc(md(v.date)) + '</div><div class="w">' + esc(wd(v.date)) + '</div></div>' +
+    '<div class="thumb' + tileCls + '"><div class="d">' + esc(md(v.date)) + '</div><div class="w">' + esc(wd(v.date)) + '</div>' +
+      '<img src="https://i.ytimg.com/vi/' + encodeURIComponent(v.id) + '/mqdefault.jpg" alt="" loading="lazy" onload="if(this.naturalWidth<=120)this.remove()" onerror="this.remove()">' +
+      '<span class="dt">' + esc(md(v.date)) + ' ' + esc(wd(v.date)) + '</span></div>' +
     '<div class="t"><b>' + esc(v.title) + '</b>' + (v.range ? '<span>' + esc(v.range) + '</span>' : '') +
+    (nChap ? '<em class="chap">지문별 바로가기 ' + nChap + '개</em>' : '') +
     '<div class="bar"><i class="' + (ok?'ok':'') + '" style="width:' + v.pct + '%"></i></div></div>' + right + '</button>';
 }
 function renderVList(){
