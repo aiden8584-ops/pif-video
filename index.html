@@ -508,7 +508,7 @@ html.fz2 #vApp,html.fz2 #nav{zoom:1.25}
       <div class="help">로그인이 안 되면 학원 <a id="loginTel"></a></div>
       <div class="installSlot"></div>
       <div style="text-align:center;margin-top:10px"><button type="button" class="linkbtn" id="toAdmin">선생님 로그인</button></div>
-      <div class="ver">버전 10.31-1</div>
+      <div class="ver">버전 11.09-1</div>
     </form>
     <form class="sheet" id="adminForm" autocomplete="on" novalidate hidden>
       <h2 style="font-size:20px;font-weight:900;margin-bottom:16px">선생님 로그인</h2>
@@ -832,7 +832,7 @@ function go(tab, fromPop){
   window.scrollTo(0,0);
   if (tab === 'tFiles' && !S.files) loadFiles();
   if (tab === 'tScore') loadOnline();
-  if (tab === 'tVideo') renderVideos();
+  if (tab === 'tVideo') { renderVideos(); refreshVideos(); }
   if (tab === 'tChange') renderChange();
   if (tab === 'tAsk') renderAsk();
   if (tab === 'tTools') renderTools();
@@ -865,6 +865,23 @@ async function refreshPortal(force){
   if (!force && Date.now() - (S.pAt || 0) < 30000) return;
   pRefreshing = true;
   try { const p = await portal('portal'); S.pAt = Date.now(); applyPortal(p, null); snapSet(p); } catch(e){} finally { pRefreshing = false; }
+  refreshVideos();                               // 새로 올린 영상도 같이
+}
+// 영상 목록 조용히 다시 받기 (앱으로 돌아올 때·영상 탭을 누를 때, 30초에 한 번까지, 영상을 보는 중에는 안 함)
+let vRefreshing = false;
+async function refreshVideos(force){
+  if (S.role !== 'student' || !S.token || !S.vtoken || !S.vLoaded || S.cur || vRefreshing) return;
+  if (!force && Date.now() - (S.vAt || 0) < 30000) return;
+  vRefreshing = true;
+  try {
+    const v = await video('videos');
+    if (S.role !== 'student' || !S.token || S.cur) return;
+    S.videos = v.videos || []; DONE = v.donePct || DONE; S.vErr = ''; S.vAt = Date.now();
+    vsnapSet(); updateVidCta();
+    if (S.tab === 'tVideo') renderVideos();
+  } catch(e){
+    if (cleanMsg(e).indexOf('SESSION_EXPIRED') >= 0) { S.vtoken = null; saveSess(); }   // 목록은 그대로 두고, 다음에 다시 로그인
+  } finally { vRefreshing = false; }
 }
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') refreshPortal(); });
 window.addEventListener('focus', () => refreshPortal());
@@ -1319,7 +1336,7 @@ async function loadVideos(){
     }
     if (!v) v = await video('videos');
     if (S.role !== 'student' || !S.token) return;   // 기다리는 사이 로그아웃함
-    S.videos = v.videos || []; DONE = v.donePct || DONE;
+    S.videos = v.videos || []; DONE = v.donePct || DONE; S.vAt = Date.now();
     vsnapSet();
   } catch (e) {
     const msg = cleanMsg(e), expired = msg.indexOf('SESSION_EXPIRED') >= 0;
