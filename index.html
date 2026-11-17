@@ -1062,7 +1062,8 @@ const ZV = (() => {
   function open(src){
     img.src = src; isOpen = true; el.classList.add('on'); document.body.style.overflow = 'hidden';
     hint.style.display = ''; setTimeout(() => { hint.style.display = 'none'; }, 3000);
-    requestAnimationFrame(() => { z = 1; img.style.width = zs.clientWidth + 'px'; zs.scrollTop = 0; zs.scrollLeft = 0; });
+    const fit = () => { z = 1; img.style.width = (zs.clientWidth || window.innerWidth) + 'px'; zs.scrollTop = 0; zs.scrollLeft = 0; };
+    fit(); requestAnimationFrame(fit);
     try { history.pushState({ pif:'zoom' }, ''); } catch(e){}
   }
   function close(fromPop){
