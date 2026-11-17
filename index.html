@@ -156,6 +156,18 @@
   .nimg{border-radius:12px;overflow:hidden;background:var(--bg);min-height:60px;display:grid;place-items:center}
   .nimg span{font-size:13px;color:var(--sub);padding:18px}
   .nimg img{display:block;width:100%;height:auto}
+  .nimg img{cursor:zoom-in}
+  .nimg{position:relative}
+  .nimg .zhint{position:absolute;right:8px;bottom:8px;background:rgba(20,24,48,.72);color:#fff;font-size:12px;font-weight:700;border-radius:20px;padding:5px 10px;pointer-events:none}
+  /* 공지 사진 크게 보기 (11.17-1) */
+  .zv{position:fixed;inset:0;z-index:9999;background:rgba(10,12,24,.97);display:none}
+  .zv.on{display:block}
+  .zv .zs{position:absolute;inset:0;overflow:auto;touch-action:pan-x pan-y;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+  .zv .zw{min-height:100%;display:flex;align-items:center;width:max-content;min-width:100%}
+  .zv img{display:block;height:auto;max-width:none;user-select:none;-webkit-user-select:none}
+  .zv .zx{position:fixed;top:calc(10px + env(safe-area-inset-top));right:12px;width:44px;height:44px;border-radius:50%;border:2px solid rgba(255,255,255,.85);background:rgba(20,24,48,.82);color:#fff;font-size:20px;font-weight:700;z-index:2;cursor:pointer}
+  .zv .zh{position:fixed;left:0;right:0;bottom:calc(16px + env(safe-area-inset-bottom));text-align:center;pointer-events:none}
+  .zv .zh span{background:rgba(255,255,255,.14);color:rgba(255,255,255,.85);font-size:12.5px;border-radius:20px;padding:6px 12px}
   .nfile{display:flex;align-items:center;gap:10px;width:100%;text-align:left;border:1px solid var(--line);background:#fff;border-radius:12px;padding:11px 13px}
   .nfile b{flex:1;font-size:14px;font-weight:700;overflow-wrap:anywhere}
   .nfile i{font-style:normal;font-size:13px;font-weight:800;color:var(--navy-2);white-space:nowrap}
@@ -508,7 +520,7 @@ html.fz2 #vApp,html.fz2 #nav{zoom:1.25}
       <div class="help">로그인이 안 되면 학원 <a id="loginTel"></a></div>
       <div class="installSlot"></div>
       <div style="text-align:center;margin-top:10px"><button type="button" class="linkbtn" id="toAdmin">선생님 로그인</button></div>
-      <div class="ver">버전 11.09-1</div>
+      <div class="ver">버전 11.17-1</div>
     </form>
     <form class="sheet" id="adminForm" autocomplete="on" novalidate hidden>
       <h2 style="font-size:20px;font-weight:900;margin-bottom:16px">선생님 로그인</h2>
@@ -1026,11 +1038,67 @@ function loadNoticeImgs(root){
     const id = el.dataset.nimg; el.dataset.done = 1;
     try {
       if (!NIMG[id]) { const r = await portal('noticeFile', { fileId:id }); NIMG[id] = URL.createObjectURL(b64Blob(r.b64, r.mime)); }
-      el.innerHTML = '<img src="' + NIMG[id] + '" alt="공지 사진">';
+      el.innerHTML = '<img src="' + NIMG[id] + '" alt="공지 사진"><span class="zhint">🔍 눌러서 크게</span>';
     } catch (err) { el.innerHTML = '<span>사진을 불러오지 못했어요</span>'; delete el.dataset.done; }
   });
 }
 document.addEventListener('toggle', e => { if (e.target.matches && e.target.matches('details.notice')) loadNoticeImgs(e.target.parentNode); }, true);
+// 공지 사진 크게 보기 (11.17-1): 누르면 화면 가득, 두 손가락 벌리기·두 번 누르기로 확대, ✕·뒤로 가기로 닫기
+const ZV = (() => {
+  const el = document.createElement('div'); el.className = 'zv';
+  el.innerHTML = '<div class="zs"><div class="zw"><img alt="크게 보기"></div></div>' +
+    '<button type="button" class="zx" aria-label="닫기">✕</button><div class="zh"><span>두 손가락으로 벌리거나 두 번 눌러 확대</span></div>';
+  document.body.appendChild(el);
+  const zs = el.querySelector('.zs'), img = el.querySelector('img'), hint = el.querySelector('.zh');
+  let z = 1, isOpen = false, pinch = null, lastTap = 0;
+  function setZ(nz, cx, cy){
+    nz = Math.max(1, Math.min(5, nz));
+    const r = zs.getBoundingClientRect();
+    if (cx == null) { cx = r.left + r.width / 2; cy = r.top + r.height / 2; }
+    const fx = (zs.scrollLeft + cx - r.left) / Math.max(1, zs.scrollWidth), fy = (zs.scrollTop + cy - r.top) / Math.max(1, zs.scrollHeight);
+    z = nz; img.style.width = Math.round(zs.clientWidth * z) + 'px';
+    zs.scrollLeft = fx * zs.scrollWidth - (cx - r.left); zs.scrollTop = fy * zs.scrollHeight - (cy - r.top);
+  }
+  function open(src){
+    img.src = src; isOpen = true; el.classList.add('on'); document.body.style.overflow = 'hidden';
+    hint.style.display = ''; setTimeout(() => { hint.style.display = 'none'; }, 3000);
+    requestAnimationFrame(() => { z = 1; img.style.width = zs.clientWidth + 'px'; zs.scrollTop = 0; zs.scrollLeft = 0; });
+    try { history.pushState({ pif:'zoom' }, ''); } catch(e){}
+  }
+  function close(fromPop){
+    if (!isOpen) return; isOpen = false; el.classList.remove('on'); document.body.style.overflow = ''; img.removeAttribute('src');
+    if (!fromPop && history.state && history.state.pif === 'zoom') { try { history.back(); } catch(e){} }
+  }
+  el.querySelector('.zx').addEventListener('click', () => close(false));
+  zs.addEventListener('touchstart', e => {
+    if (e.touches.length === 2) {
+      const [a, b] = e.touches;
+      pinch = { d: Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY), z: z };
+    }
+  }, { passive: true });
+  zs.addEventListener('touchmove', e => {
+    if (!pinch || e.touches.length !== 2) return;
+    e.preventDefault();
+    const [a, b] = e.touches, d = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+    setZ(pinch.z * d / pinch.d, (a.clientX + b.clientX) / 2, (a.clientY + b.clientY) / 2);
+  }, { passive: false });
+  zs.addEventListener('touchend', e => {
+    if (e.touches.length < 2) pinch = null;
+    if (e.touches.length || e.changedTouches.length !== 1) return;
+    const t = e.changedTouches[0], now = Date.now();
+    if (now - lastTap < 300) { setZ(z > 1.2 ? 1 : 2.5, t.clientX, t.clientY); lastTap = 0; e.preventDefault(); }
+    else lastTap = now;
+  });
+  zs.addEventListener('dblclick', e => { setZ(z > 1.2 ? 1 : 2.5, e.clientX, e.clientY); });
+  zs.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); setZ(z * (e.deltaY < 0 ? 1.15 : 1 / 1.15), e.clientX, e.clientY); }, { passive: false });
+  window.addEventListener('resize', () => { if (isOpen) setZ(z); });
+  document.addEventListener('keydown', e => { if (isOpen && e.key === 'Escape') close(false); });
+  return { open, close, isOpen: () => isOpen };
+})();
+document.addEventListener('click', e => {
+  const im = e.target.closest('.nimg img'); if (!im) return;
+  ZV.open(im.src);
+});
 document.addEventListener('click', async e => {
   const b = e.target.closest('[data-nfile]'); if (!b || b.dataset.busy) return;
   const i = b.querySelector('i'); b.dataset.busy = 1; i.textContent = '받는 중…';
@@ -1584,6 +1652,7 @@ $('#backBtn').addEventListener('click', () => { if (history.state && history.sta
 /* ---------- 휴대폰 뒤로 가기 ---------- */
 let lastBackAt = 0;
 window.addEventListener('popstate', e => {
+  if (ZV.isOpen()) { ZV.close(true); return; }             // 사진 크게 보기 → 닫기만
   if (S.ad && !S.token) {                                 // 관리 화면: 두 번 누르면 나가기
     const st = e.state || {};
     if (st.pif === 'admin') return;
