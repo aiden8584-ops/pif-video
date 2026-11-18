@@ -450,6 +450,11 @@ input[type=date].in{min-height:54px}
 .chkrow{display:flex;gap:16px;font-size:15px;font-weight:700}
 .chkrow label{display:flex;gap:6px;align-items:center;margin:0}
 .chkrow input{width:20px;height:20px;accent-color:var(--navy)}
+.otpTo{background:var(--bg2, #f4f2fb);border-radius:12px;padding:12px 14px;font-size:15px;font-weight:700;line-height:1.5;margin:0 0 14px}
+.otpTo span{display:block;color:var(--faint);font-weight:500;font-size:13px}
+.otpIn{text-align:center;font-size:26px;font-weight:800;letter-spacing:10px}
+.otpRow{display:flex;justify-content:space-between;gap:8px;margin:-4px 0 14px}
+.otpRow .linkbtn:disabled{opacity:.5}
 .keep{display:flex;gap:8px;align-items:center;font-size:15px;font-weight:700;margin:-2px 0 16px;cursor:pointer}
 .keep input{width:20px;height:20px;accent-color:var(--navy);margin:0}
 .keep span{color:var(--faint);font-weight:500;font-size:13px}
@@ -503,6 +508,7 @@ html.fz2 #vApp,html.fz2 #nav{zoom:1.25}
       <div class="catch" id="loginCatch"></div>
     </div>
     <form class="sheet" id="loginForm" autocomplete="on" novalidate>
+      <div id="idStep">
       <div class="role" id="roleSeg" role="tablist" aria-label="로그인 구분">
         <button type="button" class="on" data-r="student" role="tab" aria-selected="true">학생</button>
         <button type="button" data-r="parent" role="tab" aria-selected="false">학부모</button>
@@ -514,13 +520,20 @@ html.fz2 #vApp,html.fz2 #nav{zoom:1.25}
           <div></div><div></div><div></div><div></div>
           <input id="inPhone" name="last4" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" aria-label="휴대폰 뒷자리 4개">
         </div></div>
+      </div>
+      <div id="otpStep" hidden>
+        <div class="otpTo" id="otpTo"></div>
+        <div class="fld"><label for="inCode">문자로 받은 인증번호 6자리</label>
+          <input class="in otpIn" id="inCode" name="code" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="one-time-code" placeholder="••••••"></div>
+        <div class="otpRow"><button type="button" class="linkbtn" id="otpBack">← 이름 다시 쓰기</button><button type="button" class="linkbtn" id="otpResend">인증번호 다시 받기</button></div>
+      </div>
       <label class="keep"><input type="checkbox" id="keepLogin" checked>로그인 유지 <span>(같이 쓰는 휴대폰이면 해제)</span></label>
-      <button class="go" id="loginBtn" type="submit">들어가기</button>
+      <button class="go" id="loginBtn" type="submit">인증번호 받기</button>
       <div class="err" id="loginErr" role="alert"></div>
       <div class="help">로그인이 안 되면 학원 <a id="loginTel"></a></div>
       <div class="installSlot"></div>
       <div style="text-align:center;margin-top:10px"><button type="button" class="linkbtn" id="toAdmin">선생님 로그인</button></div>
-      <div class="ver">버전 11.17-1</div>
+      <div class="ver">버전 11.18-1</div>
     </form>
     <form class="sheet" id="adminForm" autocomplete="on" novalidate hidden>
       <h2 style="font-size:20px;font-weight:900;margin-bottom:16px">선생님 로그인</h2>
@@ -708,20 +721,15 @@ async function portal(action, data, retried){
   try { return await post(PORTAL_API, action, Object.assign({}, data, { token:S.token })); }
   catch (e) {
     if (String(e.message).indexOf('SESSION_EXPIRED') < 0) throw e;
-    const k = keepGet();
-    if (k && !retried) {                       // 로그인 유지 중이면 조용히 다시 로그인하고 한 번 더
-      try {
-        const r = await post(PORTAL_API, 'login', k);
-        S.token = r.token; S.role = r.role; S.last = { name:k.name, last4:k.last4 }; saveSess();
-        return await portal(action, data, true);
-      } catch (e2) { keepClear(); logout('자동 로그인이 풀렸어요. 다시 로그인해 주세요.'); throw e2; }
-    }
-    logout('오래 지나서 다시 로그인해 주세요.'); throw e;
+    // 11-18: 이름·뒷자리로 몰래 다시 로그인하지 않음 (문자 인증을 다시 해야 함)
+    const had = !!keepGet(); keepClear(); snapClear();
+    logout(had ? '로그인 시간이 지났어요. 문자 인증으로 다시 로그인해 주세요.' : '오래 지나서 다시 로그인해 주세요.'); throw e;
   }
 }
-// 로그인 유지 (이 기기에만 저장, 로그아웃하면 지워짐)
+// 로그인 유지 (이 기기에만 저장, 로그아웃하면 지워짐) — 11-18부터 이름·번호가 아니라 로그인 열쇠만 {v:2, token, vtoken, role, name}
 const KKEY = 'pif_keep';
-function keepGet(){ try { const v = localStorage.getItem(KKEY); return v ? JSON.parse(decodeURIComponent(escape(atob(v)))) : null; } catch(e){ return null; } }
+function keepRaw(){ try { const v = localStorage.getItem(KKEY); return v ? JSON.parse(decodeURIComponent(escape(atob(v)))) : null; } catch(e){ return null; } }
+function keepGet(){ const k = keepRaw(); return k && k.v === 2 && k.token ? k : null; }
 function keepSet(o){ try { localStorage.setItem(KKEY, btoa(unescape(encodeURIComponent(JSON.stringify(o))))); } catch(e){} }
 function keepClear(){ try { localStorage.removeItem(KKEY); } catch(e){} }
 function video(action, data){ return post(VIDEO_API, action, Object.assign({}, data, { token:S.vtoken })); }
@@ -729,6 +737,8 @@ function video(action, data){ return post(VIDEO_API, action, Object.assign({}, d
 // 로그인 유지: 같은 탭에서 새로고침할 때만 유지 (탭을 닫으면 사라짐)
 const SKEY = 'pif_portal_sess';
 function saveSess(){
+  const k = keepGet();                       // 로그인 유지 중이면 영상 열쇠도 같이 보관
+  if (k && k.token === S.token && (k.vtoken || null) !== (S.vtoken || null)) keepSet(Object.assign(k, { vtoken:S.vtoken || null }));
   try { sessionStorage.setItem(SKEY, JSON.stringify({ token:S.token, role:S.role, vtoken:S.vtoken, tab:S.tab, kind:S.lessonKind })); } catch(e){}
 }
 function loadSess(){ try { return JSON.parse(sessionStorage.getItem(SKEY)); } catch(e){ return null; } }
@@ -763,30 +773,82 @@ $('#inPhone').addEventListener('input', () => {
 $('#inPhone').addEventListener('focus', () => $('#pin').classList.add('focus'));
 $('#inPhone').addEventListener('blur', () => $('#pin').classList.remove('focus'));
 
+// 11-18 문자 인증: ① 이름·뒷자리 → 인증번호 받기 ② 인증번호 6자리 → 들어가기
+let otp = null, otpTimer = 0;
+function otpMode(on){
+  $('#idStep').hidden = on; $('#otpStep').hidden = !on;
+  $('#loginBtn').textContent = on ? '들어가기' : '인증번호 받기';
+  if (!on) { otp = null; clearInterval(otpTimer); $('#inCode').value = ''; return; }
+  $('#inCode').value = '';
+  $('#otpTo').innerHTML = esc(otp.to) + '(으)로 인증번호를 보냈어요.<span>문자가 안 오면 1분 뒤 \'다시 받기\'를 눌러 주세요.</span>';
+  const tick = () => {
+    const left = Math.ceil(60 - (Date.now() - otp.at) / 1000), b = $('#otpResend');
+    b.disabled = left > 0; b.textContent = left > 0 ? '다시 받기 (' + left + '초)' : '인증번호 다시 받기';
+    if (left <= 0) clearInterval(otpTimer);
+  };
+  clearInterval(otpTimer); tick(); otpTimer = setInterval(tick, 1000);
+  setTimeout(() => $('#inCode').focus(), 50);
+}
+async function otpSend(name, last4, role){
+  const r = await post(PORTAL_API, 'otpSend', { name, last4, role });
+  otp = { id:r.otp, to:r.to, name, last4, role, at:Date.now() };
+  otpMode(true);
+}
+$('#inCode').addEventListener('input', () => {
+  const v = $('#inCode').value.replace(/\D/g,'').slice(0,6); $('#inCode').value = v;
+  if (v.length === 6) $('#loginForm').requestSubmit();
+});
+$('#otpBack').addEventListener('click', () => { otpMode(false); $('#loginErr').textContent = ''; $('#inPhone').value = ''; renderPin(); $('#inPhone').focus(); });
+$('#otpResend').addEventListener('click', async () => {
+  if (!otp || busy) return;
+  busy = true; $('#loginErr').textContent = '';
+  try { await otpSend(otp.name, otp.last4, otp.role); toast('인증번호를 다시 보냈어요'); }
+  catch (err) { $('#loginErr').textContent = cleanMsg(err); }
+  finally { busy = false; }
+});
+
 let busy = false;
 $('#loginForm').addEventListener('submit', async e => {
   e.preventDefault();
   if (busy) return;
-  const name = $('#inName').value.trim();
-  const last4 = $('#inPhone').value.replace(/\D/g,'');
+  const btn = $('#loginBtn');
   $('#loginErr').textContent = '';
+  if (otp) {                                   // ② 인증번호 확인
+    const code = $('#inCode').value.replace(/\D/g,'');
+    if (code.length !== 6) { $('#loginErr').textContent = '문자로 받은 인증번호 6자리를 넣어 주세요.'; $('#inCode').focus(); return; }
+    busy = true; btn.disabled = true; btn.textContent = '확인 중…';
+    const keep = $('#keepLogin').checked;
+    try {
+      const r = await post(PORTAL_API, 'login', { otp:otp.id, code, keep, withPortal:true });
+      const name = otp.name;
+      otpMode(false);
+      S.token = r.token; S.role = r.role; S.last = { name }; S.vtoken = null;
+      try { localStorage.setItem('pif_keep_pref', keep ? '1' : '0'); } catch(e2){}
+      if (keep) keepSet({ v:2, token:r.token, vtoken:null, role:r.role, name }); else { keepClear(); snapClear(); }
+      saveSess();
+      await enterApp(null, r.portal || null);
+    } catch (err) {
+      let m = cleanMsg(err);
+      if (m.indexOf('OTP_AGAIN:') === 0) { m = m.slice(10); otpMode(false); $('#inPhone').value = ''; renderPin(); }
+      else { $('#inCode').value = ''; $('#inCode').focus(); }
+      $('#loginErr').textContent = m;
+    } finally {
+      busy = false; btn.disabled = false; btn.textContent = otp ? '들어가기' : '인증번호 받기';
+    }
+    return;
+  }
+  const name = $('#inName').value.trim();     // ① 이름·뒷자리 → 인증번호 받기
+  const last4 = $('#inPhone').value.replace(/\D/g,'');
   if (!name) { $('#loginErr').textContent = '이름을 입력해 주세요.'; $('#inName').focus(); return; }
   if (last4.length !== 4) { $('#loginErr').textContent = '휴대폰 뒷자리 4개를 입력해 주세요.'; $('#inPhone').focus(); return; }
-  busy = true;
-  const btn = $('#loginBtn'); btn.disabled = true; btn.textContent = '확인 중…';
+  busy = true; btn.disabled = true; btn.textContent = '보내는 중…';
   try {
-    const r = await post(PORTAL_API, 'login', { name, last4, role:S.role, withPortal:true });
-    S.token = r.token; S.role = r.role; S.last = { name, last4 }; S.vtoken = null;
-    const keep = $('#keepLogin').checked;
-    try { localStorage.setItem('pif_keep_pref', keep ? '1' : '0'); } catch(e2){}
-    if (keep) keepSet({ name, last4, role:S.role }); else { keepClear(); snapClear(); }
-    saveSess();
-    await enterApp(null, r.portal || null);
+    await otpSend(name, last4, S.role);
   } catch (err) {
     $('#loginErr').textContent = cleanMsg(err);
     $('#inPhone').value = ''; renderPin();
   } finally {
-    busy = false; btn.disabled = false; btn.textContent = '들어가기';
+    busy = false; btn.disabled = false; btn.textContent = otp ? '들어가기' : '인증번호 받기';
   }
 });
 
@@ -795,7 +857,7 @@ function logout(msg){
   clearSess();
   stopTick(); try { if (player && player.destroy) player.destroy(); } catch(e){}
   Object.assign(S, { token:null, p:null, vtoken:null, videos:[], vErr:'', vLoaded:false, files:null, cur:null, last:{name:'',last4:''} });
-  $('#inName').value = ''; $('#inPhone').value = ''; renderPin();
+  $('#inName').value = ''; $('#inPhone').value = ''; renderPin(); otpMode(false);
   $('#loginErr').textContent = msg || '';
   showView('vLogin');
 }
@@ -819,7 +881,7 @@ function askConfirm(o){
 }
 async function askLogout(){
   const ok = await askConfirm({ icon:'👋', title:'로그아웃할까요?', ok:'로그아웃',
-    msg: keepGet() ? '다음에 들어올 때 이름과 휴대폰 뒷자리를 다시 입력해야 해요.' : '' });
+    msg: keepGet() ? '다음에 들어올 때 문자 인증번호로 다시 로그인해야 해요.' : '' });
   if (ok) { keepClear(); snapClear(); osLogout(); logout(); }
 }
 $('#meBtn').addEventListener('click', () => openSettings());
@@ -1398,8 +1460,8 @@ async function loadVideos(){
   try {
     let v = null;
     if (!S.vtoken) {
-      if (!S.last.last4) throw new Error('영상을 보려면 다시 로그인해 주세요.');
-      const r = await post(VIDEO_API, 'login', { name:S.last.name, last4:S.last.last4, withVideos:true });   // 로그인 + 목록 한 번에
+      if (!S.token) throw new Error('영상을 보려면 다시 로그인해 주세요.');
+      const r = await post(VIDEO_API, 'fromPortal', { ptoken:S.token, withVideos:true });   // 학습실 열쇠로 영상 열쇠 + 목록 한 번에 (11-18)
       S.vtoken = r.token; saveSess();
       if (Array.isArray(r.videos)) v = r;
     }
@@ -2486,22 +2548,22 @@ if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.
   if (ad && ad.token) { S.ad = ad; S.startGo = ''; enterAdmin(); return; }
   if (S.startGo === 'admin') { S.startGo = ''; showView('vLogin'); showAdminForm(true); return; }
   try { if (localStorage.getItem('pif_keep_pref') === '0') $('#keepLogin').checked = false; } catch(e){}
+  // 11-18 전 '로그인 유지'(이름·뒷자리를 기기에 저장)는 지움 → 한 번 문자 인증
+  const old = keepRaw();
+  if (old && !keepGet()) {
+    keepClear(); snapClear();
+    if (old.role) setRole(old.role === 'parent' ? 'parent' : 'student');
+    $('#inName').value = old.name || '';
+    showView('vLogin'); $('#loginErr').textContent = '보안이 강화됐어요. 한 번만 문자 인증번호로 다시 로그인해 주세요.';
+    return;
+  }
   const keep = keepGet();
-  if (keep) { S.last = { name:keep.name, last4:keep.last4 }; }
+  if (keep) S.last = { name:keep.name };
   const saved = loadSess();
-  if (!(saved && saved.token) && keep) {        // 로그인 유지: 앱을 열면 바로 입장
-    S.role = keep.role === 'parent' ? 'parent' : 'student';
-    appShell();
-    const snap = snapGet();
-    if (snap) applyPortal(snap); else skeleton();
-    post(PORTAL_API, 'login', Object.assign({}, keep, { withPortal:true })).then(r => {
-      S.token = r.token; S.role = r.role; S.vtoken = S.vtoken || null; saveSess();
-      if (r.portal) { applyPortal(r.portal); snapSet(r.portal); osLogin(r.portal.pushId); }
-      else enterApp();
-    }).catch(err => {
-      keepClear(); snapClear(); setRole(S.role); $('#inName').value = keep.name || '';
-      showView('vLogin'); $('#loginErr').textContent = '자동 로그인이 안 됐어요: ' + cleanMsg(err);
-    });
+  if (!(saved && saved.token) && keep) {        // 로그인 유지: 앱을 열면 저장한 열쇠로 바로 입장
+    S.token = keep.token; S.role = keep.role === 'parent' ? 'parent' : 'student'; S.vtoken = keep.vtoken || null;
+    saveSess();
+    enterApp();
     return;
   }
   if (saved && saved.token) {
