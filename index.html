@@ -426,7 +426,7 @@ input[type=date].in{min-height:54px}
 .oxone{margin-top:12px}
 .oxtop{position:sticky;top:54px;z-index:4;background:#fff;border:1px solid var(--line);border-radius:14px 14px 0 0;padding:8px 10px 6px}
 .oxtopr{display:flex;align-items:baseline;gap:8px;white-space:nowrap}.oxtopr b{font-size:18px}.oxtopr .oxtimer{margin:0 0 0 auto;font-size:16px}
-.oxstrip{display:flex;gap:5px;overflow-x:auto;padding:7px 0 2px;scrollbar-width:none}.oxstrip::-webkit-scrollbar{display:none}
+.oxstrip{display:flex;gap:5px;overflow-x:auto;padding:10px 4px 2px;scrollbar-width:none}.oxstrip::-webkit-scrollbar{display:none}
 .oxc{flex:0 0 auto;min-width:32px;height:32px;border-radius:9px;border:1.5px solid var(--line);background:#fff;font-weight:800;font-size:13px;color:var(--sub)}
 .oxc.on{background:var(--navy);border-color:var(--navy);color:#fff}.oxc.part{border-color:var(--coral);color:var(--coral)}.oxc.cur{box-shadow:0 0 0 2.5px var(--coral);color:var(--ink)}.oxc.on.cur{color:#fff}
 .oxq{background:#fff;border-left:1px solid var(--line);border-right:1px solid var(--line);padding:6px 4px;min-height:200px}
@@ -437,6 +437,26 @@ input[type=date].in{min-height:54px}
 .oxans .ochs{justify-content:center;gap:10px}.oxans .och{width:48px;height:48px;font-size:17px}.oxans .oinp{width:100%}
 .oxnav{display:flex;gap:8px;margin-top:10px}.oxnav button{flex:1;height:44px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);font-weight:800;font-size:15px;color:var(--ink)}
 .oxnav button:disabled{opacity:.4}.oxnav button.sub{background:var(--coral);border-color:var(--coral);color:#fff}
+/* 11.19-4: ★·선지 지우기·글자 크기·틀린 문제 다시 보기·제출 전 점검 */
+.oxstar{border:0;background:none;font-size:22px;line-height:1;color:#C5CBD6;padding:0 2px}.oxstar.on{color:#F5B301}
+.oxtog{border:1.5px solid var(--line);background:#fff;border-radius:16px;padding:3px 10px;font-size:12.5px;font-weight:800;color:var(--navy-2)}
+.oxc{position:relative}.oxc.star::after{content:"★";position:absolute;top:-8px;right:-3px;font-size:11px;color:#F5B301}
+.oxc.ok{background:#E3F4EA;border-color:#9ED3B2;color:#1F7A44}.oxc.bad{background:#FFE9E5;border-color:#F3A99B;color:var(--bad)}
+.och{position:relative;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+.och.x{color:#B8BECA;border-color:#E2E5EB}.och.x::after{content:'';position:absolute;left:16%;right:16%;top:50%;border-top:2.5px solid var(--bad);transform:rotate(-40deg);opacity:.8}
+.oxlp{text-align:center;font-size:11.5px;margin:6px 0 0}
+#oxQ{overflow-x:auto}.oxqi{min-width:100%}
+.oxzh{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin:8px 0 2px}.oxzh .meta{font-size:12px}
+.oxzh button{border:1.5px solid var(--line);background:#fff;border-radius:8px;padding:3px 9px;font-weight:800;font-size:13px;color:var(--ink)}.oxzh button:disabled{opacity:.35}
+.oxrev{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;font-size:15px;padding:6px 0}.oxrev b{font-size:16px}
+.oxrev.ok>b:first-child{color:#1F7A44}.oxrev.bad>b:first-child{color:var(--bad)}
+.oxrevbtn{margin:4px 0 12px}
+.orow.flash{background:#FFF6D6;transition:background .3s}
+.oxchk{position:fixed;inset:0;z-index:60;background:rgba(15,21,36,.5);display:flex;align-items:flex-end;justify-content:center}
+.oxchkb{background:#fff;width:100%;max-width:560px;border-radius:18px 18px 0 0;padding:18px 18px calc(18px + env(safe-area-inset-bottom));max-height:85vh;overflow:auto}
+.oxchkb h3{margin:0 0 12px}.oxck{margin-bottom:12px}.oxck>b{display:block;font-size:14px;margin-bottom:6px}.oxck>b.bad{color:var(--bad)}.oxck>b.warn{color:var(--coral)}.oxck>b.star{color:#C98F00}
+.oxck>div{display:flex;flex-wrap:wrap;gap:6px}.oxck button{min-width:38px;height:36px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);font-weight:800}
+.oxck-ok{font-size:15px;font-weight:700;margin:6px 0 12px}
 .omr{padding:6px 12px}.orow{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}.orow:last-child{border-bottom:0}
 .orow>b{width:28px;text-align:right;font-size:15px}.orow>b .om{display:block;font-size:10px;font-weight:700;color:var(--coral,#E8613C);line-height:1;white-space:nowrap}.ochs{display:flex;gap:6px;flex-wrap:wrap}
 .och{width:40px;height:40px;border-radius:50%;border:1.5px solid var(--line);background:#fff;font-weight:800;font-size:15px;color:var(--ink)}.och.on{background:var(--navy);border-color:var(--navy);color:#fff}
@@ -556,7 +576,7 @@ html.fz2 #vApp,html.fz2 #nav{zoom:1.25}
       <div class="help">로그인이 안 되면 학원 <a id="loginTel"></a></div>
       <div class="installSlot"></div>
       <div style="text-align:center;margin-top:10px"><button type="button" class="linkbtn" id="toAdmin">선생님 로그인</button></div>
-      <div class="ver">버전 11.19-3</div>
+      <div class="ver">버전 11.19-4</div>
     </form>
     <form class="sheet" id="adminForm" autocomplete="on" novalidate hidden>
       <h2 style="font-size:20px;font-weight:900;margin-bottom:16px">선생님 로그인</h2>
@@ -1473,38 +1493,74 @@ function oxPaperInit(x){
     });
   });
 }
-// ---- 한 문제씩 (11.19-3) ----
+// ---- 한 문제씩 (11.19-3) · ★·선지 지우기·점검·시간·글자 크기·틀린 문제 다시 보기 (11.19-4) ----
 function oxMode(){ try { return localStorage.getItem('pif_oxmode') || 'one'; } catch (e) { return 'one'; } }
 function oxSetMode(m){ try { localStorage.setItem('pif_oxmode', m); } catch (e) {} }
+// 이 기기에만: ★ 표시·지운 선지·문항별 머문 초·앱 나간 횟수 (제출 때 초·횟수만 서버로)
+function oxX(){ const x = S.ox; let o = null; try { o = JSON.parse(localStorage.getItem('pif_oxx_' + x.id) || 'null'); } catch (e) {}
+  o = o || {}; o.star = o.star || []; o.x = o.x || {}; o.t = o.t || {}; o.out = o.out || 0; return o; }
+function oxXSave(o){ try { localStorage.setItem('pif_oxx_' + S.ox.id, JSON.stringify(o)); } catch (e) {} }
+const CIRC = '⓪①②③④⑤⑥⑦⑧⑨⑩';
+function oxShowAns(q, v){ v = String(v || '').trim(); if (!v) return '(안 씀)'; return q.k === 'short' ? v : v.split(/[,|]/).map(s => s.trim()).filter(Boolean).map(s => CIRC[+s] || s).join(''); }
 function oxDone(q, v){ const p = String(v || '').split(',').filter(Boolean); return q.k === 'short' ? !!String(v || '').trim() : p.length >= (q.m || 1); }
+// 머문 시간: 보는 문항이 바뀔 때·앱을 나갈 때·제출할 때 더함 (한 번에 30분까지)
+function oxTimeFlush(){
+  const x = S.ox, s = S.oxSeen; if (!x || x.submittedAt || !s || !s.at) return;
+  const now = Date.now(), sec = Math.min(1800, (now - s.at) / 1000); s.at = now;
+  if (sec < 0.3) return; const o = oxX(), n = x.questions[s.i].n; o.t[n] = Math.round(((o.t[n] || 0) + sec) * 10) / 10; oxXSave(o);
+}
+document.addEventListener('visibilitychange', () => {
+  const x = S.ox; if (!x || x.submittedAt || !document.body.contains($('#oxOne') || $('#oxPaper') || $('#oxSubmit') || document.createElement('i'))) return;
+  if (document.hidden) { oxTimeFlush(); if (S.oxSeen) S.oxSeen.at = 0; const o = oxX(); o.out++; oxXSave(o); }
+  else if (S.oxSeen && $('#oxOne')) S.oxSeen.at = Date.now();
+});
 function oxStripSync(){
-  const x = S.ox, s = $('#oxStrip'); if (!x || !s) return; const a = oxAns();
-  s.querySelectorAll('[data-oxgo]').forEach(b => { const q = x.questions[+b.dataset.oxgo], v = a[q.n];
-    b.classList.toggle('on', oxDone(q, v)); b.classList.toggle('part', !oxDone(q, v) && !!String(v || '').trim()); b.classList.toggle('cur', +b.dataset.oxgo === S.oxCur); });
+  const x = S.ox, s = $('#oxStrip'); if (!x || !s) return; const a = oxAns(), o = oxX(), rev = !!x.submittedAt, det = {};
+  ((x.result && x.result.detail) || []).forEach(d => det[d.n] = d);
+  s.querySelectorAll('[data-oxgo]').forEach(b => { const pos = +b.dataset.oxgo, q = x.questions[S.oxList[pos]], v = a[q.n];
+    if (rev) { b.classList.toggle('ok', !!(det[q.n] && det[q.n].ok)); b.classList.toggle('bad', !(det[q.n] && det[q.n].ok)); }
+    else { b.classList.toggle('on', oxDone(q, v)); b.classList.toggle('part', !oxDone(q, v) && !!String(v || '').trim()); b.classList.toggle('star', o.star.includes(q.n)); }
+    b.classList.toggle('cur', pos === S.oxPos); });
 }
 function oxCropHTML(r, info){
   const pw = info.pages[r.p - 1].w, rw = r.x1 - r.x0, rh = r.y1 - r.y0;
   return '<div class="oxcrop" data-p="' + (r.p - 1) + '" data-r="' + [r.x0, r.y0, r.x1, r.y1].map(v => v.toFixed(1)).join(',') + '" style="aspect-ratio:' + rw.toFixed(1) + '/' + rh.toFixed(1) + '">' +
     '<img alt="" style="width:' + (pw / rw * 100).toFixed(3) + '%;margin-left:' + (-r.x0 / rw * 100).toFixed(3) + '%;margin-top:' + (-r.y0 / rw * 100).toFixed(3) + '%"></div>';
 }
-function oxOneShow(i){
-  const x = S.ox, j = S.oxJob; if (!x || !j || !j.info) return;
-  i = Math.max(0, Math.min(x.questions.length - 1, i)); S.oxCur = i;
-  try { localStorage.setItem('pif_oxcur_' + x.id, i); } catch (e) {}
-  const q = x.questions[i], m = q.m || 1, a = oxAns(), v = a[q.n] || '', picks = String(v).split(',').filter(Boolean);
+function oxZoom(){ try { return Math.min(2, Math.max(1, parseFloat(localStorage.getItem('pif_oxzoom')) || 1)); } catch (e) { return 1; } }
+function oxChoiceHTML(q, v, xs){
+  const picks = String(v || '').split(',').filter(Boolean); let h = '<span class="ochs">';
+  for (let k = 1; k <= q.c; k++) h += '<button type="button" class="och' + (picks.includes(String(k)) ? ' on' : '') + ((xs || []).includes(String(k)) ? ' x' : '') + '" data-on="' + q.n + '" data-ov="' + k + '">' + k + '</button>';
+  return h + '</span>';
+}
+function oxOneShow(pos){
+  const x = S.ox, j = S.oxJob; if (!x || !j || !j.info || !S.oxList.length) return;
+  oxTimeFlush();
+  pos = Math.max(0, Math.min(S.oxList.length - 1, pos)); S.oxPos = pos;
+  const i = S.oxList[pos], rev = !!x.submittedAt;
+  if (!rev) { try { localStorage.setItem('pif_oxcur_' + x.id, i); } catch (e) {} S.oxSeen = { i, at: document.hidden ? 0 : Date.now() }; }
+  const q = x.questions[i], m = q.m || 1, a = oxAns(), v = a[q.n] || '', o = oxX(), z = oxZoom();
   $('#oxQn').textContent = q.n + '번';
-  $('#oxQm').textContent = (i + 1) + ' / ' + x.questions.length + (m > 1 ? ' · ' + m + '개 고르기' : '');
-  $('#oxQ').innerHTML = j.info.q[q.n].map(r => oxCropHTML(r, j.info)).join('') + '<p class="meta oxzh">눌러서 크게 · 옆으로 밀어 넘기기</p>';
+  $('#oxQm').textContent = (pos + 1) + ' / ' + S.oxList.length + (m > 1 ? ' · ' + m + '개 고르기' : '');
+  const st = $('#oxStar'); if (st) { const on = o.star.includes(q.n); st.textContent = on ? '★' : '☆'; st.classList.toggle('on', on); }
+  $('#oxQ').innerHTML = '<div class="oxqi" style="width:' + (z * 100) + '%">' + j.info.q[q.n].map(r => oxCropHTML(r, j.info)).join('') + '</div>' +
+    '<div class="oxzh"><button type="button" data-oxz="-1"' + (z <= 1 ? ' disabled' : '') + '>가−</button><span class="meta">글자 ' + Math.round(z * 100) + '%</span>' +
+    '<button type="button" data-oxz="1"' + (z >= 2 ? ' disabled' : '') + '>가+</button><span class="meta">· 눌러서 크게' + (z > 1 ? '' : ' · 밀어 넘기기') + '</span></div>';
   oxCropFill();
   let h = '';
-  if (q.k === 'short') h = '<input class="oinp" data-on="' + q.n + '" value="' + esc(v) + '" placeholder="답 쓰기" autocomplete="off">';
-  else { h = '<span class="ochs">'; for (let k = 1; k <= q.c; k++) h += '<button type="button" class="och' + (picks.includes(String(k)) ? ' on' : '') + '" data-on="' + q.n + '" data-ov="' + k + '">' + k + '</button>'; h += '</span>'; }
+  if (rev) {
+    const d = ((x.result && x.result.detail) || []).find(d => d.n === q.n), ok = !!(d && d.ok), key = x.key && x.key[q.n];
+    h = '<div class="oxrev ' + (ok ? 'ok' : 'bad') + '"><b>' + (ok ? '⭕ 맞음' : '❌ 틀림') + '</b><span>내 답 <b>' + esc(oxShowAns(q, v)) + '</b></span>' +
+      (key ? '<span>정답 <b>' + esc(oxShowAns(q, q.k === 'short' ? key : key.replace(/ \/ /g, '|'))) + '</b></span>' : '') + '</div>';
+  } else if (q.k === 'short') h = '<input class="oinp" data-on="' + q.n + '" value="' + esc(v) + '" placeholder="답 쓰기" autocomplete="off">';
+  else h = oxChoiceHTML(q, v, o.x[q.n]) + '<p class="meta oxlp">번호를 길게 누르면 X (지우기)</p>';
   $('#oxAnsBox').innerHTML = h;
-  $('#oxPrev').disabled = i === 0;
-  const last = i === x.questions.length - 1, nx = $('#oxNext');
-  nx.textContent = last ? '제출하기' : '다음 ▶'; nx.classList.toggle('sub', last);
+  $('#oxPrev').disabled = pos === 0;
+  const last = pos === S.oxList.length - 1, nx = $('#oxNext');
+  if (rev) { nx.textContent = '다음 ▶'; nx.disabled = last; nx.classList.remove('sub'); }
+  else { nx.textContent = last ? '제출하기' : '다음 ▶'; nx.classList.toggle('sub', last); }
   oxStripSync();
-  const c = $('#oxStrip [data-oxgo="' + i + '"]'); if (c) c.scrollIntoView({ block:'nearest', inline:'center' });
+  const c = $('#oxStrip [data-oxgo="' + pos + '"]'); if (c) c.scrollIntoView({ block:'nearest', inline:'center' });
   const top = $('#oxOne'); if (top && top.getBoundingClientRect().top < 0) window.scrollTo(0, window.scrollY + top.getBoundingClientRect().top - 60);
 }
 function oxCropFill(){
@@ -1513,25 +1569,28 @@ function oxCropFill(){
     if (u && im.getAttribute('src') !== u) im.src = u; d.classList.toggle('wait', !u); });
 }
 function oxOneInit(x){
-  const f = oxPdfFile(x), el = $('#oxOne');
+  const f = oxPdfFile(x), el = $('#oxOne'), rev = !!x.submittedAt;
   { const t = document.querySelector('#vApp .top'), tp = $('#oxOne .oxtop'); if (t && tp && t.offsetParent) tp.style.top = t.offsetHeight + 'px'; }
   S.oxJob = oxWatch(f.id, oxWant(x), el, (k, v, j) => {
     if (k === 'info') {
-      if (!j.info) { S.oxNoOne = x.id; renderExam(); return; }   // 번호를 못 찾음 → 전체 보기
-      let c = 0; try { c = +localStorage.getItem('pif_oxcur_' + x.id) || 0; } catch (e) {}
+      if (!j.info) { S.oxNoOne = x.id; S.oxRev = null; if (rev) toast('이 시험지는 문제를 잘라 보여 줄 수 없어요'); renderExam(); return; }   // 번호를 못 찾음 → 전체 보기
+      let c = 0;
+      if (!rev) { try { c = +localStorage.getItem('pif_oxcur_' + x.id) || 0; } catch (e) {} c = Math.max(0, S.oxList.indexOf(c)); }
       oxOneShow(c);
     }
     if (k === 'page') oxCropFill();
     if (k === 'err') { $('#oxQ').innerHTML = '<div class="oxperr"><span class="meta">' + esc(cleanMsg(v)) + '</span>' +
       '<button type="button" class="card nfile" data-oxfile="' + esc(f.id) + '"><b>📄 ' + esc(f.name) + '</b><i>따로 열기</i></button></div>'; }
   });
-  // 옆으로 밀어 넘기기
+  // 옆으로 밀어 넘기기 (글자를 키워 옆으로 굴릴 수 있으면 안 함)
   const qb = $('#oxQ'); let sx = 0, sy = 0, st = 0;
-  qb.addEventListener('touchstart', e => { if (e.touches.length !== 1) { st = 0; return; } sx = e.touches[0].clientX; sy = e.touches[0].clientY; st = Date.now(); }, { passive:true });
+  qb.addEventListener('touchstart', e => { if (e.touches.length !== 1 || oxZoom() > 1) { st = 0; return; } sx = e.touches[0].clientX; sy = e.touches[0].clientY; st = Date.now(); }, { passive:true });
   qb.addEventListener('touchend', e => { if (!st) return; const t = e.changedTouches[0], dx = t.clientX - sx, dy = t.clientY - sy; st = 0;
-    if (Math.abs(dx) > 60 && Math.abs(dy) < 50) { S.oxSwiped = Date.now(); oxOneShow(S.oxCur + (dx < 0 ? 1 : -1)); } }, { passive:true });
+    if (Math.abs(dx) > 60 && Math.abs(dy) < 50) { S.oxSwiped = Date.now(); oxOneShow(S.oxPos + (dx < 0 ? 1 : -1)); } }, { passive:true });
   qb.addEventListener('click', e => {
     if (Date.now() - (S.oxSwiped || 0) < 400) return;
+    const zb = e.target.closest('[data-oxz]');
+    if (zb) { const z = Math.min(2, Math.max(1, oxZoom() + 0.25 * +zb.dataset.oxz)); try { localStorage.setItem('pif_oxzoom', z); } catch (er) {} oxOneShow(S.oxPos); return; }
     const d = e.target.closest('.oxcrop'), im = d && d.querySelector('img'); if (!im || !im.complete || !im.naturalWidth) return;
     const r = d.dataset.r.split(',').map(Number), info = S.oxJob.info, sc = im.naturalWidth / info.pages[+d.dataset.p].w;
     const cv = document.createElement('canvas'); cv.width = Math.round((r[2] - r[0]) * sc); cv.height = Math.round((r[3] - r[1]) * sc);
@@ -1543,36 +1602,45 @@ function renderExam(){
   const x = S.ox, body = $('#scoreBody'); clearInterval(oxTick);
   const done = !!x.submittedAt, mine = done ? (x.answers || {}) : Object.assign({}, x.answers || {}, oxGet(x.id));
   const det = {}; ((x.result && x.result.detail) || []).forEach(d => det[d.n] = d);
-  const paper = !done && x.files && x.files.length;
-  const one = paper && !!oxPdfFile(x) && S.oxNoOne !== x.id && oxMode() === 'one';
-  let h = '<button type="button" class="linkbtn" id="oxBack">← 성적으로</button>' +
+  const paper = !done && x.files && x.files.length, canOne = !!oxPdfFile(x) && S.oxNoOne !== x.id;
+  const rev = done && S.oxRev && canOne;
+  const one = (paper && canOne && oxMode() === 'one') || rev;
+  const xo = done ? null : oxX();
+  const wrong = x.questions.map((q, i) => i).filter(i => !(det[x.questions[i].n] && det[x.questions[i].n].ok));
+  S.oxList = rev && S.oxRev.only && wrong.length ? wrong : x.questions.map((q, i) => i);
+  let h = '<button type="button" class="linkbtn" id="' + (rev ? 'oxRevBack' : 'oxBack') + '">' + (rev ? '← 채점 결과로' : '← 성적으로') + '</button>' +
     '<div class="card"><h3>' + esc(x.title) + '</h3><div class="meta">' + x.questions.length + '문항' + (x.closesOn ? ' · ' + mdw(x.closesOn) + '까지' : '') + '</div>' +
     (done ? '<div class="oxres"><div class="score">' + x.result.score + '<small>/' + x.result.max + '</small></div><div class="meta">맞힌 문항 ' +
       ((x.result.detail || []).filter(d => d.ok).length) + '/' + x.questions.length + '</div></div>' : '') +
     (!done && x.timeLimit && !paper ? '<div class="oxtimer" id="oxTimer"></div>' : '') + '</div>';
   if (one) {
-    // 한 문제씩 (11.19-3): 위 = 번호·남은 시간·번호 목록, 가운데 = 그 문제만 잘라서, 아래 = 답·이전/다음
+    // 한 문제씩: 위 = 번호·★·남은 시간·번호 목록, 가운데 = 그 문제만 잘라서, 아래 = 답·이전/다음 (제출 뒤엔 내 답·정답)
     h += '<div class="oxone" id="oxOne"><div class="oxtop"><div class="oxtopr"><b id="oxQn">시험지</b><span class="meta" id="oxQm">불러오는 중…</span>' +
-      (x.timeLimit ? '<span class="oxtimer" id="oxTimer"></span>' : '') + '</div>' +
-      '<div class="oxstrip" id="oxStrip">' + x.questions.map((q, i) => '<button type="button" class="oxc" data-oxgo="' + i + '">' + q.n + '</button>').join('') + '</div></div>' +
+      (rev ? (wrong.length && wrong.length < x.questions.length ? '<button type="button" class="oxtog" id="oxRevAll">' + (S.oxRev.only ? '전체 보기' : '틀린 것만') + '</button>' : '')
+           : '<button type="button" class="oxstar" id="oxStar" aria-label="나중에 다시 보기 표시">☆</button>') +
+      (!rev && x.timeLimit ? '<span class="oxtimer" id="oxTimer"></span>' : '') + '</div>' +
+      '<div class="oxstrip" id="oxStrip">' + S.oxList.map((qi, pos) => '<button type="button" class="oxc" data-oxgo="' + pos + '">' + x.questions[qi].n + '</button>').join('') + '</div></div>' +
       '<div class="oxq" id="oxQ"><p class="meta oxwait">시험지 불러오는 중…</p></div>' +
       '<div class="oxfoot"><div class="oxans" id="oxAnsBox"></div><div class="oxnav"><button type="button" id="oxPrev">◀ 이전</button><button type="button" id="oxNext">다음 ▶</button></div></div>' +
-      '<button type="button" class="linkbtn oxmode" id="oxAll">시험지 전체 보기 (답안지 한 번에)</button></div>';
+      (rev ? '' : '<button type="button" class="linkbtn oxmode" id="oxAll">시험지 전체 보기 (답안지 한 번에)</button>') + '</div>';
     body.innerHTML = h; oxOneInit(x);
   } else {
+    if (done && canOne) h += '<button type="button" class="btn navy oxrevbtn" id="oxRevGo">📄 ' + (wrong.length ? '틀린 문제 다시 보기 (' + wrong.length + '문제)' : '문제 다시 보기') + '</button>';
     if (paper) h += '<div class="oxpaper" id="oxPaper"><div class="oxpbar"><b>📄 시험지</b><span class="meta" id="oxPgNo">불러오는 중…</span>' +
       (x.timeLimit ? '<span class="oxtimer" id="oxTimer"></span>' : '') + '</div><div class="oxps" id="oxPs">' +
       x.files.map(f => '<div class="oxpf" data-oxpf="' + esc(f.id) + '"></div>').join('') + '</div>' +
       '<div class="oxph" id="oxPh" aria-label="끌어서 시험지 칸 크기 조절"><i></i></div></div>' +
-      (oxPdfFile(x) && S.oxNoOne !== x.id ? '<button type="button" class="linkbtn oxmode" id="oxOneBtn">한 문제씩 보기</button>' : '');
-    h += '<div class="sec-t"><h2>' + (done ? '채점 결과' : '답안지') + '</h2>' + (done ? '' : '<span class="meta">고르면 바로 저장돼요</span>') + '</div><div class="card omr">';
+      (canOne ? '<button type="button" class="linkbtn oxmode" id="oxOneBtn">한 문제씩 보기</button>' : '');
+    h += '<div class="sec-t"><h2>' + (done ? '채점 결과' : '답안지') + '</h2>' + (done ? '' : '<span class="meta">고르면 바로 저장돼요 · 길게 누르면 X</span>') + '</div><div class="card omr">';
     x.questions.forEach(q => {
       const v = mine[q.n] || '', d = det[q.n];
       const m = q.m || 1, picks = String(v).split(',').filter(Boolean);   // m = 고를 개수 (11.19-1, '2개 고르면?' 문항 = '3,4')
-      h += '<div class="orow' + (done ? (d && d.ok ? ' ok' : ' bad') : '') + '"><b>' + q.n + (m > 1 ? '<small class="om">' + m + '개</small>' : '') + '</b>';
+      h += '<div class="orow' + (done ? (d && d.ok ? ' ok' : ' bad') : '') + '" data-oxrow="' + q.n + '"><b>' + q.n + (m > 1 ? '<small class="om">' + m + '개</small>' : '') + '</b>';
       if (q.k === 'short') h += done ? '<span class="oval">' + esc(v || '(안 씀)') + '</span>'
         : '<input class="oinp" data-on="' + q.n + '" value="' + esc(v) + '" placeholder="답 쓰기" autocomplete="off">';
-      else { h += '<span class="ochs">'; for (let i = 1; i <= q.c; i++) h += '<button type="button" class="och' + (picks.includes(String(i)) ? ' on' : '') + '" ' + (done ? 'disabled' : 'data-on="' + q.n + '" data-ov="' + i + '"') + '>' + i + '</button>'; h += '</span>'; }
+      else if (done) { h += '<span class="ochs">'; for (let i = 1; i <= q.c; i++) h += '<button type="button" class="och' + (picks.includes(String(i)) ? ' on' : '') + '" disabled>' + i + '</button>'; h += '</span>'; }
+      else h += oxChoiceHTML(q, v, xo.x[q.n]);
+      if (!done && xo.star.includes(q.n)) h += '<span class="omark">★</span>';
       if (done) h += '<span class="omark">' + (d && d.ok ? '⭕' : '❌' + (x.key && x.key[q.n] ? ' <small>정답 ' + esc(x.key[q.n]) + '</small>' : '')) + '</span>';
       h += '</div>';
     });
@@ -1581,8 +1649,12 @@ function renderExam(){
     if (paper) oxPaperInit(x);
   }
   if (!done && x.timeLimit) {
+    let prev = null;
     const tick = () => { const ms = oxLeft(), t = $('#oxTimer'); if (!t) { clearInterval(oxTick); return; }
       const s = Math.ceil(ms / 1000); t.textContent = '남은 시간 ' + Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); t.classList.toggle('low', s <= 60);
+      // 10분·5분·1분 알림 (그 시각을 지날 때만)
+      if (prev != null) [[600, '10분'], [300, '5분'], [60, '1분']].forEach(([th, w]) => { if (prev > th && s <= th) { toast('⏰ 남은 시간 ' + w + '이에요'); try { navigator.vibrate && navigator.vibrate([200, 100, 200]); } catch (e) {} } });
+      prev = s;
       if (ms <= 0) { clearInterval(oxTick); toast('시간이 끝나서 제출했어요'); oxSubmit(true); } };
     tick(); oxTick = setInterval(tick, 1000);
   }
@@ -1590,15 +1662,33 @@ function renderExam(){
 document.addEventListener('click', e => {
   if (!S.ox) return;
   const g = e.target.closest('[data-oxgo]'); if (g) { oxOneShow(+g.dataset.oxgo); return; }
-  if (e.target.closest('#oxPrev')) { oxOneShow(S.oxCur - 1); return; }
-  if (e.target.closest('#oxNext')) { if (S.oxCur >= S.ox.questions.length - 1) oxSubmit(false); else oxOneShow(S.oxCur + 1); return; }
-  if (e.target.closest('#oxAll')) { oxSetMode('all'); renderExam(); return; }
-  if (e.target.closest('#oxOneBtn')) { oxSetMode('one'); renderExam(); window.scrollTo(0, 0); return; }
+  if (e.target.closest('#oxPrev')) { oxOneShow(S.oxPos - 1); return; }
+  if (e.target.closest('#oxNext')) { if (!S.ox.submittedAt && S.oxPos >= S.oxList.length - 1) oxSubmit(false); else oxOneShow(S.oxPos + 1); return; }
+  if (e.target.closest('#oxAll')) { oxTimeFlush(); S.oxSeen = null; oxSetMode('all'); renderExam(); return; }
+  if (e.target.closest('#oxOneBtn')) { oxSetMode('one'); S.oxSeen = null; renderExam(); window.scrollTo(0, 0); return; }
+  if (e.target.closest('#oxStar')) { const q = S.ox.questions[S.oxList[S.oxPos]], o = oxX();
+    o.star = o.star.includes(q.n) ? o.star.filter(n => n !== q.n) : o.star.concat(q.n); oxXSave(o); oxOneShow(S.oxPos); return; }
+  if (e.target.closest('#oxRevGo')) { S.oxRev = { only:true }; renderExam(); window.scrollTo(0, 0); return; }
+  if (e.target.closest('#oxRevAll')) { const cur = S.oxList[S.oxPos]; S.oxRev.only = !S.oxRev.only; renderExam(); setTimeout(() => { if (S.oxJob && S.oxJob.info) oxOneShow(Math.max(0, S.oxList.indexOf(cur))); }, 0); return; }
+  if (e.target.closest('#oxRevBack')) { S.oxRev = null; renderExam(); window.scrollTo(0, 0); return; }
 });
+// 선지 지우기: 번호를 길게 누르면 X (마우스는 오른쪽 클릭)
+function oxToggleX(c){
+  if (!S.ox || S.ox.submittedAt) return; const o = oxX(), n = c.dataset.on, v = c.dataset.ov, l = o.x[n] || [];
+  o.x[n] = l.includes(v) ? l.filter(k => k !== v) : l.concat(v); oxXSave(o); c.classList.toggle('x', o.x[n].includes(v));
+  S.oxLP = Date.now(); S.oxLPel = c; try { navigator.vibrate && navigator.vibrate(30); } catch (e) {}
+}
+let oxLPT = null;
+document.addEventListener('pointerdown', e => { const c = e.target.closest('.och[data-on]'); if (!c || !S.ox || S.ox.submittedAt || e.button > 0) return;
+  clearTimeout(oxLPT); oxLPT = setTimeout(() => oxToggleX(c), 480); });
+['pointerup', 'pointercancel', 'pointerleave', 'scroll'].forEach(k => document.addEventListener(k, () => clearTimeout(oxLPT), true));
+document.addEventListener('contextmenu', e => { const c = e.target.closest('.och[data-on]'); if (!c || !S.ox) return; e.preventDefault();
+  if (c !== S.oxLPel || Date.now() - (S.oxLP || 0) > 800) oxToggleX(c); });
 function oxAns(){ const x = S.ox; return Object.assign({}, x.answers || {}, oxGet(x.id)); }
 document.addEventListener('click', async e => {
   const c = e.target.closest('.och[data-on]');
   if (c && S.ox && !S.ox.submittedAt) {
+    if (c === S.oxLPel && Date.now() - (S.oxLP || 0) < 800) return;   // 길게 누른 그 번호에서 손 뗀 것
     const a = oxAns(), n = c.dataset.on, q = S.ox.questions.find(x => String(x.n) === n) || {}, m = q.m || 1;
     if (m > 1) {   // 여러 개 고르기: 누르면 넣고 빼기, 작은 번호부터 '3,4'
       let p = String(a[n] || '').split(',').filter(Boolean);
@@ -1612,7 +1702,7 @@ document.addEventListener('click', async e => {
     c.parentNode.querySelectorAll('.och').forEach(b => b.classList.toggle('on', on.includes(b.dataset.ov)));
     oxStripSync(); return;
   }
-  if (e.target.closest('#oxBack')) { clearInterval(oxTick); S.ox = null; renderScores(); loadOnline(); return; }
+  if (e.target.closest('#oxBack')) { oxTimeFlush(); S.oxSeen = null; S.oxRev = null; clearInterval(oxTick); S.ox = null; renderScores(); loadOnline(); return; }
   if (e.target.closest('#oxSubmit')) { oxSubmit(false); return; }
   const f = e.target.closest('[data-oxfile]');
   if (f) { const i = f.querySelector('i'); i.textContent = '여는 중…';
@@ -1623,13 +1713,37 @@ document.addEventListener('input', e => {
   const t = e.target.closest('.oinp'); if (!t || !S.ox) return;
   const a = oxAns(); a[t.dataset.on] = t.value; oxSet(S.ox.id, a); oxStripSync();
 });
+// 제출 전 점검: 안 푼·덜 고른·★ 문제를 버튼으로 (누르면 그 문제로)
+function oxCheck(){
+  const x = S.ox, a = oxAns(), o = oxX();
+  const blank = x.questions.filter(q => !String(a[q.n] || '').trim());
+  const short = x.questions.filter(q => (q.m || 1) > 1 && String(a[q.n] || '').trim() && !oxDone(q, a[q.n]));
+  const star = x.questions.filter(q => o.star.includes(q.n));
+  const grp = (t, l, cls) => l.length ? '<div class="oxck"><b class="' + cls + '">' + t + ' ' + l.length + '</b><div>' + l.map(q => '<button type="button" data-oxck="' + q.n + '">' + q.n + '</button>').join('') + '</div></div>' : '';
+  const body = grp('안 푼 문제', blank, 'bad') + grp('덜 고른 문제', short, 'warn') + grp('★ 다시 보기로 표시', star, 'star');
+  return new Promise(res => {
+    const d = document.createElement('div'); d.className = 'oxchk';
+    d.innerHTML = '<div class="oxchkb"><h3>📝 제출하기 전에 확인</h3>' + (body || '<p class="oxck-ok">모든 문제에 답했어요 👍</p>') +
+      '<p class="meta">번호를 누르면 그 문제로 가요. 제출하면 고칠 수 없어요.</p><div class="btns"><button type="button" class="btn ghost" data-oxk="0">돌아가기</button><button type="button" class="btn" data-oxk="1">제출</button></div></div>';
+    document.body.appendChild(d); document.body.style.overflow = 'hidden';
+    const close = v => { d.remove(); document.body.style.overflow = ''; res(v); };
+    d.addEventListener('click', e => {
+      const k = e.target.closest('[data-oxk]'); if (k) { close(k.dataset.oxk === '1'); return; }
+      const g = e.target.closest('[data-oxck]'); if (!g) { if (e.target === d) close(false); return; }
+      close(false); const n = +g.dataset.oxck;
+      if ($('#oxOne')) oxOneShow(Math.max(0, S.oxList.indexOf(x.questions.findIndex(q => q.n === n))));
+      else { const r = document.querySelector('[data-oxrow="' + n + '"]'); if (r) { r.scrollIntoView({ block:'center' }); r.classList.add('flash'); setTimeout(() => r.classList.remove('flash'), 1200); } }
+    });
+  });
+}
 async function oxSubmit(auto){
   const x = S.ox; if (!x || x.submittedAt) return;
-  const a = oxAns(), blank = x.questions.filter(q => !String(a[q.n] || '').trim()).length;
-  const short = x.questions.filter(q => (q.m || 1) > 1 && String(a[q.n] || '').trim() && String(a[q.n]).split(',').filter(Boolean).length < q.m).map(q => q.n);
-  if (!auto && !(await askConfirm({ icon:'📝', title: (blank ? '안 푼 문항이 ' + blank + '개 있어요. ' : '') + (short.length ? short.join('·') + '번은 답을 덜 골랐어요. ' : '') + '제출할까요?', msg:'제출하면 고칠 수 없어요.', ok:'제출' }))) return;
-  const btn = $('#oxSubmit'); if (btn) { btn.disabled = true; btn.textContent = '채점 중…'; }
-  try { S.ox = await portal('onlineSubmit', { id:x.id, answers:a }); try { localStorage.removeItem(OX_KEY(x.id)); } catch(e){} renderExam(); window.scrollTo(0,0); toast('제출했어요'); }
+  if (!auto && !(await oxCheck())) return;
+  oxTimeFlush();
+  const a = oxAns(), o = oxX();
+  const btn = $('#oxSubmit') || $('#oxNext'); if (btn) { btn.disabled = true; btn.textContent = '채점 중…'; }
+  try { S.ox = await portal('onlineSubmit', { id:x.id, answers:Object.assign({}, a, { _meta:{ t:o.t, out:o.out } }) });
+    try { localStorage.removeItem(OX_KEY(x.id)); localStorage.removeItem('pif_oxx_' + x.id); } catch(e){} S.oxSeen = null; S.oxRev = null; renderExam(); window.scrollTo(0,0); toast('제출했어요'); }
   catch (err) { toast(cleanMsg(err)); if (btn) { btn.disabled = false; btn.textContent = '제출하기'; } }
 }
 
