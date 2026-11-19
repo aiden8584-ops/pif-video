@@ -457,11 +457,31 @@ input[type=date].in{min-height:54px}
 .oxchkb h3{margin:0 0 12px}.oxck{margin-bottom:12px}.oxck>b{display:block;font-size:14px;margin-bottom:6px}.oxck>b.bad{color:var(--bad)}.oxck>b.warn{color:var(--coral)}.oxck>b.star{color:#C98F00}
 .oxck>div{display:flex;flex-wrap:wrap;gap:6px}.oxck button{min-width:38px;height:36px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);font-weight:800}
 .oxck-ok{font-size:15px;font-weight:700;margin:6px 0 12px}
+/* 11.19-6 한글이 낱말 중간에서 줄이 바뀌어 한두 글자만 내려가지 않게 (긴 영어·주소는 그래도 끊음) */
+body{word-break:keep-all;overflow-wrap:break-word}p,li,.meta,h1,h2,h3{text-wrap:pretty}
 .oxhelp{width:24px;height:24px;flex:0 0 24px;border-radius:50%;border:1.5px solid var(--line);background:#fff;font-weight:900;font-size:13px;color:var(--navy-2);padding:0;align-self:center}
-.oxguide{align-items:center;padding:16px}.oxguide .oxchkb{border-radius:18px;text-align:center;padding:22px 20px 18px}
-.oxgi{font-size:40px;line-height:1}.oxguide h3{margin:10px 0 10px;font-size:19px}.oxgt{font-size:15px;line-height:1.75;text-align:left;margin:0 0 14px}
-.oxgd{display:flex;justify-content:center;gap:6px;margin-bottom:10px}.oxgd i{width:7px;height:7px;border-radius:50%;background:#D4D8E0}.oxgd i.on{background:var(--navy);width:18px;border-radius:4px}
-.oxgs{margin:0 0 6px}
+.oxguide{align-items:center;padding:16px}.oxguide .oxchkb{border-radius:20px;padding:0 0 16px;max-width:380px;overflow:hidden}
+.ogh{position:relative;background:var(--navy);color:#fff;padding:14px 18px 13px}.ogh small{display:block;font-size:12px;opacity:.7;font-weight:700}.ogh b{font-size:19px;font-weight:800}
+.ogx{position:absolute;right:10px;top:10px;width:32px;height:32px;border:0;border-radius:50%;background:rgba(255,255,255,.15);color:#fff;font-size:15px}
+.ogd{margin:14px 16px 4px;background:var(--bg);border-radius:14px;min-height:112px;padding:14px 10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px}
+.grow{display:flex;gap:6px;align-items:center;justify-content:center}.gnav{gap:14px;font-size:13px;font-weight:700;color:var(--sub)}
+.gch{width:30px;height:30px;border-radius:9px;border:1.5px solid var(--line);background:#fff;display:grid;place-items:center;font-weight:800;font-size:13px;color:var(--sub)}
+.gch.on{background:var(--navy);border-color:var(--navy);color:#fff}.gch.cur{box-shadow:0 0 0 2.5px var(--coral);color:var(--ink)}
+.gci{position:relative;width:36px;height:36px;border-radius:50%;border:1.5px solid var(--line);background:#fff;display:grid;place-items:center;font-weight:800;font-size:15px;color:var(--ink)}
+.gci.on{background:var(--navy);border-color:var(--navy);color:#fff}.gci.x{color:#B8BECA}
+.gci.x::after{content:'';position:absolute;left:16%;right:16%;top:50%;border-top:2.5px solid var(--bad);transform:rotate(-40deg)}
+.gci.gpress{animation:gpress 2.4s infinite}.gci.gpress::after{animation:gdraw 2.4s infinite;transform-origin:left center}
+@keyframes gpress{0%,15%{transform:scale(1);box-shadow:none}30%,55%{transform:scale(.9);box-shadow:0 0 0 6px rgba(232,97,60,.18)}70%,100%{transform:scale(1);box-shadow:none}}
+@keyframes gdraw{0%,50%{transform:rotate(-40deg) scaleX(0)}62%,100%{transform:rotate(-40deg) scaleX(1)}}
+.gswipe{font-style:normal;font-size:20px;animation:gswipe 1.8s ease-in-out infinite}@keyframes gswipe{0%,100%{transform:translateX(10px)}50%{transform:translateX(-10px)}}
+.gstar{color:#F5B301;font-size:24px;line-height:1}.gz{border:1.5px solid var(--line);background:#fff;border-radius:8px;padding:3px 9px;font-size:13px;font-weight:800;color:var(--ink)}
+.gpill{background:#FFE9E5;color:var(--bad);font-weight:800;font-size:15px;border-radius:20px;padding:6px 14px}
+.gtoast{background:rgba(21,27,44,.92);color:#fff;font-size:13px;font-weight:700;border-radius:10px;padding:7px 12px}
+.ogl{list-style:none;margin:12px 18px 6px;padding:0;display:flex;flex-direction:column;gap:9px}
+.ogl li{display:flex;align-items:center;gap:10px;font-size:15px;line-height:1.45;text-align:left}.ogl i{font-style:normal;font-size:18px;width:26px;flex:0 0 26px;text-align:center}
+.ogs{margin:4px 18px 0;background:#FFF4D6;color:#7A5A00;border-radius:10px;padding:7px 10px;font-size:13.5px;text-align:center}
+.ogdots{display:flex;justify-content:center;gap:6px;margin:12px 0 2px}.ogdots i{width:7px;height:7px;border-radius:4px;background:#D4D8E0}.ogdots i.on{background:var(--navy);width:20px}
+.oxguide .btns{padding:0 16px}
 .omr{padding:6px 12px}.orow{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}.orow:last-child{border-bottom:0}
 .orow>b{width:28px;text-align:right;font-size:15px}.orow>b .om{display:block;font-size:10px;font-weight:700;color:var(--coral,#E8613C);line-height:1;white-space:nowrap}.ochs{display:flex;gap:6px;flex-wrap:wrap}
 .och{width:40px;height:40px;border-radius:50%;border:1.5px solid var(--line);background:#fff;font-weight:800;font-size:15px;color:var(--ink)}.och.on{background:var(--navy);border-color:var(--navy);color:#fff}
@@ -581,7 +601,7 @@ html.fz2 #vApp,html.fz2 #nav{zoom:1.25}
       <div class="help">로그인이 안 되면 학원 <a id="loginTel"></a></div>
       <div class="installSlot"></div>
       <div style="text-align:center;margin-top:10px"><button type="button" class="linkbtn" id="toAdmin">선생님 로그인</button></div>
-      <div class="ver">버전 11.19-5</div>
+      <div class="ver">버전 11.19-6</div>
     </form>
     <form class="sheet" id="adminForm" autocomplete="on" novalidate hidden>
       <h2 style="font-size:20px;font-weight:900;margin-bottom:16px">선생님 로그인</h2>
@@ -615,7 +635,7 @@ html.fz2 #vApp,html.fz2 #nav{zoom:1.25}
 
     <!-- 성적 -->
     <div id="tScore" class="tab" hidden>
-      <div class="head"><h1>성적</h1><p>리뷰테스트와 시험 결과</p></div>
+      <div class="head"><h1>시험</h1><p>온라인 시험 · 리뷰테스트 · 시험 성적</p></div>
       <div class="sec" id="scoreBody"></div>
     </div>
 
@@ -681,7 +701,7 @@ html.fz2 #vApp,html.fz2 #nav{zoom:1.25}
 <nav class="nav" id="nav" hidden><div>
   <button class="on" data-t="tHome"><svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>홈</button>
   <button data-t="tLesson"><svg viewBox="0 0 24 24"><path d="M9 4h6M9 4a2 2 0 0 0-2 2H5v15h14V6h-2a2 2 0 0 0-2-2M9 4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2"/><path d="m8.5 13 2.5 2.5 5-5"/></svg>진도·과제</button>
-  <button data-t="tScore"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>성적</button>
+  <button data-t="tScore"><svg viewBox="0 0 24 24"><path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z"/><path d="M14 3v5h5"/><path d="m8.5 13.5 2 2 4-4M9 18h6"/></svg>시험</button>
   <button data-t="tFiles"><svg viewBox="0 0 24 24"><path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z"/><path d="M14 3v5h5M12 12v6M9 15l3 3 3-3"/></svg>자료</button>
   <button data-t="tVideo" id="navVideo" hidden><svg viewBox="0 0 24 24"><rect x="2.5" y="5" width="19" height="14" rx="3"/><path d="m10 9.2 5 2.8-5 2.8z"/></svg>영상<em class="dot" id="navVidDot" hidden></em></button>
 </div></nav>
@@ -1089,7 +1109,7 @@ function renderHome(){
   // 리뷰 점수
   if (reviews.length) {
     const r = reviews[0];
-    h += '<div class="sec-t"><h2>최근 리뷰테스트</h2><button data-go="tScore">성적 보기</button></div>' +
+    h += '<div class="sec-t"><h2>최근 리뷰테스트</h2><button data-go="tScore">시험 보기</button></div>' +
       '<div class="card"><div class="row"><div><div class="meta">' + mdw(r.date) + (r.reviewRange ? ' · ' + esc(r.reviewRange) : '') + '</div>' +
       '<div class="score" style="margin-top:4px">' + r.reviewScore + '<small>점</small></div></div>' +
       '<div style="text-align:right">' + passBadge(r) + (r.passLine != null ? '<div class="meta" style="margin-top:6px">통과 ' + r.passLine + '점</div>' : '') + '</div></div></div>';
@@ -1353,25 +1373,41 @@ document.addEventListener('click', async e => {
   try { S.ox = await portal('onlineOpen', { id:b.dataset.ox }); S.oxDrift = Date.now() - Date.parse(S.ox.now); renderExam(); window.scrollTo(0,0); }
   catch (err) { toast(cleanMsg(err)); } finally { b.disabled = false; }
 });
-// 사용법 카드 3장 (11.19-5): 처음 푸는 시험을 열 때(시작 전)·시험 화면의 '? 사용법'
+// 사용법 카드 3장 (11.19-5, 모양 11.19-6): 위 남색 띠(1/3·제목) + 실제 화면 미니 그림 + 아이콘 줄 3개. 옆으로 밀어도 넘어감
+const OXG_CH = (n, c) => '<span class="gch ' + (c || '') + '">' + n + '</span>', OXG_CI = (n, c) => '<span class="gci ' + (c || '') + '">' + n + '</span>';
 const OX_GUIDE = [
-  ['📄', '한 문제씩 풀어요', '위에 문제, 아래에 답 번호가 있어요.<br><b>◀ 이전 · 다음 ▶</b>을 누르거나 문제를 <b>옆으로 밀면</b> 넘어가요.<br>맨 위 <b>번호 목록</b>을 누르면 그 문제로 바로 가요 (남색 = 푼 문제).'],
-  ['✏️', '표시하며 풀어요', '아닌 답은 번호를 <b>길게 누르면 X</b>가 그어져요. (다시 길게 누르면 풀림)<br>헷갈리는 문제는 <b>☆</b>를 눌러 <b>★</b> — 나중에 다시 보기.<br>문제를 누르면 <b>크게</b> 보이고, <b>가− 가+</b>로 글자 크기를 바꿔요.'],
-  ['⏰', '시간·제출', '남은 시간은 맨 위에 보이고 <b>10분·5분·1분</b> 전에 알려 줘요. 시간이 끝나면 <b>저절로 제출</b>돼요.<br>답은 고르면 바로 저장 — 앱을 잠깐 나갔다 와도 그대로예요.<br>마지막 문제의 <b>제출하기</b>를 누르면 안 푼 문제를 한 번 더 보여 줘요.']
+  ['한 문제씩 풀어요',
+   '<div class="grow">' + OXG_CH(1, 'on') + OXG_CH(2, 'on') + OXG_CH(3, 'cur') + OXG_CH(4) + OXG_CH(5) + '</div>' +
+   '<div class="grow gnav"><span>◀ 이전</span><i class="gswipe">👆</i><span>다음 ▶</span></div>',
+   [['↔️', '옆으로 밀면 다음 문제'], ['🔢', '위 번호를 누르면 그 문제로'], ['🟦', '남색 번호 = 푼 문제']]],
+  ['표시하며 풀어요',
+   '<div class="grow">' + OXG_CI(1, 'x') + OXG_CI(2, 'on') + OXG_CI(3) + OXG_CI(4, 'x gpress') + OXG_CI(5) + '</div>' +
+   '<div class="grow gnav"><b class="gstar">★</b><span class="gz">가− 가+</span></div>',
+   [['👇', '<b>꾹 누르면 X</b> — 아닌 답 지우기'], ['⭐', '☆ 누르면 ★ — 나중에 다시'], ['🔍', '문제를 누르면 크게']]],
+  ['시간과 제출',
+   '<span class="gpill">남은 시간 9:58</span><span class="gtoast">⏰ 남은 시간 10분이에요</span>',
+   [['🔔', '10분·5분·1분 전에 알림'], ['💾', '고르면 바로 저장'], ['⏱️', '시간이 끝나면 저절로 제출']]]
 ];
 function oxGuide(it){
   return new Promise(res => {
     let k = 0; const d = document.createElement('div'); d.className = 'oxchk oxguide';
     const draw = () => { const g = OX_GUIDE[k], last = k === OX_GUIDE.length - 1;
-      d.innerHTML = '<div class="oxchkb"><div class="oxgi">' + g[0] + '</div><h3>' + g[1] + '</h3><p class="oxgt">' + g[2] + '</p>' +
-        '<div class="oxgd">' + OX_GUIDE.map((x, i) => '<i class="' + (i === k ? 'on' : '') + '"></i>').join('') + '</div>' +
-        (last && it ? '<p class="meta oxgs">' + (it.timeLimit ? '<b>시험 시작</b>을 누르면 ' + it.timeLimit + '분이 흘러요. ' : '') + '한 번 시작하면 다시 열어도 시간은 그대로 가요.</p>' : '') +
+      d.innerHTML = '<div class="oxchkb"><div class="ogh"><small>' + (k + 1) + ' / ' + OX_GUIDE.length + '</small><b>' + g[0] + '</b>' +
+        (it ? '' : '<button type="button" class="ogx" data-og="close" aria-label="닫기">✕</button>') + '</div>' +
+        '<div class="ogd">' + g[1] + '</div><ul class="ogl">' + g[2].map(r => '<li><i>' + r[0] + '</i><span>' + r[1] + '</span></li>').join('') + '</ul>' +
+        (last && it && it.timeLimit ? '<p class="ogs">시험 시작을 누르면 <b>' + it.timeLimit + '분</b>이 시작돼요</p>' : '') +
+        '<div class="ogdots">' + OX_GUIDE.map((x, i) => '<i class="' + (i === k ? 'on' : '') + '"></i>').join('') + '</div>' +
         '<div class="btns"><button type="button" class="btn ghost" data-og="' + (k ? 'prev' : 'close') + '">' + (k ? '◀ 이전' : (it ? '나중에' : '닫기')) + '</button>' +
         '<button type="button" class="btn' + (last ? '' : ' navy') + '" data-og="' + (last ? 'ok' : 'next') + '">' + (last ? (it ? '시험 시작' : '알겠어요') : '다음 ▶') + '</button></div></div>'; };
     const close = v => { d.remove(); document.body.style.overflow = ''; res(v); };
+    const go = n => { if (n < 0 || n >= OX_GUIDE.length) return; k = n; draw(); };
     draw(); document.body.appendChild(d); document.body.style.overflow = 'hidden';
     d.addEventListener('click', e => { const b = e.target.closest('[data-og]'); if (!b) { if (e.target === d && !it) close(false); return; }
-      const a = b.dataset.og; if (a === 'next') { k++; draw(); } else if (a === 'prev') { k--; draw(); } else close(a === 'ok'); });
+      const a = b.dataset.og; if (a === 'next') go(k + 1); else if (a === 'prev') go(k - 1); else close(a === 'ok'); });
+    let sx = 0, sy = 0;
+    d.addEventListener('touchstart', e => { sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive:true });
+    d.addEventListener('touchend', e => { const t = e.changedTouches[0], dx = t.clientX - sx, dy = t.clientY - sy;
+      if (Math.abs(dx) > 50 && Math.abs(dy) < 60) go(k + (dx < 0 ? 1 : -1)); }, { passive:true });
   });
 }
 document.addEventListener('click', e => { if (e.target.closest('#oxHelp')) oxGuide(null); });
@@ -1638,7 +1674,7 @@ function renderExam(){
   const xo = done ? null : oxX();
   const wrong = x.questions.map((q, i) => i).filter(i => !(det[x.questions[i].n] && det[x.questions[i].n].ok));
   S.oxList = rev && S.oxRev.only && wrong.length ? wrong : x.questions.map((q, i) => i);
-  let h = '<button type="button" class="linkbtn" id="' + (rev ? 'oxRevBack' : 'oxBack') + '">' + (rev ? '← 채점 결과로' : '← 성적으로') + '</button>' +
+  let h = '<button type="button" class="linkbtn" id="' + (rev ? 'oxRevBack' : 'oxBack') + '">' + (rev ? '← 채점 결과로' : '← 시험 목록으로') + '</button>' +
     '<div class="card"><h3>' + esc(x.title) + '</h3><div class="meta">' + x.questions.length + '문항' + (x.closesOn ? ' · ' + mdw(x.closesOn) + '까지' : '') + '</div>' +
     (done ? '<div class="oxres"><div class="score">' + x.result.score + '<small>/' + x.result.max + '</small></div><div class="meta">맞힌 문항 ' +
       ((x.result.detail || []).filter(d => d.ok).length) + '/' + x.questions.length + '</div></div>' : '') +
