@@ -415,7 +415,7 @@ input[type=date].in{min-height:54px}
 .oxres{display:flex;align-items:baseline;gap:12px;margin-top:8px}
 .oximg{padding:6px}.oximg img{width:100%;border-radius:10px;display:block}
 .omr{padding:6px 12px}.orow{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}.orow:last-child{border-bottom:0}
-.orow>b{width:28px;text-align:right;font-size:15px}.ochs{display:flex;gap:6px;flex-wrap:wrap}
+.orow>b{width:28px;text-align:right;font-size:15px}.orow>b .om{display:block;font-size:10px;font-weight:700;color:var(--coral,#E8613C);line-height:1;white-space:nowrap}.ochs{display:flex;gap:6px;flex-wrap:wrap}
 .och{width:40px;height:40px;border-radius:50%;border:1.5px solid var(--line);background:#fff;font-weight:800;font-size:15px;color:var(--ink)}.och.on{background:var(--navy);border-color:var(--navy);color:#fff}
 .oinp{flex:1;height:42px;border:1.5px solid var(--line);border-radius:10px;padding:0 12px;font-size:15px}
 .orow.ok{background:#EDF8F1}.orow.bad{background:#FFF1EF}.omark{margin-left:auto;font-size:14px;white-space:nowrap}.omark small{color:var(--bad);font-weight:700}.oval{font-weight:700}
@@ -533,7 +533,7 @@ html.fz2 #vApp,html.fz2 #nav{zoom:1.25}
       <div class="help">로그인이 안 되면 학원 <a id="loginTel"></a></div>
       <div class="installSlot"></div>
       <div style="text-align:center;margin-top:10px"><button type="button" class="linkbtn" id="toAdmin">선생님 로그인</button></div>
-      <div class="ver">버전 11.18-1</div>
+      <div class="ver">버전 11.19-1</div>
     </form>
     <form class="sheet" id="adminForm" autocomplete="on" novalidate hidden>
       <h2 style="font-size:20px;font-weight:900;margin-bottom:16px">선생님 로그인</h2>
@@ -1321,10 +1321,11 @@ function renderExam(){
   h += '<div class="sec-t"><h2>' + (done ? '채점 결과' : '답안지') + '</h2>' + (done ? '' : '<span class="meta">고르면 바로 저장돼요</span>') + '</div><div class="card omr">';
   x.questions.forEach(q => {
     const v = mine[q.n] || '', d = det[q.n];
-    h += '<div class="orow' + (done ? (d && d.ok ? ' ok' : ' bad') : '') + '"><b>' + q.n + '</b>';
+    const m = q.m || 1, picks = String(v).split(',').filter(Boolean);   // m = 고를 개수 (11.19-1, '2개 고르면?' 문항 = '3,4')
+    h += '<div class="orow' + (done ? (d && d.ok ? ' ok' : ' bad') : '') + '"><b>' + q.n + (m > 1 ? '<small class="om">' + m + '개</small>' : '') + '</b>';
     if (q.k === 'short') h += done ? '<span class="oval">' + esc(v || '(안 씀)') + '</span>'
       : '<input class="oinp" data-on="' + q.n + '" value="' + esc(v) + '" placeholder="답 쓰기" autocomplete="off">';
-    else { h += '<span class="ochs">'; for (let i = 1; i <= q.c; i++) h += '<button type="button" class="och' + (String(i) === v ? ' on' : '') + '" ' + (done ? 'disabled' : 'data-on="' + q.n + '" data-ov="' + i + '"') + '>' + i + '</button>'; h += '</span>'; }
+    else { h += '<span class="ochs">'; for (let i = 1; i <= q.c; i++) h += '<button type="button" class="och' + (picks.includes(String(i)) ? ' on' : '') + '" ' + (done ? 'disabled' : 'data-on="' + q.n + '" data-ov="' + i + '"') + '>' + i + '</button>'; h += '</span>'; }
     if (done) h += '<span class="omark">' + (d && d.ok ? '⭕' : '❌' + (x.key && x.key[q.n] ? ' <small>정답 ' + esc(x.key[q.n]) + '</small>' : '')) + '</span>';
     h += '</div>';
   });
@@ -1345,8 +1346,17 @@ function oxAns(){ const x = S.ox; return Object.assign({}, x.answers || {}, oxGe
 document.addEventListener('click', async e => {
   const c = e.target.closest('.och[data-on]');
   if (c && S.ox && !S.ox.submittedAt) {
-    const a = oxAns(); a[c.dataset.on] = a[c.dataset.on] === c.dataset.ov ? '' : c.dataset.ov; oxSet(S.ox.id, a);
-    c.parentNode.querySelectorAll('.och').forEach(b => b.classList.toggle('on', b.dataset.ov === a[c.dataset.on]));
+    const a = oxAns(), n = c.dataset.on, q = S.ox.questions.find(x => String(x.n) === n) || {}, m = q.m || 1;
+    if (m > 1) {   // 여러 개 고르기: 누르면 넣고 빼기, 작은 번호부터 '3,4'
+      let p = String(a[n] || '').split(',').filter(Boolean);
+      if (p.includes(c.dataset.ov)) p = p.filter(x => x !== c.dataset.ov);
+      else if (p.length >= m) { toast(m + '개까지 고를 수 있어요. 바꾸려면 고른 번호를 먼저 눌러 빼 주세요'); return; }
+      else p.push(c.dataset.ov);
+      a[n] = p.sort((x, y) => x - y).join(',');
+    } else a[n] = a[n] === c.dataset.ov ? '' : c.dataset.ov;
+    oxSet(S.ox.id, a);
+    const on = String(a[n] || '').split(',');
+    c.parentNode.querySelectorAll('.och').forEach(b => b.classList.toggle('on', on.includes(b.dataset.ov)));
     return;
   }
   if (e.target.closest('#oxBack')) { clearInterval(oxTick); S.ox = null; renderScores(); loadOnline(); return; }
@@ -1363,7 +1373,8 @@ document.addEventListener('input', e => {
 async function oxSubmit(auto){
   const x = S.ox; if (!x || x.submittedAt) return;
   const a = oxAns(), blank = x.questions.filter(q => !String(a[q.n] || '').trim()).length;
-  if (!auto && !(await askConfirm({ icon:'📝', title: blank ? '안 푼 문항이 ' + blank + '개 있어요. 제출할까요?' : '제출할까요?', msg:'제출하면 고칠 수 없어요.', ok:'제출' }))) return;
+  const short = x.questions.filter(q => (q.m || 1) > 1 && String(a[q.n] || '').trim() && String(a[q.n]).split(',').filter(Boolean).length < q.m).map(q => q.n);
+  if (!auto && !(await askConfirm({ icon:'📝', title: (blank ? '안 푼 문항이 ' + blank + '개 있어요. ' : '') + (short.length ? short.join('·') + '번은 답을 덜 골랐어요. ' : '') + '제출할까요?', msg:'제출하면 고칠 수 없어요.', ok:'제출' }))) return;
   const btn = $('#oxSubmit'); if (btn) { btn.disabled = true; btn.textContent = '채점 중…'; }
   try { S.ox = await portal('onlineSubmit', { id:x.id, answers:a }); try { localStorage.removeItem(OX_KEY(x.id)); } catch(e){} renderExam(); window.scrollTo(0,0); toast('제출했어요'); }
   catch (err) { toast(cleanMsg(err)); if (btn) { btn.disabled = false; btn.textContent = '제출하기'; } }
