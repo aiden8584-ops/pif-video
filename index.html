@@ -457,6 +457,11 @@ input[type=date].in{min-height:54px}
 .oxchkb h3{margin:0 0 12px}.oxck{margin-bottom:12px}.oxck>b{display:block;font-size:14px;margin-bottom:6px}.oxck>b.bad{color:var(--bad)}.oxck>b.warn{color:var(--coral)}.oxck>b.star{color:#C98F00}
 .oxck>div{display:flex;flex-wrap:wrap;gap:6px}.oxck button{min-width:38px;height:36px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);font-weight:800}
 .oxck-ok{font-size:15px;font-weight:700;margin:6px 0 12px}
+.oxhelp{width:24px;height:24px;flex:0 0 24px;border-radius:50%;border:1.5px solid var(--line);background:#fff;font-weight:900;font-size:13px;color:var(--navy-2);padding:0;align-self:center}
+.oxguide{align-items:center;padding:16px}.oxguide .oxchkb{border-radius:18px;text-align:center;padding:22px 20px 18px}
+.oxgi{font-size:40px;line-height:1}.oxguide h3{margin:10px 0 10px;font-size:19px}.oxgt{font-size:15px;line-height:1.75;text-align:left;margin:0 0 14px}
+.oxgd{display:flex;justify-content:center;gap:6px;margin-bottom:10px}.oxgd i{width:7px;height:7px;border-radius:50%;background:#D4D8E0}.oxgd i.on{background:var(--navy);width:18px;border-radius:4px}
+.oxgs{margin:0 0 6px}
 .omr{padding:6px 12px}.orow{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}.orow:last-child{border-bottom:0}
 .orow>b{width:28px;text-align:right;font-size:15px}.orow>b .om{display:block;font-size:10px;font-weight:700;color:var(--coral,#E8613C);line-height:1;white-space:nowrap}.ochs{display:flex;gap:6px;flex-wrap:wrap}
 .och{width:40px;height:40px;border-radius:50%;border:1.5px solid var(--line);background:#fff;font-weight:800;font-size:15px;color:var(--ink)}.och.on{background:var(--navy);border-color:var(--navy);color:#fff}
@@ -576,7 +581,7 @@ html.fz2 #vApp,html.fz2 #nav{zoom:1.25}
       <div class="help">로그인이 안 되면 학원 <a id="loginTel"></a></div>
       <div class="installSlot"></div>
       <div style="text-align:center;margin-top:10px"><button type="button" class="linkbtn" id="toAdmin">선생님 로그인</button></div>
-      <div class="ver">버전 11.19-4</div>
+      <div class="ver">버전 11.19-5</div>
     </form>
     <form class="sheet" id="adminForm" autocomplete="on" novalidate hidden>
       <h2 style="font-size:20px;font-weight:900;margin-bottom:16px">선생님 로그인</h2>
@@ -1341,10 +1346,35 @@ function renderOnline(){
 document.addEventListener('click', async e => {
   const b = e.target.closest('[data-ox]'); if (!b) return;
   if (S.role !== 'student' && !(S.online || []).find(x => x.id === b.dataset.ox && x.status === 'done')) { toast('시험은 학생 로그인으로 볼 수 있어요'); return; }
+  // 처음 푸는 시험이면 시작 전에 사용법 (11.19-5) — 시간은 '시험 시작'을 누른 뒤부터
+  const it = (S.online || []).find(x => x.id === b.dataset.ox);
+  if (S.role === 'student' && it && it.status === 'todo' && !(await oxGuide(it))) return;
   b.disabled = true;
   try { S.ox = await portal('onlineOpen', { id:b.dataset.ox }); S.oxDrift = Date.now() - Date.parse(S.ox.now); renderExam(); window.scrollTo(0,0); }
   catch (err) { toast(cleanMsg(err)); } finally { b.disabled = false; }
 });
+// 사용법 카드 3장 (11.19-5): 처음 푸는 시험을 열 때(시작 전)·시험 화면의 '? 사용법'
+const OX_GUIDE = [
+  ['📄', '한 문제씩 풀어요', '위에 문제, 아래에 답 번호가 있어요.<br><b>◀ 이전 · 다음 ▶</b>을 누르거나 문제를 <b>옆으로 밀면</b> 넘어가요.<br>맨 위 <b>번호 목록</b>을 누르면 그 문제로 바로 가요 (남색 = 푼 문제).'],
+  ['✏️', '표시하며 풀어요', '아닌 답은 번호를 <b>길게 누르면 X</b>가 그어져요. (다시 길게 누르면 풀림)<br>헷갈리는 문제는 <b>☆</b>를 눌러 <b>★</b> — 나중에 다시 보기.<br>문제를 누르면 <b>크게</b> 보이고, <b>가− 가+</b>로 글자 크기를 바꿔요.'],
+  ['⏰', '시간·제출', '남은 시간은 맨 위에 보이고 <b>10분·5분·1분</b> 전에 알려 줘요. 시간이 끝나면 <b>저절로 제출</b>돼요.<br>답은 고르면 바로 저장 — 앱을 잠깐 나갔다 와도 그대로예요.<br>마지막 문제의 <b>제출하기</b>를 누르면 안 푼 문제를 한 번 더 보여 줘요.']
+];
+function oxGuide(it){
+  return new Promise(res => {
+    let k = 0; const d = document.createElement('div'); d.className = 'oxchk oxguide';
+    const draw = () => { const g = OX_GUIDE[k], last = k === OX_GUIDE.length - 1;
+      d.innerHTML = '<div class="oxchkb"><div class="oxgi">' + g[0] + '</div><h3>' + g[1] + '</h3><p class="oxgt">' + g[2] + '</p>' +
+        '<div class="oxgd">' + OX_GUIDE.map((x, i) => '<i class="' + (i === k ? 'on' : '') + '"></i>').join('') + '</div>' +
+        (last && it ? '<p class="meta oxgs">' + (it.timeLimit ? '<b>시험 시작</b>을 누르면 ' + it.timeLimit + '분이 흘러요. ' : '') + '한 번 시작하면 다시 열어도 시간은 그대로 가요.</p>' : '') +
+        '<div class="btns"><button type="button" class="btn ghost" data-og="' + (k ? 'prev' : 'close') + '">' + (k ? '◀ 이전' : (it ? '나중에' : '닫기')) + '</button>' +
+        '<button type="button" class="btn' + (last ? '' : ' navy') + '" data-og="' + (last ? 'ok' : 'next') + '">' + (last ? (it ? '시험 시작' : '알겠어요') : '다음 ▶') + '</button></div></div>'; };
+    const close = v => { d.remove(); document.body.style.overflow = ''; res(v); };
+    draw(); document.body.appendChild(d); document.body.style.overflow = 'hidden';
+    d.addEventListener('click', e => { const b = e.target.closest('[data-og]'); if (!b) { if (e.target === d && !it) close(false); return; }
+      const a = b.dataset.og; if (a === 'next') { k++; draw(); } else if (a === 'prev') { k--; draw(); } else close(a === 'ok'); });
+  });
+}
+document.addEventListener('click', e => { if (e.target.closest('#oxHelp')) oxGuide(null); });
 function oxLeft(){
   const x = S.ox; if (!x || !x.timeLimit || x.submittedAt) return null;
   return Math.max(0, Date.parse(x.startedAt) + x.timeLimit * 60000 - (Date.now() - S.oxDrift));
@@ -1617,7 +1647,7 @@ function renderExam(){
     // 한 문제씩: 위 = 번호·★·남은 시간·번호 목록, 가운데 = 그 문제만 잘라서, 아래 = 답·이전/다음 (제출 뒤엔 내 답·정답)
     h += '<div class="oxone" id="oxOne"><div class="oxtop"><div class="oxtopr"><b id="oxQn">시험지</b><span class="meta" id="oxQm">불러오는 중…</span>' +
       (rev ? (wrong.length && wrong.length < x.questions.length ? '<button type="button" class="oxtog" id="oxRevAll">' + (S.oxRev.only ? '전체 보기' : '틀린 것만') + '</button>' : '')
-           : '<button type="button" class="oxstar" id="oxStar" aria-label="나중에 다시 보기 표시">☆</button>') +
+           : '<button type="button" class="oxstar" id="oxStar" aria-label="나중에 다시 보기 표시">☆</button><button type="button" class="oxhelp" id="oxHelp" aria-label="사용법">?</button>') +
       (!rev && x.timeLimit ? '<span class="oxtimer" id="oxTimer"></span>' : '') + '</div>' +
       '<div class="oxstrip" id="oxStrip">' + S.oxList.map((qi, pos) => '<button type="button" class="oxc" data-oxgo="' + pos + '">' + x.questions[qi].n + '</button>').join('') + '</div></div>' +
       '<div class="oxq" id="oxQ"><p class="meta oxwait">시험지 불러오는 중…</p></div>' +
@@ -1626,7 +1656,7 @@ function renderExam(){
     body.innerHTML = h; oxOneInit(x);
   } else {
     if (done && canOne) h += '<button type="button" class="btn navy oxrevbtn" id="oxRevGo">📄 ' + (wrong.length ? '틀린 문제 다시 보기 (' + wrong.length + '문제)' : '문제 다시 보기') + '</button>';
-    if (paper) h += '<div class="oxpaper" id="oxPaper"><div class="oxpbar"><b>📄 시험지</b><span class="meta" id="oxPgNo">불러오는 중…</span>' +
+    if (paper) h += '<div class="oxpaper" id="oxPaper"><div class="oxpbar"><b>📄 시험지</b><button type="button" class="oxhelp" id="oxHelp" aria-label="사용법">?</button><span class="meta" id="oxPgNo">불러오는 중…</span>' +
       (x.timeLimit ? '<span class="oxtimer" id="oxTimer"></span>' : '') + '</div><div class="oxps" id="oxPs">' +
       x.files.map(f => '<div class="oxpf" data-oxpf="' + esc(f.id) + '"></div>').join('') + '</div>' +
       '<div class="oxph" id="oxPh" aria-label="끌어서 시험지 칸 크기 조절"><i></i></div></div>' +
