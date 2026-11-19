@@ -414,6 +414,14 @@ input[type=date].in{min-height:54px}
 .oxtimer{margin-top:10px;font-weight:800;font-size:18px;color:var(--navy)}.oxtimer.low{color:var(--bad)}
 .oxres{display:flex;align-items:baseline;gap:12px;margin-top:8px}
 .oximg{padding:6px}.oximg img{width:100%;border-radius:10px;display:block}
+.oxpaper{position:sticky;z-index:4;display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 8px 18px rgba(21,27,44,.10);margin:12px 0}
+.oxpbar{display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--line);font-size:14px;white-space:nowrap}
+.oxpbar .meta{overflow:hidden;text-overflow:ellipsis}.oxpbar .oxtimer{margin:0 0 0 auto;font-size:16px}
+.oxps{flex:1;min-height:0;overflow:auto;background:#E6E9EF;padding:6px;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.oxps img{display:block;width:100%;height:auto;margin:0 0 6px;border-radius:3px;background:#fff;cursor:zoom-in}
+.oxperr{padding:16px;display:flex;flex-direction:column;gap:10px}
+.oxph{flex:0 0 22px;display:grid;place-items:center;cursor:ns-resize;touch-action:none;background:#fff;border-top:1px solid var(--line)}
+.oxph i{width:46px;height:5px;border-radius:3px;background:#C5CBD6}
 .omr{padding:6px 12px}.orow{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}.orow:last-child{border-bottom:0}
 .orow>b{width:28px;text-align:right;font-size:15px}.orow>b .om{display:block;font-size:10px;font-weight:700;color:var(--coral,#E8613C);line-height:1;white-space:nowrap}.ochs{display:flex;gap:6px;flex-wrap:wrap}
 .och{width:40px;height:40px;border-radius:50%;border:1.5px solid var(--line);background:#fff;font-weight:800;font-size:15px;color:var(--ink)}.och.on{background:var(--navy);border-color:var(--navy);color:#fff}
@@ -533,7 +541,7 @@ html.fz2 #vApp,html.fz2 #nav{zoom:1.25}
       <div class="help">로그인이 안 되면 학원 <a id="loginTel"></a></div>
       <div class="installSlot"></div>
       <div style="text-align:center;margin-top:10px"><button type="button" class="linkbtn" id="toAdmin">선생님 로그인</button></div>
-      <div class="ver">버전 11.19-1</div>
+      <div class="ver">버전 11.19-2</div>
     </form>
     <form class="sheet" id="adminForm" autocomplete="on" novalidate hidden>
       <h2 style="font-size:20px;font-weight:900;margin-bottom:16px">선생님 로그인</h2>
@@ -1306,6 +1314,66 @@ function oxLeft(){
   const x = S.ox; if (!x || !x.timeLimit || x.submittedAt) return null;
   return Math.max(0, Date.parse(x.startedAt) + x.timeLimit * 60000 - (Date.now() - S.oxDrift));
 }
+// ---- 시험지 보기 (11.19-2) ----
+const OXPG = {};   // 파일 id → 쪽 그림 주소들 (한 번 그리면 다시 열 때 바로)
+const PDFJS = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/';
+let pdfLib = null;
+function loadPdfJs(){
+  if (!pdfLib) pdfLib = new Promise((ok, no) => {
+    const s = document.createElement('script'); s.src = PDFJS + 'pdf.min.js';
+    s.onload = () => { try { window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS + 'pdf.worker.min.js'; ok(window.pdfjsLib); } catch (e) { no(e); } };
+    s.onerror = () => { pdfLib = null; no(new Error('시험지 보기 도구를 불러오지 못했어요. 인터넷을 확인해 주세요')); };
+    document.head.appendChild(s);
+  });
+  return pdfLib;
+}
+async function oxPages(fid, onPage){
+  if (OXPG[fid]) { OXPG[fid].forEach((u, i) => onPage(u, i + 1, OXPG[fid].length)); return; }
+  const r = await portal('examFile', { fileId:fid });
+  if (/^image\//.test(r.mime)) { const u = URL.createObjectURL(b64Blob(r.b64, r.mime)); OXPG[fid] = [u]; onPage(u, 1, 1); return; }
+  const lib = await loadPdfJs();
+  const doc = await lib.getDocument({ data: new Uint8Array(await b64Blob(r.b64, 'application/pdf').arrayBuffer()) }).promise;
+  const out = [], W = Math.min(1400, Math.max(1000, Math.round(window.innerWidth * (window.devicePixelRatio || 1) * 1.1)));
+  try {
+    for (let i = 1; i <= doc.numPages; i++) {
+      const pg = await doc.getPage(i), vp = pg.getViewport({ scale: W / pg.getViewport({ scale:1 }).width });
+      const cv = document.createElement('canvas'); cv.width = Math.round(vp.width); cv.height = Math.round(vp.height);
+      const cx = cv.getContext('2d'); cx.fillStyle = '#fff'; cx.fillRect(0, 0, cv.width, cv.height);
+      await pg.render({ canvasContext:cx, viewport:vp, intent:'print' }).promise;   // print = requestAnimationFrame 안 기다림 (빠르고, 화면이 가려져도 계속)
+      const b = await new Promise(res => cv.toBlob(res, 'image/jpeg', 0.86)); cv.width = cv.height = 0;
+      out.push(URL.createObjectURL(b)); onPage(out[i - 1], i, doc.numPages);
+    }
+    OXPG[fid] = out;
+  } finally { doc.destroy(); }
+}
+function oxPaperInit(x){
+  const box = $('#oxPaper'), ps = $('#oxPs'), no = $('#oxPgNo');
+  const topH = () => { const t = document.querySelector('#vApp .top'); return t && t.offsetParent ? t.offsetHeight : 0; };
+  let frac = 0.5; try { frac = Math.min(0.75, Math.max(0.25, parseFloat(localStorage.getItem('pif_oxph')) || 0.5)); } catch (e) {}
+  const size = () => { box.style.top = topH() + 'px'; box.style.height = Math.round(window.innerHeight * frac) + 'px'; };
+  size(); window.addEventListener('resize', () => { if (document.body.contains(box)) size(); });
+  // 몇 쪽인지
+  let total = 0;
+  const pageNo = () => { const imgs = ps.querySelectorAll('img'); if (!imgs.length) return; const top = ps.getBoundingClientRect().top + 30; let k = 1;
+    imgs.forEach((im, i) => { if (im.getBoundingClientRect().top <= top) k = i + 1; }); no.textContent = k + ' / ' + Math.max(total, imgs.length) + '쪽 · 눌러서 크게'; };
+  ps.addEventListener('scroll', pageNo, { passive:true });
+  ps.addEventListener('click', e => { const im = e.target.closest('img'); if (im) ZV.open(im.src); });
+  // 아래 손잡이를 끌어 칸 크기
+  const hd = $('#oxPh');
+  hd.addEventListener('pointerdown', e => {
+    e.preventDefault(); hd.setPointerCapture(e.pointerId); const y0 = e.clientY, h0 = box.offsetHeight;
+    const mv = ev => { frac = Math.min(0.75, Math.max(0.25, (h0 + ev.clientY - y0) / window.innerHeight)); size(); };
+    const up = () => { hd.removeEventListener('pointermove', mv); hd.removeEventListener('pointerup', up); hd.removeEventListener('pointercancel', up);
+      try { localStorage.setItem('pif_oxph', frac.toFixed(3)); } catch (e) {} };
+    hd.addEventListener('pointermove', mv); hd.addEventListener('pointerup', up); hd.addEventListener('pointercancel', up);
+  });
+  x.files.forEach(f => {
+    const el = ps.querySelector('[data-oxpf="' + f.id + '"]'); if (!el) return;
+    oxPages(f.id, (u, i, n) => { if (i === 1) total += n; const im = new Image(); im.src = u; im.alt = '시험지 ' + i + '쪽'; el.appendChild(im); pageNo(); })
+      .catch(err => { el.innerHTML = '<div class="oxperr"><span class="meta">' + esc(cleanMsg(err)) + '</span>' +
+        '<button type="button" class="card nfile" data-oxfile="' + esc(f.id) + '"><b>📄 ' + esc(f.name) + '</b><i>따로 열기</i></button></div>'; no.textContent = ''; });
+  });
+}
 function renderExam(){
   const x = S.ox, body = $('#scoreBody'); clearInterval(oxTick);
   const done = !!x.submittedAt, mine = done ? (x.answers || {}) : Object.assign({}, x.answers || {}, oxGet(x.id));
@@ -1314,14 +1382,17 @@ function renderExam(){
     '<div class="card"><h3>' + esc(x.title) + '</h3><div class="meta">' + x.questions.length + '문항' + (x.closesOn ? ' · ' + mdw(x.closesOn) + '까지' : '') + '</div>' +
     (done ? '<div class="oxres"><div class="score">' + x.result.score + '<small>/' + x.result.max + '</small></div><div class="meta">맞힌 문항 ' +
       ((x.result.detail || []).filter(d => d.ok).length) + '/' + x.questions.length + '</div></div>' : '') +
-    (!done && x.timeLimit ? '<div class="oxtimer" id="oxTimer"></div>' : '') + '</div>';
-  if (x.files && x.files.length && !done) h += '<div class="sec-t"><h2>시험지</h2></div>' + x.files.map(f => /^image\//.test(f.mime)
-    ? '<div class="card oximg" data-oximg="' + esc(f.id) + '"><span class="meta">시험지 불러오는 중…</span></div>'
-    : '<button type="button" class="card nfile" data-oxfile="' + esc(f.id) + '"><b>📄 ' + esc(f.name) + '</b><i>열기</i></button>').join('');
+    (!done && x.timeLimit && !(x.files && x.files.length) ? '<div class="oxtimer" id="oxTimer"></div>' : '') + '</div>';
+  // 시험지 (11.19-2): 위쪽 고정 칸에 쪽 그림 (PDF는 앱 안에서 그림으로), 아래로 답안지 — 앱을 안 벗어나고 보면서 누르기
+  const paper = !done && x.files && x.files.length;
+  if (paper) h += '<div class="oxpaper" id="oxPaper"><div class="oxpbar"><b>📄 시험지</b><span class="meta" id="oxPgNo">불러오는 중…</span>' +
+    (x.timeLimit ? '<span class="oxtimer" id="oxTimer"></span>' : '') + '</div><div class="oxps" id="oxPs">' +
+    x.files.map(f => '<div class="oxpf" data-oxpf="' + esc(f.id) + '"></div>').join('') + '</div>' +
+    '<div class="oxph" id="oxPh" aria-label="끌어서 시험지 칸 크기 조절"><i></i></div></div>';
   h += '<div class="sec-t"><h2>' + (done ? '채점 결과' : '답안지') + '</h2>' + (done ? '' : '<span class="meta">고르면 바로 저장돼요</span>') + '</div><div class="card omr">';
   x.questions.forEach(q => {
     const v = mine[q.n] || '', d = det[q.n];
-    const m = q.m || 1, picks = String(v).split(',').filter(Boolean);   // m = 고를 개수 (11.19-1, '2개 고르면?' 문항 = '3,4')
+    const m = q.m || 1, picks = String(v).split(',').filter(Boolean);   // m = 고를 개수 (11.19-2, '2개 고르면?' 문항 = '3,4')
     h += '<div class="orow' + (done ? (d && d.ok ? ' ok' : ' bad') : '') + '"><b>' + q.n + (m > 1 ? '<small class="om">' + m + '개</small>' : '') + '</b>';
     if (q.k === 'short') h += done ? '<span class="oval">' + esc(v || '(안 씀)') + '</span>'
       : '<input class="oinp" data-on="' + q.n + '" value="' + esc(v) + '" placeholder="답 쓰기" autocomplete="off">';
@@ -1331,10 +1402,7 @@ function renderExam(){
   });
   h += '</div>' + (done ? '' : '<button type="button" class="btn" id="oxSubmit">제출하기</button><p class="meta" style="text-align:center;margin-top:8px">제출하면 고칠 수 없어요</p>');
   body.innerHTML = h;
-  body.querySelectorAll('[data-oximg]').forEach(async el => {
-    try { const r = await portal('examFile', { fileId:el.dataset.oximg }); el.innerHTML = '<img src="' + URL.createObjectURL(b64Blob(r.b64, r.mime)) + '" alt="시험지">'; }
-    catch (err) { el.innerHTML = '<span class="meta">시험지를 불러오지 못했어요</span>'; }
-  });
+  if (paper) oxPaperInit(x);
   if (!done && x.timeLimit) {
     const tick = () => { const ms = oxLeft(), t = $('#oxTimer'); if (!t) { clearInterval(oxTick); return; }
       const s = Math.ceil(ms / 1000); t.textContent = '남은 시간 ' + Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); t.classList.toggle('low', s <= 60);
